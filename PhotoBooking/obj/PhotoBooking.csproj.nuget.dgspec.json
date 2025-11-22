@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\Hoc Ky 7\\ASP.Net Core\\PhotoBooking\\PhotoBooking\\PhotoBooking.csproj": {}
+    "F:\\Hoc Ky 7\\ASP.Net Core\\photography-booking-system\\PhotoBooking\\PhotoBooking.csproj": {}
   },
   "projects": {
-    "F:\\Hoc Ky 7\\ASP.Net Core\\PhotoBooking\\PhotoBooking\\PhotoBooking.csproj": {
+    "F:\\Hoc Ky 7\\ASP.Net Core\\photography-booking-system\\PhotoBooking\\PhotoBooking.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\Hoc Ky 7\\ASP.Net Core\\PhotoBooking\\PhotoBooking\\PhotoBooking.csproj",
+        "projectUniqueName": "F:\\Hoc Ky 7\\ASP.Net Core\\photography-booking-system\\PhotoBooking\\PhotoBooking.csproj",
         "projectName": "PhotoBooking",
-        "projectPath": "F:\\Hoc Ky 7\\ASP.Net Core\\PhotoBooking\\PhotoBooking\\PhotoBooking.csproj",
+        "projectPath": "F:\\Hoc Ky 7\\ASP.Net Core\\photography-booking-system\\PhotoBooking\\PhotoBooking.csproj",
         "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "F:\\Hoc Ky 7\\ASP.Net Core\\PhotoBooking\\PhotoBooking\\obj\\",
+        "outputPath": "F:\\Hoc Ky 7\\ASP.Net Core\\photography-booking-system\\PhotoBooking\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -50,6 +50,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "CloudinaryDotNet": {
+              "target": "Package",
+              "version": "[1.27.8, )"
+            },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
