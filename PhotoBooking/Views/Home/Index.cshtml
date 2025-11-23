@@ -1,8 +1,97 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@* Khai báo kiểu dữ liệu mà View này sẽ nhận được *@
+@model PhotoBooking.ViewModels.HomeViewModel
+
+@{
+    ViewData["Title"] = "Trang chủ - PhotoBooking";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero-banner text-center text-white d-flex align-items-center" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover; height: 500px;">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-4">Lưu giữ khoảnh khắc đáng nhớ của bạn</h1>
+        <p class="lead mb-5">Kết nối với hơn 1000+ nhiếp ảnh gia chuyên nghiệp trên toàn quốc.</p>
+
+        <div class="search-box bg-white p-3 rounded-pill shadow-lg mx-auto" style="max-width: 800px;">
+            <form class="row g-2 align-items-center" asp-controller="Home" asp-action="Search" method="get">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0"><i class="fa-solid fa-location-dot text-danger"></i></span>
+
+                        <select class="form-select border-0 fw-bold" aria-label="Chọn địa điểm" name="locationId">
+                            <option value="">Bạn muốn chụp ở đâu?</option>
+                            @foreach (var item in Model.Locations)
+                            {
+                                <option value="@item.MaDiaDiem">@item.TenThanhPho</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 border-start border-end">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0"><i class="fa-solid fa-camera text-primary"></i></span>
+
+                        <select class="form-select border-0 fw-bold" aria-label="Chọn dịch vụ" name="categoryId">
+                            <option value="">Loại hình dịch vụ?</option>
+                            @foreach (var item in Model.Categories)
+                            {
+                                <option value="@item.MaDanhMuc">@item.TenDanhMuc</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-danger rounded-pill w-100 fw-bold py-2">Tìm kiếm ngay <i class="fa-solid fa-magnifying-glass ms-2"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Gói chụp mới nhất</h2>
+            <a href="#" class="text-decoration-none fw-bold">Xem tất cả <i class="fa-solid fa-arrow-right ms-1"></i></a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var package in Model.FeaturedPackages)
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm hover-card">
+                        <img src="https://source.unsplash.com/random/400x300/?photography,couple&sig=@package.MaGoi" class="card-img-top" alt="@package.TenGoi" style="height: 200px; object-fit: cover;">
+
+                        <div class="card-body">
+                            <span class="badge bg-primary-subtle text-primary mb-2">@package.MaDanhMucNavigation.TenDanhMuc</span>
+                            <h5 class="card-title fw-bold text-truncate" title="@package.TenGoi">@package.TenGoi</h5>
+
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="https://ui-avatars.com/api/?name=@package.MaNhiepAnhGiaNavigation.HoVaTen&background=random" class="rounded-circle me-2" width="30" height="30" alt="Avatar">
+                                <small class="text-muted">Bởi <strong>@package.MaNhiepAnhGiaNavigation.HoVaTen</strong></small>
+                            </div>
+
+                            <div class="d-flex justify-content-between text-muted small mb-3">
+                                <span><i class="fa-regular fa-clock me-1"></i> @package.ThoiLuong phút</span>
+                                <span><i class="fa-solid fa-user-group me-1"></i> Tối đa @package.SoNguoiToiDa người</span>
+                            </div>
+
+                            <h5 class="text-danger fw-bold mb-0">@package.GiaTien.ToString("N0") đ</h5>
+                        </div>
+                        <div class="card-footer bg-white border-0 pt-0">
+                            <a href="#" class="btn btn-outline-danger w-100 rounded-pill fw-bold">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+</style>

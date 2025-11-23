@@ -18,7 +18,9 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    @* --- BẮT ĐẦU ĐOẠN CODE MỚI --- *@
                     <ul class="navbar-nav flex-grow-1">
+                        @* Link bên trái (Giữ nguyên) *@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
@@ -26,6 +28,38 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+
+                    @* Phần bên phải: Kiểm tra Đăng nhập *@
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            @* === TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP === *@
+                            <li class="nav-item me-3">
+                                <span class="nav-link text-dark fw-bold">
+                                    👋 Xin chào, @User.Identity.Name!
+                                </span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-outline-danger btn-sm" asp-controller="Account" asp-action="Logout">
+                                    Đăng xuất
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            @* === TRƯỜNG HỢP CHƯA ĐĂNG NHẬP === *@
+                            <li class="nav-item">
+                                @* Tạm thời để link trống hoặc trỏ đến trang Đăng ký (sẽ làm sau) *@
+                                <a class="nav-link text-dark" href="#">Đăng ký</a>
+                            </li>
+                            <li class="nav-item ms-2">
+                                <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Login">
+                                    Đăng nhập
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                    @* --- KẾT THÚC ĐOẠN CODE MỚI --- *@
                 </div>
             </div>
         </nav>
