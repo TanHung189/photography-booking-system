@@ -88,41 +88,56 @@
                         </li>
                     </ul>
 
-                    @* Phần bên phải: Kiểm tra Đăng nhập *@
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
-                        {
-                            @* === TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP === *@
-                            <li class="nav-item me-3">
-                                <span class="nav-link text-dark fw-bold">
-                                    👋 Xin chào, @User.Identity.Name!
-                                </span>
-                            </li>
-                            <li class="nav-item me-2">
-    <a class="nav-link text-primary fw-bold" asp-controller="Home" asp-action="MyBookings">
-        <i class="fa-solid fa-list-check me-1"></i> Lịch sử đơn
-    </a>
-</li>
-                            <li class="nav-item">
-                                <a class="btn btn-outline-danger btn-sm" asp-controller="Account" asp-action="Logout">
-                                    Đăng xuất
-                                </a>
-                            </li>
-                        }
-                        else
-                        {
-                            @* === TRƯỜNG HỢP CHƯA ĐĂNG NHẬP === *@
-                            <li class="nav-item">
-                                @* Tạm thời để link trống hoặc trỏ đến trang Đăng ký (sẽ làm sau) *@
-                                <a class="nav-link text-dark" href="#">Đăng ký</a>
-                            </li>
-                            <li class="nav-item ms-2">
-                                <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Login">
-                                    Đăng nhập
-                                </a>
-                            </li>
-                        }
-                    </ul>
+                   @* Phần bên phải: Kiểm tra Đăng nhập *@
+<ul class="navbar-nav ms-auto align-items-center">
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        @* === TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP === *@
+        
+        @* 1. Lời chào *@
+        <li class="nav-item me-3">
+            <span class="nav-link text-dark fw-bold">
+                👋 Xin chào, @User.Identity.Name!
+            </span>
+        </li>
+
+        @* 2. Nút Lịch sử đơn (Ai đăng nhập cũng thấy) *@
+        <li class="nav-item me-2">
+            <a class="nav-link text-primary fw-bold" asp-controller="Home" asp-action="MyBookings">
+                <i class="fa-solid fa-list-check me-1"></i> Lịch sử đơn
+            </a>
+        </li>
+
+        @* 3. Nút Quản trị (Chỉ Admin hoặc Photographer mới thấy) *@
+        @if (User.IsInRole("Admin") || User.IsInRole("Photographer"))
+        {
+            <li class="nav-item me-2">
+                <a class="nav-link text-danger fw-bold" asp-area="Admin" asp-controller="Home" asp-action="Index">
+                    <i class="fa-solid fa-user-shield me-1"></i> Quản trị
+                </a>
+            </li>
+        }
+
+        @* 4. Nút Đăng xuất *@
+        <li class="nav-item">
+            <a class="btn btn-outline-danger btn-sm" asp-controller="Account" asp-action="Logout">
+                Đăng xuất
+            </a>
+        </li>
+    }
+    else
+    {
+        @* === TRƯỜNG HỢP CHƯA ĐĂNG NHẬP === *@
+        <li class="nav-item">
+            <a class="nav-link text-dark" href="#">Đăng ký</a>
+        </li>
+        <li class="nav-item ms-2">
+            <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Login">
+                Đăng nhập
+            </a>
+        </li>
+    }
+</ul>
                     @* --- KẾT THÚC ĐOẠN CODE MỚI --- *@
                 </div>
             </div>

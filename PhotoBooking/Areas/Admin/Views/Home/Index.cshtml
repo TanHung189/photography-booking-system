@@ -1,26 +1,130 @@
-﻿@{
+﻿@model List<PhotoBooking.Models.DonDatLich>
+
+@{
     ViewData["Title"] = "Admin Dashboard";
 }
 
 <div class="container-fluid py-4">
-    <h1 class="h3 mb-4 text-gray-800">Tổng quan hệ thống</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark">Tổng quan hệ thống</h2>
+        <span class="text-muted">@DateTime.Now.ToString("dd/MM/yyyy")</span>
+    </div>
 
-    <div class="row">
+    <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-warning">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Đơn hàng chờ duyệt</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.DonChoDuyet</div>
+                            <div class="text-xs fw-bold text-warning text-uppercase mb-1">Chờ xử lý</div>
+                            <div class="h3 mb-0 fw-bold text-dark">@ViewBag.DonChoDuyet</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fa-solid fa-clipboard-list fa-2x text-gray-300"></i>
+                            <i class="fa-solid fa-clock fa-2x text-gray-300 opacity-25"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-success">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs fw-bold text-success text-uppercase mb-1">Doanh thu tạm tính</div>
+                            <div class="h3 mb-0 fw-bold text-dark">@ViewBag.TongDoanhThu.ToString("N0") đ</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fa-solid fa-sack-dollar fa-2x text-gray-300 opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-primary">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs fw-bold text-primary text-uppercase mb-1">Tổng đơn hàng</div>
+                            <div class="h3 mb-0 fw-bold text-dark">@ViewBag.TongDonHang</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fa-solid fa-clipboard-list fa-2x text-gray-300 opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow border-0 mb-4">
+        <div class="card-header py-3 bg-white">
+            <h6 class="m-0 fw-bold text-primary">Danh sách Đơn đặt lịch gần đây</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-uppercase small fw-bold">
+                        <tr>
+                            <th class="ps-4">Mã</th>
+                            <th>Khách hàng</th>
+                            <th>Gói dịch vụ</th>
+                            <th>Ngày chụp</th>
+                            <th>Trạng thái</th>
+                            <th class="text-end pe-4">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted">#@item.MaDon</td>
+                                <td>
+                                    <div class="fw-bold">@item.MaKhachHangNavigation.HoVaTen</div>
+                                    <small class="text-muted">@item.MaKhachHangNavigation.SoDienThoai</small>
+                                </td>
+                                <td>@item.MaGoiNavigation.TenGoi</td>
+                                <td>
+                                    <div>@item.NgayChup.ToString("dd/MM/yyyy")</div>
+                                    <small class="text-muted">@item.NgayChup.ToString("HH:mm")</small>
+                                </td>
+                                <td>
+                                    @if (item.TrangThai == 0)
+                                    {
+                                        <span class="badge bg-warning text-dark">⏳ Chờ duyệt</span>
+                                    }
+                                    else if (item.TrangThai == 1)
+                                    {
+                                        <span class="badge bg-success">✅ Đã duyệt</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">❌ Từ chối</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    @if (item.TrangThai == 0)
+                                    {
+                                        <a asp-action="Approve" asp-route-id="@item.MaDon" class="btn btn-success btn-sm me-1" title="Duyệt">
+                                            <i class="fa-solid fa-check"></i>
+                                        </a>
+                                        <a asp-action="Reject" asp-route-id="@item.MaDon" class="btn btn-outline-danger btn-sm" title="Từ chối" onclick="return confirm('Từ chối đơn này?')">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">---</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
