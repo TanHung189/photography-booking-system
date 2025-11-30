@@ -1,0 +1,84 @@
+﻿@model List<PhotoBooking.Models.DonDatLich>
+
+@{
+    ViewData["Title"] = "Lịch sử đặt lịch";
+}
+
+<div class="container py-5">
+    <h2 class="fw-bold mb-4">📅 Lịch sử đặt lịch của bạn</h2>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info text-center p-5">
+            <i class="fa-solid fa-camera-retro fs-1 mb-3 text-muted"></i>
+            <p class="fs-5">Bạn chưa đặt gói chụp nào cả.</p>
+            <a asp-action="Index" class="btn btn-primary rounded-pill">Khám phá ngay</a>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="py-3 ps-4">Mã đơn</th>
+                                <th class="py-3">Gói dịch vụ</th>
+                                <th class="py-3">Ngày chụp</th>
+                                <th class="py-3">Tổng tiền</th>
+                                <th class="py-3">Trạng thái</th>
+                                <th class="py-3">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold text-muted">#@item.MaDon</td>
+                                    <td>
+                                        <div class="fw-bold">@item.MaGoiNavigation.TenGoi</div>
+                                        <small class="text-muted">
+                                            <i class="fa-solid fa-camera me-1"></i>
+                                            @item.MaGoiNavigation.MaNhiepAnhGiaNavigation.HoVaTen
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <div>@item.NgayChup.ToString("dd/MM/yyyy")</div>
+                                        <small class="text-muted">@item.NgayChup.ToString("HH:mm")</small>
+                                    </td>
+                                    <td class="fw-bold text-danger">
+                                        @item.TongTien?.ToString("N0") đ
+                                    </td>
+                                    <td>
+                                        @if (item.TrangThai == 0)
+                                        {
+                                            <span class="badge bg-warning text-dark">⏳ Chờ duyệt</span>
+                                        }
+                                        else if (item.TrangThai == 1)
+                                        {
+                                            <span class="badge bg-primary">📅 Đã xác nhận</span>
+                                        }
+                                        else if (item.TrangThai == 2)
+                                        {
+                                            <span class="badge bg-success">✅ Hoàn thành</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">❌ Đã hủy</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@item.MaGoi" class="btn btn-sm btn-outline-secondary rounded-pill">
+                                            Xem lại gói
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

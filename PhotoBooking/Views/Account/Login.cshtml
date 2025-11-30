@@ -124,6 +124,32 @@
                 color: #000;
             }
 
+        /* --- LOGO BRAND --- */
+        .brand-tahu {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 2rem;
+            color: var(--primary-dark); /* Màu đen */
+            letter-spacing: -1px;
+            display: flex;
+            align-items: baseline;
+            text-decoration: none;
+        }
+
+            .brand-tahu .dot {
+                color: var(--primary-orange); /* Dùng chung màu cam */
+                font-size: 2.5rem;
+                line-height: 0;
+                margin: 0 5px;
+            }
+
+            .brand-tahu .sub-text {
+                font-weight: 400;
+                font-size: 0.9rem;
+                color: #666;
+                letter-spacing: 2px;
+                margin-left: 5px;
+            }
     
     </style>
 </head>
@@ -134,8 +160,9 @@
 
             <div class="col-md-5 login-form-wrap">
                 <div class="login-content">
-                    <a href="/" class="brand-logo">
-                        <i class="fa-solid fa-camera-retro me-2 text-primary"></i>PhotoBooking <b>TH</b>
+                    <a class="navbar-brand brand-tahu" asp-area="" asp-controller="Home" asp-action="Index">
+                        <i class="fa-solid fa-camera-retro me-2 text-primary"></i>TAHU<span class="dot">.</span>
+                        <span class="sub-text">FOTO</span>
                     </a>
 
                     <h2 class="mb-2 fw-bold">Chào mừng trở lại!</h2>
@@ -203,7 +230,7 @@
                 <div class="overlay"></div>
               
                 <div class="caption">
-                    <h3 class="fw-bold display-6">Hãy đến với PhotoBooking TH</h3>
+                    <h3 class="fw-bold display-6">Hãy đến với TAHU .FOTO</h3>
                     <h3 class="fw-bold display-4">Lưu giữ mọi khoảnh khắc.</h3>
                     <p class="fs-5 mb-0">Kết nối với hơn 1000+ nhiếp ảnh gia chuyên nghiệp.</p>
                 </div>

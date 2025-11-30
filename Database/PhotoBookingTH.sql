@@ -135,23 +135,29 @@ INSERT INTO NguoiDung (TenDangNhap, MatKhau, HoVaTen, Email, SoDienThoai, VaiTro
 ('lee_minh', '123456', N'Lê Minh Studio', 'leeminh@gmail.com', '0988111222', 'Photographer', N'Chuyên chụp ảnh cưới.', 1),
 ('sarah_tran', '123456', N'Sarah Trần', 'sarah@gmail.com', '0977888999', 'Photographer', N'Chuyên chụp Lookbook.', 2),
 ('tung_nui', '123456', N'Tùng Núi Foto', 'tungnui@gmail.com', '0912341234', 'Photographer', N'Chuyên săn mây.', 4);
+
 -- 3. Khách hàng
 INSERT INTO NguoiDung (TenDangNhap, MatKhau, HoVaTen, Email, SoDienThoai, VaiTro, MaDiaDiem) VALUES 
 ('khachhang1', '123456', N'Nguyễn Văn An', 'an.nguyen@gmail.com', '0900000001', 'Customer', 1),
 ('khachhang2', '123456', N'Trần Thị Bích', 'bich.tran@gmail.com', '0900000002', 'Customer', 2),
 ('khachhang3', '123456', N'Lê Hoàng Cường', 'cuong.le@gmail.com', '0900000003', 'Customer', 1);
 
--- D. GÓI D?CH V? (S? D?NG BI?N Ð? L?Y ID Ð?NG -> KHÔNG LO L?I)
+-- D. GÓI DỊCH VỤ (Sử dụng biến để lấy ID động, tránh lỗi khóa ngoại)
 DECLARE @IdLeMinh INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'lee_minh');
 DECLARE @IdSarah INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'sarah_tran');
 DECLARE @IdTungNui INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'tung_nui');
 
-INSERT INTO GoiDichVu (TenGoi, GiaTien, GiaCoc, ThoiLuong, SoNguoiToiDa, MoTaChiTiet, SanPhamBanGiao, MaDanhMuc, MaNhiepAnhGia) VALUES 
-(N'Cưới Studio Premium', 5000000, 1000000, 180, 2, N'Chụp tại Studio.', N'20 ảnh', 1, @IdLeMinh),
-(N'Cưới Ngoại Cảnh Phố Cổ', 8000000, 2000000, 300, 2, N'Chụp ngoại cảnh.', N'Toàn bộ file gốc', 1, @IdLeMinh),
-(N'Lookbook Thời Trang', 3000000, 500000, 120, 1, N'Chụp lookbook.', N'15 ảnh', 3, @IdSarah),
-(N'Profile Doanh Nhân', 2000000, 500000, 60, 1, N'Chụp profile.', N'5 ảnh CV', 3, @IdSarah),
-(N'Săn Mây Đà Lạt', 4500000, 1000000, 240, 2, N'Săn mây.', N'Video + Ảnh', 2, @IdTungNui);
+-- Lấy ID Danh mục
+DECLARE @IdDMCuoi INT = (SELECT MaDanhMuc FROM DanhMuc WHERE TenDanhMuc = N'Chụp Ảnh Cưới');
+DECLARE @IdDMLookbook INT = (SELECT MaDanhMuc FROM DanhMuc WHERE TenDanhMuc = N'Chụp Lookbook');
+DECLARE @IdDMKyYeu INT = (SELECT MaDanhMuc FROM DanhMuc WHERE TenDanhMuc = N'Chụp Kỷ Yếu');
+
+INSERT INTO GoiDichVu (TenGoi, GiaTien, GiaCoc, ThoiLuong, SoNguoiToiDa, MoTaChiTiet, SanPhamBanGiao, MaDanhMuc, MaNhiepAnhGia, AnhDaiDien) VALUES 
+(N'Cưới Studio Premium', 5000000, 1000000, 180, 2, N'Chụp tại Studio với 3 concept. Đã bao gồm trang điểm và váy cưới.', N'20 ảnh chỉnh sửa, 1 ảnh cổng ép gỗ', @IdDMCuoi, @IdLeMinh, 'https://www.pinterest.com/pin/126593439522022455/'),
+(N'Cưới Ngoại Cảnh Phố Cổ', 8000000, 2000000, 300, 2, N'Chụp ngoại cảnh quanh Hồ Gươm và Phố Cổ Hà Nội.', N'Toàn bộ file gốc, 40 ảnh chỉnh sửa', @IdDMCuoi, @IdLeMinh, 'https://www.pinterest.com/pin/126593439522022455/'),
+(N'Lookbook Thời Trang', 3000000, 500000, 120, 1, N'Chụp lookbook cho shop quần áo hoặc cá nhân.', N'15 ảnh retouch da và dáng', @IdDMLookbook, @IdSarah, 'https://www.pinterest.com/pin/126593439522022455/'),
+(N'Profile Doanh Nhân', 2000000, 500000, 60, 1, N'Chụp ảnh profile chuyên nghiệp tại văn phòng hoặc studio.', N'5 ảnh CV chất lượng cao', @IdDMLookbook, @IdSarah, 'https://www.pinterest.com/pin/126593439522022455/'),
+(N'Săn Mây Đà Lạt', 4500000, 1000000, 240, 2, N'Khởi hành từ 4h sáng để săn mây tại đồi chè Cầu Đất.', N'Video ngắn 1 phút + Toàn bộ ảnh gốc', @IdDMKyYeu, @IdTungNui, 'https://www.pinterest.com/pin/126593439522022455/');
 
 -- E. ÐON Ð?T L?CH (S? D?NG BI?N Ð? L?Y ID Ð?NG -> KH?C PH?C L?I 547)
 -- L?y ID Khách hàng th?c t?
@@ -227,4 +233,61 @@ SELECT * FROM AlbumAnh;
 PRINT N'--- 8. Bảng Chi Tiết Ảnh (AnhChiTiet) ---';
 -- Bảng này chứa danh sách ảnh thuộc về các AlbumAnh
 SELECT * FROM AnhChiTiet;
-GOC:\Users\Administrator\AppData\Local\Temp\~vsB315.sql
+
+PRINT N'Bắt đầu quá trình xóa dữ liệu mẫu...';
+
+-- =======================================================
+-- XÓA DỮ LIỆU THEO THỨ TỰ NGƯỢC LẠI (TRÁNH LỖI KHÓA NGOẠI)
+-- =======================================================
+
+-- 1. Xóa bảng Đánh Giá (DanhGia) - Phụ thuộc vào DonDatLich
+-- (Bảng AnhChiTiet có ON DELETE CASCADE theo AlbumAnh nên có thể không cần xóa riêng, nhưng cứ xóa cho chắc chắn)
+DELETE FROM AnhChiTiet;
+DBCC CHECKIDENT ('AnhChiTiet', RESEED, 0);
+
+DELETE FROM DanhGia;
+DBCC CHECKIDENT ('DanhGia', RESEED, 0);
+PRINT N'- Đã xóa DanhGia và AnhChiTiet';
+
+
+-- 2. Xóa bảng Đơn Đặt Lịch (DonDatLich) - Phụ thuộc vào GoiDichVu, NguoiDung
+DELETE FROM DonDatLich;
+DBCC CHECKIDENT ('DonDatLich', RESEED, 0);
+PRINT N'- Đã xóa DonDatLich';
+
+
+-- 3. Xóa bảng Album Ảnh (AlbumAnh) - Phụ thuộc vào NguoiDung (Photographer)
+DELETE FROM AlbumAnh;
+DBCC CHECKIDENT ('AlbumAnh', RESEED, 0);
+PRINT N'- Đã xóa AlbumAnh';
+
+
+-- 4. Xóa bảng Gói Dịch Vụ (GoiDichVu) - Phụ thuộc vào DanhMuc, NguoiDung
+DELETE FROM GoiDichVu;
+DBCC CHECKIDENT ('GoiDichVu', RESEED, 0);
+PRINT N'- Đã xóa GoiDichVu';
+
+
+-- 5. Xóa bảng Người Dùng (NguoiDung) - Phụ thuộc vào DiaDiem
+DELETE FROM NguoiDung;
+DBCC CHECKIDENT ('NguoiDung', RESEED, 0);
+PRINT N'- Đã xóa NguoiDung';
+
+
+-- 6. Xóa các bảng độc lập (Danh mục, Địa điểm)
+DELETE FROM DanhMuc;
+DBCC CHECKIDENT ('DanhMuc', RESEED, 0);
+
+DELETE FROM DiaDiem;
+DBCC CHECKIDENT ('DiaDiem', RESEED, 0);
+PRINT N'- Đã xóa DanhMuc và DiaDiem';
+
+
+PRINT N'--------------------------------------------------';
+PRINT N'ĐÃ XÓA TOÀN BỘ DỮ LIỆU MẪU THÀNH CÔNG!';
+PRINT N'Cơ sở dữ liệu PhotoBookingTH đã trốn rỗng.';
+GO
+
+-- Kiểm tra lại (Tất cả sẽ trả về 0 dòng)
+SELECT * FROM DonDatLich;
+-- SELECT * FROM NguoiDung;

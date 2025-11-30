@@ -1,0 +1,170 @@
+﻿@* View này nhận vào MỘT gói dịch vụ cụ thể *@
+@model PhotoBooking.Models.GoiDichVu
+@* FILE: Views/Home/Details.cshtml *@
+@{
+    ViewData["Title"] = "Chi tiết gói chụp: " + Model.TenGoi;
+    // Tạo một link ảnh ngẫu nhiên cố định theo ID để demo
+    string imgSrc = $"https://source.unsplash.com/random/800x600/?photography,portrait&sig={Model.MaGoi}";
+}
+
+<div class="container py-5">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm mb-4" role="alert">
+            <i class="fa-solid fa-circle-check me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-bold">@TempData["SuccessMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="#">@Model.MaDanhMucNavigation.TenDanhMuc</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.TenGoi</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <img src="@imgSrc" class="card-img-top rounded" alt="@Model.TenGoi" style="min-height: 400px; object-fit: cover;">
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <span class="badge bg-primary-subtle text-primary mb-3 fs-6">@Model.MaDanhMucNavigation.TenDanhMuc</span>
+            <h1 class="fw-bold mb-3">@Model.TenGoi</h1>
+
+            <div class="d-flex align-items-center mb-4 p-3 bg-light rounded">
+                <img src="https://ui-avatars.com/api/?name=@Model.MaNhiepAnhGiaNavigation.HoVaTen&background=random&size=64" class="rounded-circle me-3" width="64" height="64" alt="Avatar">
+                <div>
+                    <h6 class="mb-1 fw-bold">Nhiếp ảnh gia: @Model.MaNhiepAnhGiaNavigation.HoVaTen</h6>
+                    <small class="text-muted">
+                        <i class="fa-solid fa-location-dot text-danger me-1"></i>
+                        (Địa điểm sẽ được cập nhật từ nhiếp ảnh gia)
+                    </small>
+                </div>
+                <a href="#" class="btn btn-outline-dark btn-sm ms-auto rounded-pill">Xem hồ sơ</a>
+            </div>
+
+            @* --- TÌM ĐOẠN NÀY ĐỂ SỬA --- *@
+            <div class="d-flex align-items-center justify-content-between mb-4 p-4 border rounded bg-white shadow-sm">
+                <div>
+                    <h2 class="text-danger fw-bold mb-0">@Model.GiaTien.ToString("N0") đ</h2>
+                    @if (Model.GiaCoc > 0)
+                    {
+                        <small class="text-muted">Cọc trước: @Model.GiaCoc?.ToString("N0") đ</small>
+                    }
+                </div>
+
+                @* --- BẮT ĐẦU ĐOẠN CODE MỚI: KIỂM TRA ĐĂNG NHẬP --- *@
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <button type="button" class="btn btn-danger btn-lg rounded-pill fw-bold px-5" data-bs-toggle="modal" data-bs-target="#bookingModal">
+                        <i class="fa-regular fa-calendar-check me-2"></i> Đặt lịch ngay
+                    </button>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-secondary btn-lg rounded-pill fw-bold px-5">
+                        <i class="fa-solid fa-lock me-2"></i> Đăng nhập để đặt lịch
+                    </a>
+                }
+                @* --- KẾT THÚC ĐOẠN CODE MỚI --- *@
+            </div>
+
+            <div class="row g-3 mb-4 text-center">
+                <div class="col-4">
+                    <div class="border rounded p-3 bg-light">
+                        <i class="fa-regular fa-clock fs-4 text-primary mb-2"></i>
+                        <h6 class="fw-bold mb-0">@Model.ThoiLuong phút</h6>
+                        <small class="text-muted">Thời lượng</small>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="border rounded p-3 bg-light">
+                        <i class="fa-solid fa-user-group fs-4 text-success mb-2"></i>
+                        <h6 class="fw-bold mb-0">Tối đa @Model.SoNguoiToiDa người</h6>
+                        <small class="text-muted">Quy mô</small>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="border rounded p-3 bg-light">
+                        <i class="fa-solid fa-camera fs-4 text-warning mb-2"></i>
+                        <h6 class="fw-bold mb-0">Chuyên nghiệp</h6>
+                        <small class="text-muted">Thiết bị</small>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold text-dark" id="mota-tab" data-bs-toggle="tab" data-bs-target="#mota" type="button" role="tab">Mô tả chi tiết</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold text-dark" id="sanpham-tab" data-bs-toggle="tab" data-bs-target="#sanpham" type="button" role="tab">Sản phẩm bàn giao</button>
+                </li>
+            </ul>
+            <div class="tab-content p-3 border border-top-0 rounded-bottom" id="myTabContent">
+                <div class="tab-pane fade show active" id="mota" role="tabpanel">
+                    @Html.Raw(Model.MoTaChiTiet?.Replace("\n", "<br>"))
+                </div>
+                <div class="tab-pane fade" id="sanpham" role="tabpanel">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in Model.SanPhamBanGiao?.Split(',') ?? Array.Empty<string>())
+                        {
+                            <li class="list-group-item"><i class="fa-solid fa-check text-success me-2"></i>@item.Trim()</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@if (User.Identity != null && User.Identity.IsAuthenticated)
+{
+    <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold" id="bookingModalLabel">Đặt lịch: @Model.TenGoi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form asp-controller="Home" asp-action="Book" method="post">
+                    <div class="modal-body p-4">
+                        <input type="hidden" name="MaGoi" value="@Model.MaGoi" />
+
+                        <div class="mb-3">
+                            <label for="NgayChup" class="form-label fw-bold">Ngày giờ chụp mong muốn <span class="text-danger">*</span></label>
+                            <input type="datetime-local" class="form-control" id="NgayChup" name="NgayChup" required
+                                   min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="DiaChiChup" class="form-label fw-bold">Địa điểm chi tiết <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="DiaChiChup" name="DiaChiChup" required placeholder="VD: Công viên Yên Sở...">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="GhiChu" class="form-label fw-bold">Ghi chú thêm</label>
+                            <textarea class="form-control" id="GhiChu" name="GhiChu" rows="3" placeholder="Yêu cầu đặc biệt..."></textarea>
+                        </div>
+
+                        <div class="alert alert-info small mb-0">
+                            <i class="fa-solid fa-circle-info me-2"></i>
+                            Yêu cầu sẽ được gửi đến nhiếp ảnh gia phê duyệt.
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0 px-4 pb-4">
+                        <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Hủy bỏ</button>
+                        <button type="submit" class="btn btn-danger rounded-pill fw-bold px-4">Xác nhận đặt lịch</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

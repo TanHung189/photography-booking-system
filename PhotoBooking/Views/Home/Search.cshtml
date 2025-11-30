@@ -44,7 +44,9 @@
                             <h5 class="text-danger fw-bold mb-0">@package.GiaTien.ToString("N0") đ</h5>
                         </div>
                         <div class="card-footer bg-white border-0 pt-0">
-                            <a href="#" class="btn btn-outline-danger w-100 rounded-pill fw-bold">Xem chi tiết</a>
+                            <a asp-controller="Home" asp-action="Details" asp-route-id="@package.MaGoi" class="btn btn-outline-danger w-100 rounded-pill fw-bold">
+                                Xem chi tiết
+                            </a>
                         </div>
                     </div>
                 </div>

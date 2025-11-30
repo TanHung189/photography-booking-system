@@ -58,7 +58,16 @@
             {
                 <div class="col">
                     <div class="card h-100 border-0 shadow-sm hover-card">
-                        <img src="https://source.unsplash.com/random/400x300/?photography,couple&sig=@package.MaGoi" class="card-img-top" alt="@package.TenGoi" style="height: 200px; object-fit: cover;">
+                        @* --- THAY ĐỔI CHÍNH Ở ĐÂY --- *@
+                        @if (!string.IsNullOrEmpty(package.AnhDaiDien))
+                        {
+                            <img src="@package.AnhDaiDien" class="card-img-top" alt="@package.TenGoi" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <img src="https://source.unsplash.com/random/400x300/?photography&sig=@package.MaGoi" class="card-img-top" alt="Demo Image" style="height: 200px; object-fit: cover;">
+                        }
+                        @* --- KẾT THÚC THAY ĐỔI --- *@
 
                         <div class="card-body">
                             <span class="badge bg-primary-subtle text-primary mb-2">@package.MaDanhMucNavigation.TenDanhMuc</span>
@@ -77,7 +86,9 @@
                             <h5 class="text-danger fw-bold mb-0">@package.GiaTien.ToString("N0") đ</h5>
                         </div>
                         <div class="card-footer bg-white border-0 pt-0">
-                            <a href="#" class="btn btn-outline-danger w-100 rounded-pill fw-bold">Xem chi tiết</a>
+                            <a asp-controller="Home" asp-action="Details" asp-route-id="@package.MaGoi" class="btn btn-outline-danger w-100 rounded-pill fw-bold">
+                                Xem chi tiết
+                            </a>
                         </div>
                     </div>
                 </div>

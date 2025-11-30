@@ -1,3 +1,7 @@
+:root {
+    --primary-orange: #ff6b00; /* Màu cam cháy r?c r? */
+}
+
 html {
   font-size: 14px;
 }

@@ -63,6 +63,10 @@ app.UseAuthorization();  // 2. Kiểm tra quyền hạn (Bạn được làm gì
 app.UseSession(); // Kích hoạt Session
 
 app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
