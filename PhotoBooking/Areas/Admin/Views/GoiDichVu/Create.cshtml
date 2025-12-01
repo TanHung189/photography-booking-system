@@ -10,7 +10,7 @@
             <h6 class="m-0 font-weight-bold text-primary">Thông tin gói dịch vụ</h6>
         </div>
         <div class="card-body">
-            <form asp-action="Create">
+            <form asp-action="Create" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="row">
@@ -58,8 +58,8 @@
                 </div>
 
                 <div class="mb-4">
-                    <label asp-for="AnhDaiDien" class="control-label fw-bold">Link Ảnh Đại Diện</label>
-                    <input asp-for="AnhDaiDien" class="form-control" placeholder="Dán link ảnh vào đây" />
+                    <label class="control-label fw-bold">Ảnh Đại Diện</label>
+                    <input type="file" name="imageFile" class="form-control" accept="image/*" />
                 </div>
 
                 <div class="text-end">

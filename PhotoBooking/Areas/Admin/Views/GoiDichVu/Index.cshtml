@@ -4,6 +4,26 @@
     ViewData["Title"] = "Quản lý Gói Dịch Vụ";
 }
 
+<style>
+    /* Style mặc định cho ảnh: Nhỏ gọn */
+    .transition-img {
+        width: 80px; /* Kích thước ban đầu */
+        height: 60px;
+        object-fit: cover; /* Cắt ảnh vừa khung, không méo */
+        cursor: zoom-in; /* Con trỏ hình kính lúp */
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease; /* Hiệu ứng mượt */
+        position: relative; /* Để z-index hoạt động */
+        z-index: 1;
+    }
+
+        /* Khi di chuột vào: Phóng to */
+        .transition-img:hover {
+            transform: scale(3.5); /* Phóng to gấp 3.5 lần */
+            z-index: 1000; /* Nổi lên trên cùng, đè lên các dòng khác */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); /* Đổ bóng cho nổi bật */
+            border-color: #fff; /* Viền trắng cho đẹp */
+        }
+</style>
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between mb-4">
         <h2 class="h3 text-gray-800">Quản lý Gói Dịch Vụ</h2>
@@ -32,14 +52,17 @@
                                 <td class="fw-bold">@item.TenGoi</td>
                                 <td class="text-danger">@item.GiaTien.ToString("N0") đ</td>
                                 <td><span class="badge bg-info text-dark">@item.MaDanhMucNavigation?.TenDanhMuc</span></td>
-                                <td>
+                                <td class="text-center align-middle">
                                     @if (!string.IsNullOrEmpty(item.AnhDaiDien))
                                     {
-                                        <img src="@item.AnhDaiDien" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;" />
+                                        <img src="@item.AnhDaiDien"
+                                             class="img-thumbnail transition-img"
+                                             alt="@item.TenGoi"
+                                             onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Image';" />
                                     }
                                     else
                                     {
-                                        <span class="text-muted small">Chưa có ảnh</span>
+                                        <span class="badge bg-secondary">Chưa có ảnh</span>
                                     }
                                 </td>
                                 <td>

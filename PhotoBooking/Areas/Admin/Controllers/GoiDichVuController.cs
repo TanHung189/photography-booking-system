@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PhotoBooking.Models;
+using PhotoBooking.Web.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +17,12 @@ namespace PhotoBooking.Areas.Admin.Controllers
     public class GoiDichVuController : Controller
     {
         private readonly PhotoBookingContext _context;
+        private readonly PhotoService _photoService;
 
-        public GoiDichVuController(PhotoBookingContext context)
+        public GoiDichVuController(PhotoBookingContext context, PhotoService photoService)
         {
             _context = context;
+            _photoService = photoService;
         }
 
         // GET: Admin/GoiDichVu
@@ -75,21 +78,30 @@ namespace PhotoBooking.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(GoiDichVu goiDichVu) // Bỏ bind cũ đi cho gọn
+        public async Task<IActionResult> Create(GoiDichVu goiDichVu, IFormFile imageFile)
         {
             // 1. Tự động lấy ID người đang đăng nhập gán vào
-            var userId = int.Parse(User.FindFirst("UserId").Value);
-            goiDichVu.MaNhiepAnhGia = userId;
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            goiDichVu.MaNhiepAnhGia = int.Parse(userIdStr);
 
-            // 2. Tạm thời chưa xử lý ảnh (sẽ làm bước sau), cứ lưu trước
+            // 2. QUAN TRỌNG: Bỏ qua lỗi check các bảng liên quan
+            // Nếu không có 2 dòng này,ModelState.IsValid luôn luôn False -> Không lưu được
+            ModelState.Remove("MaNhiepAnhGiaNavigation");
+            ModelState.Remove("MaDanhMucNavigation");
+
+            if (imageFile != null)
+            {
+                // Upload lên Cloudinary và lấy link về
+                goiDichVu.AnhDaiDien = await _photoService.UploadPhotoAsync(imageFile);
+            }
+            // ------------------------
+
             if (ModelState.IsValid)
             {
                 _context.Add(goiDichVu);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            // Nếu lỗi thì nạp lại danh sách danh mục
             ViewData["MaDanhMuc"] = new SelectList(_context.DanhMucs, "MaDanhMuc", "TenDanhMuc", goiDichVu.MaDanhMuc);
             return View(goiDichVu);
         }

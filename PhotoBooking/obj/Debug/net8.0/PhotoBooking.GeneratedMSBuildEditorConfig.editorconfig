@@ -28,6 +28,26 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/DonDatLich/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcRG9uRGF0TGljaFxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/DonDatLich/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcRG9uRGF0TGljaFxEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/DonDatLich/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcRG9uRGF0TGljaFxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/DonDatLich/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcRG9uRGF0TGljaFxFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/DonDatLich/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcRG9uRGF0TGljaFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/GoiDichVu/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcR29pRGljaFZ1XENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
