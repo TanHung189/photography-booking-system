@@ -1,0 +1,56 @@
+﻿@model IEnumerable<PhotoBooking.Models.GoiDichVu>
+
+@{
+    ViewData["Title"] = "Quản lý Gói Dịch Vụ";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between mb-4">
+        <h2 class="h3 text-gray-800">Quản lý Gói Dịch Vụ</h2>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="fa-solid fa-plus fa-sm text-white-50"></i> Tạo gói mới
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Tên Gói</th>
+                            <th>Giá Tiền</th>
+                            <th>Danh Mục</th>
+                            <th>Ảnh</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@item.TenGoi</td>
+                                <td class="text-danger">@item.GiaTien.ToString("N0") đ</td>
+                                <td><span class="badge bg-info text-dark">@item.MaDanhMucNavigation?.TenDanhMuc</span></td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.AnhDaiDien))
+                                    {
+                                        <img src="@item.AnhDaiDien" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;" />
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Chưa có ảnh</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.MaGoi" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen"></i></a>
+                                    <a asp-action="Delete" asp-route-id="@item.MaGoi" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

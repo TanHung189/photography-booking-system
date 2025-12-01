@@ -1,147 +1,166 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PhotoBooking</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PhotoBooking.styles.css" asp-append-version="true" />
-   <style>
 
-    /* 1. Màu chữ mặc định của link (Màu đen) */
-    .navbar-nav .nav-link {
-        color: var(--primary-dark) !important; /* Dùng màu đen làm mặc định */
-        font-weight: 500; /* Chữ đậm hơn một chút cho rõ */
-        transition: color 0.3s ease; /* Hiệu ứng chuyển màu mượt mà */
-    }
+    <style>
+        /* 1. MÀU SẮC CHUNG */
+        :root {
+            --primary-orange: #ff6b00;
+            --primary-dark: #000000;
+        }
 
-    /* 2. Khi di chuột vào: Đổi màu chữ sang cam */
-    .navbar-nav .nav-link:hover {
-        color: var(--primary-orange) !important;
-    }
+        body {
+            font-size: .875rem;
+            background-color: #f8f9fa; /* Nền xám nhẹ cho vùng nội dung Admin */
+        }
 
-    /* 3. Link đang active (trang hiện tại) cũng màu cam */
-    .navbar-nav .nav-link.active {
-        color: var(--primary-orange) !important;
-        font-weight: 700;
-    }
+        /* 2. NAVBAR (GIỮ NGUYÊN STYLE CỦA BẠN) */
+        .navbar-admin {
+            z-index: 1030; /* Cao hơn sidebar để đè lên */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08); /* Thêm bóng nhẹ phân cách */
+        }
 
-    /* --- LOGO BRAND --- */
-    .brand-tahu {
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 900; 
-        font-size: 2rem;
-        color: var(--primary-dark); /* Màu đen */
-        letter-spacing: -1px; 
-        display: flex;
-        align-items: baseline; 
-        text-decoration: none;
-    }
+        .brand-tahu {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem; /* Giảm size chút cho gọn trong Admin */
+            color: var(--primary-dark);
+            letter-spacing: -1px;
+            display: flex;
+            align-items: baseline;
+            text-decoration: none;
+        }
 
-    .brand-tahu .dot {
-        color: var(--primary-orange); /* Dùng chung màu cam */
-        font-size: 2.5rem;
-        line-height: 0;
-        margin: 0 5px;
-    }
+            .brand-tahu .dot {
+                color: var(--primary-orange);
+                font-size: 2rem;
+                line-height: 0;
+                margin: 0 3px;
+            }
 
-    .brand-tahu .sub-text {
-        font-weight: 400;
-        font-size: 0.9rem;
-        color: #666;
-        letter-spacing: 2px;
-        margin-left: 5px;
-    }
-</style>
+            .brand-tahu .sub-text {
+                font-weight: 400;
+                font-size: 0.8rem;
+                color: #666;
+                letter-spacing: 2px;
+                margin-left: 5px;
+            }
+
+        /* 3. SIDEBAR (MENU TRÁI) */
+        .sidebar {
+            position: fixed; /* Neo chặt */
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100; /* Nằm dưới Navbar */
+            padding: 70px 0 0; /* ⚠️ QUAN TRỌNG: Cách top 70px để ko bị Navbar trắng che mất */
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            overflow-y: auto;
+        }
+
+            .sidebar .nav-link {
+                font-weight: 500;
+                color: #333;
+                padding: 12px 20px;
+            }
+
+                .sidebar .nav-link:hover {
+                    color: var(--primary-orange);
+                    background-color: #ffe5e7; /* Nền hồng nhạt khi hover */
+                }
+
+                .sidebar .nav-link.active {
+                    color: var(--primary-orange);
+                    font-weight: bold;
+                    background-color: #fff0f1;
+                    border-right: 4px solid var(--primary-orange);
+                }
+
+                .sidebar .nav-link i {
+                    margin-right: 10px;
+                    width: 20px;
+                    text-align: center;
+                }
+    </style>
 </head>
 <body>
-    <header class="sticky-top">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 ">
-            <div class="container-fluid">
-               <a class="navbar-brand brand-tahu" asp-area="" asp-controller="Home" asp-action="Index">
-    TAHU<span class="dot">.</span>
-    <span class="sub-text">FOTO</span>
-</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    @* --- BẮT ĐẦU ĐOẠN CODE MỚI --- *@
-                    <ul class="navbar-nav flex-grow-1">
-                        @* Link bên trái (Giữ nguyên) *@
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Đặt lịch</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Danh sách buổi chụp</a>
-                        </li
-                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Nhiếp ảnh gia</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
 
-                    @* Phần bên phải: Kiểm tra Đăng nhập *@
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
-                        {
-                            @* === TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP === *@
-                            <li class="nav-item me-3">
-                                <span class="nav-link text-dark fw-bold">
-                                    👋 Xin chào, @User.Identity.Name!
-                                </span>
-                            </li>
-                            <li class="nav-item me-2">
-    <a class="nav-link text-primary fw-bold" asp-controller="Home" asp-action="MyBookings">
-        <i class="fa-solid fa-list-check me-1"></i> Lịch sử đơn
-    </a>
-</li>
-                            <li class="nav-item">
-                                <a class="btn btn-outline-danger btn-sm" asp-controller="Account" asp-action="Logout">
-                                    Đăng xuất
-                                </a>
-                            </li>
-                        }
-                        else
-                        {
-                            @* === TRƯỜNG HỢP CHƯA ĐĂNG NHẬP === *@
-                            <li class="nav-item">
-                                @* Tạm thời để link trống hoặc trỏ đến trang Đăng ký (sẽ làm sau) *@
-                                <a class="nav-link text-dark" href="#">Đăng ký</a>
-                            </li>
-                            <li class="nav-item ms-2">
-                                <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Login">
-                                    Đăng nhập
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                    @* --- KẾT THÚC ĐOẠN CODE MỚI --- *@
+    <header class="navbar navbar-expand-md navbar-light bg-white fixed-top navbar-admin">
+        <div class="container-fluid">
+
+            <button class="navbar-toggler d-md-none collapsed border-0 me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <a class="navbar-brand brand-tahu me-0 px-3 col-md-3 col-lg-2" href="#">
+                TAHU<span class="dot">.</span><span class="sub-text">FOTO</span>
+            </a>
+
+            <div class="navbar-nav w-100">
+                <div class="nav-item text-nowrap ms-auto px-3 d-flex align-items-center">
+                    <span class="text-dark fw-bold me-3">👋 Xin chào, @User.Identity?.Name!</span>
+
+                    <a class="btn btn-sm btn-outline-dark me-2" asp-area="" asp-controller="Home" asp-action="Index" target="_blank">
+                        <i class="fa-solid fa-earth-americas me-1"></i> Xem Website
+                    </a>
+
+                    <a class="btn btn-sm btn-danger text-white" asp-area="" asp-controller="Account" asp-action="Logout">
+                        <i class="fa-solid fa-power-off"></i>
+                    </a>
                 </div>
             </div>
-        </nav>
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">
+                                <i class="fa-solid fa-gauge"></i>
+                                Tổng quan
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin" asp-controller="GoiDichVu" asp-action="Index">
+                                <i class="fa-solid fa-camera"></i>
+                                Quản lý Gói chụp
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin" asp-controller="NguoiDung" asp-action="Index">
+                                <i class="fa-solid fa-users"></i>
+                                Quản lý Người dùng
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-muted" href="#">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                                Quản lý Địa điểm
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: 80px;">
+                @RenderBody()
+            </main>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - PhotoBooking - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

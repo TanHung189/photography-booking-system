@@ -1,0 +1,72 @@
+﻿@model PhotoBooking.Models.GoiDichVu
+
+@{
+    ViewData["Title"] = "Tạo gói mới";
+}
+
+<div class="container-fluid py-4">
+    <div class="card shadow mb-4" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin gói dịch vụ</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="TenGoi" class="control-label fw-bold">Tên Gói</label>
+                        <input asp-for="TenGoi" class="form-control" required />
+                        <span asp-validation-for="TenGoi" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="MaDanhMuc" class="control-label fw-bold">Danh Mục</label>
+                        <select asp-for="MaDanhMuc" class="form-control" asp-items="ViewBag.MaDanhMuc"></select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="GiaTien" class="control-label fw-bold">Giá Tiền (VNĐ)</label>
+                        <input asp-for="GiaTien" class="form-control" type="number" required />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="GiaCoc" class="control-label fw-bold">Giá Cọc (VNĐ)</label>
+                        <input asp-for="GiaCoc" class="form-control" type="number" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ThoiLuong" class="control-label fw-bold">Thời Lượng (Phút)</label>
+                        <input asp-for="ThoiLuong" class="form-control" type="number" required />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SoNguoiToiDa" class="control-label fw-bold">Số Người Tối Đa</label>
+                        <input asp-for="SoNguoiToiDa" class="form-control" type="number" value="1" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MoTaChiTiet" class="control-label fw-bold">Mô Tả Chi Tiết</label>
+                    <textarea asp-for="MoTaChiTiet" class="form-control" rows="4"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SanPhamBanGiao" class="control-label fw-bold">Sản Phẩm Bàn Giao</label>
+                    <input asp-for="SanPhamBanGiao" class="form-control" placeholder="Ví dụ: 10 ảnh chỉnh sửa, toàn bộ file gốc..." />
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="AnhDaiDien" class="control-label fw-bold">Link Ảnh Đại Diện</label>
+                    <input asp-for="AnhDaiDien" class="form-control" placeholder="Dán link ảnh vào đây" />
+                </div>
+
+                <div class="text-end">
+                    <a asp-action="Index" class="btn btn-secondary me-2">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-primary px-4">Tạo mới</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
