@@ -10,9 +10,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng ký tài khoản - PotoBooking</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <style>
         body {
@@ -24,7 +27,6 @@
             min-height: 100vh;
         }
 
-        /* Cột ảnh bên phải (Dùng ảnh khác với trang Login cho đỡ nhàm) */
         .bg-image {
             background-image: url('https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80');
             background-size: cover;
@@ -66,6 +68,12 @@
         .form-floating > .form-control {
             border-radius: 8px;
         }
+
+        /* --- CSS TINH CHỈNH TỐC ĐỘ HIỆU ỨNG --- */
+        :root {
+            --animate-duration: 1.2s;
+            --animate-delay: 0.5s;
+        }
     </style>
 </head>
 <body>
@@ -73,13 +81,14 @@
     <div class="container-fluid p-0">
         <div class="row g-0 login-container">
 
-            <div class="col-md-5 d-flex align-items-center justify-content-center p-4">
+            <div class="col-md-5 d-flex align-items-center justify-content-center p-4 animate__animated animate__fadeInLeft">
                 <div style="width: 100%; max-width: 450px;">
-                   
-                    <a class="navbar-brand brand-tahu" asp-area="" asp-controller="Home" asp-action="Index">
-                        <i class="fa-solid fa-camera-retro me-2 text-primary"></i>TAHU<span class="dot">.</span>
-                        <span class="sub-text">FOTO</span>
+
+                    <a class="navbar-brand brand-tahu mb-4" href="/">
+                        <i class="fa-solid fa-camera-retro me-2 text-primary" style="color: #ff6b00 !important;"></i>
+                        TAHU<span class="dot">.</span><span class="sub-text">FOTO</span>
                     </a>
+
                     <h2 class="mb-2 fw-bold">Tạo tài khoản mới</h2>
                     <p class="text-muted mb-4">Tham gia cộng đồng nhiếp ảnh lớn nhất Việt Nam.</p>
 
@@ -135,9 +144,10 @@
                 </div>
             </div>
 
-            <div class="col-md-7 bg-image d-none d-md-block">
+            <div class="col-md-7 bg-image d-none d-md-block animate__animated animate__fadeIn animate__delay-1s">
                 <div class="overlay"></div>
-                <div class="caption">
+
+                <div class="caption animate__animated animate__fadeInUp animate__delay-2s">
                     <h3 class="fw-bold">Bắt đầu hành trình của bạn.</h3>
                     <p class="mb-0">Đặt lịch chụp ảnh chưa bao giờ dễ dàng đến thế.</p>
                 </div>

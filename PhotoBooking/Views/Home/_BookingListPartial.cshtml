@@ -1,0 +1,84 @@
+﻿@model List<PhotoBooking.Models.DonDatLich>
+
+@if (Model.Count == 0)
+{
+    <div class="text-center py-5">
+        <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" width="150" />
+        <p class="text-muted mt-3">Không có đơn đặt lịch nào ở mục này.</p>
+    </div>
+}
+else
+{
+    @foreach (var item in Model)
+    {
+        <div class="card booking-card shadow-sm border-0 mb-3 rounded-4 overflow-hidden">
+            <div class="card-body p-0">
+                <div class="d-flex flex-column flex-md-row">
+
+                    <div class="p-3">
+                        <img src="@(item.MaGoiNavigation?.AnhDaiDien ?? "https://source.unsplash.com/random/200x200/?camera")"
+                             class="img-service shadow-sm" alt="Service Image">
+                    </div>
+
+                    <div class="p-3 flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                @if (item.TrangThai == 0)
+                                {
+                                    <span class="badge bg-warning text-dark mb-2">⏳ Chờ xác nhận</span>
+                                }
+                                else if (item.TrangThai == 1)
+                                {
+
+                                    <span class="badge bg-primary mb-2">📅 Sắp tới</span>
+                                }
+                                else if (item.TrangThai == 2)
+                                {
+
+                                    <span class="badge bg-success mb-2">✅ Hoàn thành</span>
+                                }
+                                else
+                                {
+
+                                    <span class="badge bg-danger mb-2">❌ Đã hủy</span>
+                                }
+
+                                <h5 class="fw-bold mb-1">@item.MaGoiNavigation?.TenGoi</h5>
+                                <p class="text-muted small mb-1">
+                                    <i class="fa-solid fa-camera me-1"></i> @item.MaGoiNavigation?.MaNhiepAnhGiaNavigation?.HoVaTen
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    <i class="fa-regular fa-calendar-days me-1"></i>
+                                    <span class="fw-bold text-dark">@item.NgayChup.ToString("dd/MM/yyyy")</span>
+                                    lúc <span class="fw-bold text-dark">@item.NgayChup.ToString("HH:mm")</span>
+                                </p>
+                            </div>
+
+                            <div class="text-end">
+                                <div class="fs-5 fw-bold text-danger">@item.TongTien?.ToString("N0") đ</div>
+                                @if (item.TienDaCoc > 0)
+                                {
+                                    <small class="text-muted">Đã cọc: @item.TienDaCoc?.ToString("N0") đ</small>
+                                }
+                            </div>
+                        </div>
+
+                        <hr class="my-3 text-muted opacity-25">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Mã đơn: #@item.MaDon</small>
+                            <div>
+                                <a asp-action="Details" asp-route-id="@item.MaGoi" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                                    Mua lại
+                                </a>
+                                <button class="btn btn-primary btn-sm rounded-pill px-3 ms-2">
+                                    Xem chi tiết
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

@@ -25,11 +25,15 @@ public partial class DonDatLich
 
     public int MaKhachHang { get; set; }
 
-    public int MaGoi { get; set; }
+    public int? MaGoi { get; set; }
+
+    public int? MaNhiepAnhGia { get; set; }
 
     public virtual DanhGium? DanhGium { get; set; }
 
-    public virtual GoiDichVu MaGoiNavigation { get; set; } = null!;
+    public virtual GoiDichVu? MaGoiNavigation { get; set; }
 
     public virtual NguoiDung MaKhachHangNavigation { get; set; } = null!;
+
+    public virtual NguoiDung? MaNhiepAnhGiaNavigation { get; set; }
 }

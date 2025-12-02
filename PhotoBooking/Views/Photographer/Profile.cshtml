@@ -1,87 +1,220 @@
-﻿@model PhotoBooking.Models.NguoiDung
+﻿@using PhotoBooking.ViewModels
+@model PhotographerViewModel
 
 @{
-    ViewData["Title"] = "Hồ sơ: " + Model.HoVaTen;
+    ViewData["Title"] = "Hồ sơ: " + Model.User.HoVaTen;
 }
 
-<div class="bg-light py-5">
+<div class="bg-white border-bottom shadow-sm pb-5 pt-5" style="background: linear-gradient(to bottom, #ffffff, #f8f9fa);">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-md-3 text-center">
-                <img src="@(Model.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + Model.HoVaTen)"
-                     class="rounded-circle shadow" width="150" height="150" style="object-fit: cover;">
+            
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+                <div class="position-relative d-inline-block">
+                    <img src="@(Model.User.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + Model.User.HoVaTen + "&size=200")" 
+                         class="rounded-circle shadow p-1 bg-white" 
+                         width="180" height="180" style="object-fit: cover;">
+                    
+                    @if (Model.AvgRating > 0)
+                    {
+                        <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-warning text-dark border border-white shadow-sm fs-6 px-3 py-2">
+                            <i class="fa-solid fa-star me-1"></i> @Model.AvgRating.ToString("0.0")
+                        </span>
+                    }
+                </div>
             </div>
-            <div class="col-md-9">
-                <span class="badge bg-danger mb-2">Nhiếp ảnh gia chuyên nghiệp</span>
-                <h1 class="fw-bold">@Model.HoVaTen</h1>
-                <p class="text-muted"><i class="fa-solid fa-location-dot me-2"></i> @Model.MaDiaDiemNavigation?.TenThanhPho</p>
-                <p class="lead fs-6">
-                    @(Model.GioiThieu ?? "Nhiếp ảnh gia này chưa cập nhật giới thiệu.")
+
+            <div class="col-md-6">
+                <div class="d-flex align-items-center mb-2">
+                    <h1 class="fw-bold mb-0 me-3">@Model.User.HoVaTen</h1>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill">
+                        <i class="fa-solid fa-camera me-1"></i> Photographer
+                    </span>
+                </div>
+
+                <p class="text-muted mb-3">
+                    <i class="fa-solid fa-location-dot me-2 text-danger"></i> 
+                    @(Model.User.MaDiaDiemNavigation?.TenThanhPho ?? "Chưa cập nhật địa điểm")
                 </p>
+
+                <div class="d-flex gap-4 mb-4 text-center text-md-start">
+                    <div>
+                        <h5 class="fw-bold mb-0">@Model.PackageCount</h5>
+                        <small class="text-muted">Gói chụp</small>
+                    </div>
+                    <div class="vr"></div>
+                    <div>
+                        <h5 class="fw-bold mb-0">@Model.NamKinhNghiem</h5>
+                        <small class="text-muted">Năm kinh nghiệm</small>
+                    </div>
+                    <div class="vr"></div>
+                    <div>
+                        <h5 class="fw-bold mb-0">@Model.ReviewCount</h5>
+                        <small class="text-muted">Đánh giá</small>
+                    </div>
+                </div>
+
+                <div class="bg-light p-3 rounded border">
+                    <p class="mb-0 text-secondary small fst-italic">
+                        <i class="fa-solid fa-quote-left me-2 text-muted"></i>
+                        @(Model.User.GioiThieu ?? "Nhiếp ảnh gia này rất kiệm lời, chưa viết giới thiệu gì cả.")
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-3 text-center text-md-end mt-4 mt-md-0">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <button class="btn btn-dark rounded-pill fw-bold px-4 py-2 w-100 mb-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#directBookingModal">
+                        <i class="fa-regular fa-paper-plane me-2"></i> Liên hệ / Đặt lịch riêng
+                    </button>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-outline-dark rounded-pill px-4 w-100 mb-2">
+                        Đăng nhập để liên hệ
+                    </a>
+                }
+                
+                <div class="d-flex gap-2 justify-content-center justify-content-md-end mt-3">
+                    <a href="#" class="text-secondary fs-4"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="text-secondary fs-4"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="text-secondary fs-4"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <div class="container py-5">
-    <ul class="nav nav-tabs mb-4" id="profileTab" role="tablist">
+    <ul class="nav nav-tabs nav-fill mb-4" id="profileTab" role="tablist">
         <li class="nav-item">
-            <button class="nav-link active fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#packages" type="button">
-                Các Gói Dịch Vụ (@Model.GoiDichVus.Count)
+            <button class="nav-link active fw-bold py-3" data-bs-toggle="tab" data-bs-target="#packages">
+                <i class="fa-solid fa-box-open me-2"></i> Các Gói Dịch Vụ
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#albums" type="button">
-                Album Ảnh Mẫu (@Model.AlbumAnhs.Count)
+            <button class="nav-link fw-bold py-3" data-bs-toggle="tab" data-bs-target="#albums">
+                <i class="fa-solid fa-images me-2"></i> Album Ảnh Mẫu
             </button>
         </li>
     </ul>
 
     <div class="tab-content">
         <div class="tab-pane fade show active" id="packages">
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-                @foreach (var item in Model.GoiDichVus)
-                {
-                    <div class="col">
-                        <div class="card h-100 border-0 shadow-sm">
-                            <img src="@(item.AnhDaiDien ?? "https://source.unsplash.com/random/400x300/?photography&sig=" + item.MaGoi)"
-                                 class="card-img-top" style="height: 200px; object-fit: cover;">
-                            <div class="card-body">
-                                <h5 class="card-title fw-bold">@item.TenGoi</h5>
-                                <p class="text-danger fw-bold">@item.GiaTien.ToString("N0") đ</p>
-                                <a asp-controller="Home" asp-action="Details" asp-route-id="@item.MaGoi" class="btn btn-outline-danger w-100 rounded-pill">
-                                    Xem chi tiết
-                                </a>
+            @if(Model.User.GoiDichVus.Count > 0)
+            {
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    @foreach (var item in Model.User.GoiDichVus)
+                    {
+                        <div class="col">
+                            <div class="card h-100 border-0 shadow-sm hover-card">
+                                <img src="@(item.AnhDaiDien ?? "https://source.unsplash.com/random/400x300/?photography&sig=" + item.MaGoi)" 
+                                     class="card-img-top object-fit-cover" style="height: 220px;">
+                                <div class="card-body">
+                                    <span class="badge bg-light text-dark border mb-2">@item.MaDanhMucNavigation?.TenDanhMuc</span>
+                                    <h5 class="card-title fw-bold text-truncate">@item.TenGoi</h5>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <h5 class="text-danger fw-bold mb-0">@item.GiaTien.ToString("N0") đ</h5>
+                                        <small class="text-muted">@item.ThoiLuong phút</small>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-0 pb-3 pt-0">
+                                    <a asp-controller="Home" asp-action="Details" asp-route-id="@item.MaGoi" class="btn btn-outline-danger w-100 rounded-pill">
+                                        Xem chi tiết
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                }
-            </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-box-open fs-1 mb-3 opacity-25"></i>
+                    <p>Nhiếp ảnh gia chưa đăng gói dịch vụ nào.</p>
+                </div>
+            }
         </div>
 
         <div class="tab-pane fade" id="albums">
             <div class="row g-4">
-                @foreach (var album in Model.AlbumAnhs)
+                @foreach (var album in Model.User.AlbumAnhs)
                 {
                     <div class="col-md-4">
-                        <div class="card shadow-sm">
+                        <div class="card border-0 shadow-sm">
                             @{
                                 var coverImg = album.AnhChiTiets.FirstOrDefault()?.DuongDanAnh ?? "https://placehold.co/400x300?text=Empty+Album";
                             }
-                            <img src="@coverImg" class="card-img-top" style="height: 250px; object-fit: cover;">
+                            <div class="position-relative">
+                                <img src="@coverImg" class="card-img-top object-fit-cover" style="height: 250px;">
+                                <span class="position-absolute bottom-0 end-0 bg-dark text-white px-2 py-1 m-2 rounded small opacity-75">
+                                    <i class="fa-solid fa-image me-1"></i> @album.AnhChiTiets.Count
+                                </span>
+                            </div>
                             <div class="card-body">
                                 <h5 class="card-title fw-bold">@album.TieuDe</h5>
-                                <p class="card-text text-muted small">@album.MoTa</p>
-                                <span class="badge bg-secondary">@album.AnhChiTiets.Count ảnh</span>
+                                <p class="card-text text-muted small text-truncate">@album.MoTa</p>
                             </div>
                         </div>
                     </div>
                 }
-                @if (Model.AlbumAnhs.Count == 0)
-                {
-                    <div class="col-12 text-center text-muted">Nhiếp ảnh gia chưa cập nhật Album nào.</div>
-                }
             </div>
+            @if(Model.User.AlbumAnhs.Count == 0)
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-regular fa-images fs-1 mb-3 opacity-25"></i>
+                    <p>Chưa có album ảnh mẫu nào.</p>
+                </div>
+            }
         </div>
     </div>
 </div>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="modal fade" id="directBookingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold">Đặt lịch với @Model.User.HoVaTen</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-controller="Home" asp-action="BookDirect" method="post">
+                    <div class="modal-body p-4">
+                        <input type="hidden" name="MaNhiepAnhGia" value="@Model.User.MaNguoiDung" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ngày dự kiến <span class="text-danger">*</span></label>
+                            <input type="datetime-local" name="NgayChup" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Địa điểm <span class="text-danger">*</span></label>
+                            <input type="text" name="DiaChiChup" class="form-control" required placeholder="Nơi bạn muốn chụp...">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mô tả yêu cầu <span class="text-danger">*</span></label>
+                            <textarea name="GhiChu" class="form-control" rows="4" required placeholder="Mô tả concept..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer pt-0 border-0 pb-4 px-4">
+                        <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-dark rounded-pill fw-bold px-4">Gửi yêu cầu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .hover-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .hover-card:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(0,0,0,.15)!important; }
+    .object-fit-cover { object-fit: cover; }
+    .nav-tabs .nav-link.active { border-bottom: 3px solid #dc3545; color: #dc3545 !important; }
+    .nav-tabs .nav-link { color: #555; border: none; }
+</style>

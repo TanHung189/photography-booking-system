@@ -29,9 +29,13 @@ public partial class NguoiDung
 
     public DateTime? NgayTao { get; set; }
 
+    public int? SoNamKinhNghiem { get; set; }
+
     public virtual ICollection<AlbumAnh> AlbumAnhs { get; set; } = new List<AlbumAnh>();
 
-    public virtual ICollection<DonDatLich> DonDatLiches { get; set; } = new List<DonDatLich>();
+    public virtual ICollection<DonDatLich> DonDatLichMaKhachHangNavigations { get; set; } = new List<DonDatLich>();
+
+    public virtual ICollection<DonDatLich> DonDatLichMaNhiepAnhGiaNavigations { get; set; } = new List<DonDatLich>();
 
     public virtual ICollection<GoiDichVu> GoiDichVus { get; set; } = new List<GoiDichVu>();
 

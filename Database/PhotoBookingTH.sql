@@ -33,7 +33,8 @@ CREATE TABLE NguoiDung (
     AnhDaiDien NVARCHAR(MAX),
     AnhBia NVARCHAR(MAX),
     GioiThieu NVARCHAR(MAX),
-    MaDiaDiem INT, 
+    MaDiaDiem INT,
+	SoNamKinhNghiem INT DEFAULT 0,
     NgayTao DATETIME2 DEFAULT GETDATE(),
     FOREIGN KEY (MaDiaDiem) REFERENCES DiaDiem(MaDiaDiem)
 );
@@ -113,6 +114,11 @@ CREATE TABLE AnhChiTiet (
     FOREIGN KEY (MaAlbum) REFERENCES AlbumAnh(MaAlbum) ON DELETE CASCADE
 );
 GO
+
+-- Cập nhật dữ liệu mẫu cho có số liệu đẹp
+UPDATE NguoiDung SET SoNamKinhNghiem = 5 WHERE TenDangNhap = 'lee_minh';
+UPDATE NguoiDung SET SoNamKinhNghiem = 3 WHERE TenDangNhap = 'sarah_tran';
+UPDATE NguoiDung SET SoNamKinhNghiem = 2 WHERE TenDangNhap = 'tung_nui';
 
 -- A. DIA DIEM
 INSERT INTO DiaDiem (TenThanhPho, Slug) VALUES 
@@ -290,5 +296,6 @@ GO
 
 -- Kiểm tra lại (Tất cả sẽ trả về 0 dòng)
 SELECT * FROM DonDatLich;
--- SELECT * FROM NguoiDung;
+-- 
+SELECT * FROM NguoiDung;
 select * from GoiDichVu;

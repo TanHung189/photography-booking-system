@@ -125,32 +125,57 @@
             <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse">
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
+
                         <li class="nav-item">
                             <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">
-                                <i class="fa-solid fa-gauge"></i>
-                                Tổng quan
+                                <i class="fa-solid fa-gauge me-2"></i> Tổng quan
                             </a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link" asp-area="Admin" asp-controller="GoiDichVu" asp-action="Index">
-                                <i class="fa-solid fa-camera"></i>
-                                Quản lý Gói chụp
+                                <i class="fa-solid fa-camera me-2"></i> Quản lý Gói chụp
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="Admin" asp-controller="NguoiDung" asp-action="Index">
-                                <i class="fa-solid fa-users"></i>
-                                Quản lý Người dùng
-                            </a>
-                        </li>
+
                         <li class="nav-item">
                             <a class="nav-link" asp-area="Admin" asp-controller="DonDatLich" asp-action="Index">
-                                <i class="fa-solid fa-calendar-check me-2"></i>
-                                Quản lý Đơn hàng
+                                <i class="fa-solid fa-calendar-check me-2"></i> Quản lý Đơn hàng
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin" asp-controller="Profile" asp-action="Index">
+                                <i class="fa-solid fa-id-card me-2"></i> Hồ sơ Nhiếp ảnh gia
+                            </a>
+                        </li>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item mt-3">
+                                <span class="text-muted small fw-bold px-3">QUẢN TRỊ HỆ THỐNG</span>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="NguoiDung" asp-action="Index">
+                                    <i class="fa-solid fa-users-gear me-2"></i> Quản lý Người dùng
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="DiaDiem" asp-action="Index">
+                                    <i class="fa-solid fa-map-location-dot me-2"></i> Quản lý Địa điểm
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="DanhMuc" asp-action="Index">
+                                    <i class="fa-solid fa-list me-2"></i> Quản lý Danh mục
+                                </a>
+                            </li>
+                        }
+
                     </ul>
-                </div>
             </nav>
 
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: 80px;">

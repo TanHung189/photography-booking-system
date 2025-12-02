@@ -112,13 +112,16 @@ public partial class PhotoBookingContext : DbContext
 
             entity.HasOne(d => d.MaGoiNavigation).WithMany(p => p.DonDatLiches)
                 .HasForeignKey(d => d.MaGoi)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__DonDatLic__MaGoi__49C3F6B7");
 
-            entity.HasOne(d => d.MaKhachHangNavigation).WithMany(p => p.DonDatLiches)
+            entity.HasOne(d => d.MaKhachHangNavigation).WithMany(p => p.DonDatLichMaKhachHangNavigations)
                 .HasForeignKey(d => d.MaKhachHang)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__DonDatLic__MaKha__4AB81AF0");
+
+            entity.HasOne(d => d.MaNhiepAnhGiaNavigation).WithMany(p => p.DonDatLichMaNhiepAnhGiaNavigations)
+                .HasForeignKey(d => d.MaNhiepAnhGia)
+                .HasConstraintName("FK_DonDatLich_NguoiDung_Photographer");
         });
 
         modelBuilder.Entity<GoiDichVu>(entity =>
@@ -160,6 +163,7 @@ public partial class PhotoBookingContext : DbContext
             entity.Property(e => e.MatKhau).HasMaxLength(100);
             entity.Property(e => e.NgayTao).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.SoDienThoai).HasMaxLength(20);
+            entity.Property(e => e.SoNamKinhNghiem).HasDefaultValue(0);
             entity.Property(e => e.TenDangNhap).HasMaxLength(50);
             entity.Property(e => e.VaiTro).HasMaxLength(20);
 

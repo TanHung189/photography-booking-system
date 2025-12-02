@@ -149,21 +149,61 @@ namespace PhotoBooking.Controllers
             return RedirectToAction("Details", new { id = MaGoi });
         }
 
-        [Authorize] // bắt buộc phải đăng nhập
-        public IActionResult MyBookings()
+
+        [Authorize]
+        public async Task<IActionResult> MyBookings()
         {
             var userIdClaim = User.FindFirst("UserId");
             if (userIdClaim == null) return RedirectToAction("Login", "Account");
             int userId = int.Parse(userIdClaim.Value);
 
-            var listDonHang = _context.DonDatLiches
-        .Include(d => d.MaGoiNavigation) // Lấy thông tin Gói
-        .ThenInclude(g => g.MaNhiepAnhGiaNavigation) // Lấy tiếp thông tin Nhiếp ảnh gia từ Gói
-        .Where(d => d.MaKhachHang == userId) // Chỉ lấy đơn của chính mình
-        .OrderByDescending(d => d.NgayTao) // Đơn mới nhất lên đầu
-        .ToList();
+            var listDonHang = await _context.DonDatLiches
+                .Include(d => d.MaGoiNavigation) // Lấy thông tin Gói
+                    .ThenInclude(g => g.MaNhiepAnhGiaNavigation) // Lấy thông tin Nhiếp ảnh gia từ Gói
+                .Where(d => d.MaKhachHang == userId)
+                .OrderByDescending(d => d.NgayTao) // Mới nhất lên đầu
+                .ToListAsync();
 
             return View(listDonHang);
+        }
+
+        // ==========================================
+        // Action Đặt lịch Trực tiếp (Không qua gói)
+        // ==========================================
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> BookDirect(int MaNhiepAnhGia, DateTime NgayChup, string DiaChiChup, string GhiChu)
+        {
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null) return RedirectToAction("Login", "Account");
+            int maKhachHang = int.Parse(userIdClaim.Value);
+
+            // Tạo đơn mới
+            var donMoi = new DonDatLich
+            {
+                MaNhiepAnhGia = MaNhiepAnhGia, // Lưu trực tiếp ID nhiếp ảnh gia
+                MaGoi = null,                  // Không chọn gói -> Null
+                MaKhachHang = maKhachHang,
+                NgayChup = NgayChup,
+                DiaChiChup = DiaChiChup,
+                GhiChu = GhiChu,
+
+                // Vì đặt trực tiếp nên giá là Thỏa thuận (0đ)
+                TongTien = 0,
+                TienDaCoc = 0,
+
+                TrangThai = 0, // Chờ duyệt
+                TrangThaiThanhToan = 0,
+                NgayTao = DateTime.Now
+            };
+
+            _context.Add(donMoi);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "🎉 Đã gửi yêu cầu đặt lịch riêng! Vui lòng chờ nhiếp ảnh gia báo giá.";
+
+            // Quay lại trang Profile của nhiếp ảnh gia đó
+            return RedirectToAction("Profile", "Photographer", new { id = MaNhiepAnhGia });
         }
     }
 }
