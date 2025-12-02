@@ -1,0 +1,150 @@
+﻿@model PhotoBooking.Models.NguoiDung
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký tài khoản - PotoBooking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fff;
+        }
+
+        .login-container {
+            min-height: 100vh;
+        }
+
+        /* Cột ảnh bên phải (Dùng ảnh khác với trang Login cho đỡ nhàm) */
+        .bg-image {
+            background-image: url('https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+        }
+
+        .caption {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            color: white;
+            z-index: 2;
+        }
+
+        .btn-dark-custom {
+            background-color: #111;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+            .btn-dark-custom:hover {
+                background-color: #333;
+                transform: translateY(-2px);
+            }
+
+        .form-floating > .form-control {
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0 login-container">
+
+            <div class="col-md-5 d-flex align-items-center justify-content-center p-4">
+                <div style="width: 100%; max-width: 450px;">
+                   
+                    <a class="navbar-brand brand-tahu" asp-area="" asp-controller="Home" asp-action="Index">
+                        <i class="fa-solid fa-camera-retro me-2 text-primary"></i>TAHU<span class="dot">.</span>
+                        <span class="sub-text">FOTO</span>
+                    </a>
+                    <h2 class="mb-2 fw-bold">Tạo tài khoản mới</h2>
+                    <p class="text-muted mb-4">Tham gia cộng đồng nhiếp ảnh lớn nhất Việt Nam.</p>
+
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger">@ViewBag.Error</div>
+                    }
+
+                    <form method="post" action="/Account/Register">
+
+                        <div asp-validation-summary="All" class="text-danger small mb-3"></div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6 form-floating">
+                                <input type="text" class="form-control" id="HoVaTen" name="HoVaTen" placeholder="Họ tên" required>
+                                <label for="HoVaTen">Họ và tên</label>
+                            </div>
+                            <div class="col-md-6 form-floating">
+                                <input type="tel" class="form-control" id="SoDienThoai" name="SoDienThoai" placeholder="SĐT">
+                                <label for="SoDienThoai">Số điện thoại</label>
+                            </div>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="Email" name="Email" placeholder="Email" required>
+                            <label for="Email">Email</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="TenDangNhap" name="TenDangNhap" placeholder="Username" required>
+                            <label for="TenDangNhap">Tên đăng nhập</label>
+                        </div>
+
+                        <div class="row g-2 mb-4">
+                            <div class="col-md-6 form-floating">
+                                <input type="password" class="form-control" id="MatKhau" name="MatKhau" placeholder="Mật khẩu" required>
+                                <label for="MatKhau">Mật khẩu</label>
+                            </div>
+                            <div class="col-md-6 form-floating">
+                                <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" placeholder="Nhập lại" required>
+                                <label for="ConfirmPassword">Xác nhận MK</label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-dark-custom btn-lg text-white">Đăng ký ngay</button>
+                        </div>
+                    </form>
+
+                    <p class="text-center text-muted">
+                        Đã có tài khoản? <a href="/Account/Login" class="text-dark fw-bold text-decoration-none">Đăng nhập</a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-7 bg-image d-none d-md-block">
+                <div class="overlay"></div>
+                <div class="caption">
+                    <h3 class="fw-bold">Bắt đầu hành trình của bạn.</h3>
+                    <p class="mb-0">Đặt lịch chụp ảnh chưa bao giờ dễ dàng đến thế.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

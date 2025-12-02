@@ -1,0 +1,98 @@
+﻿@model IEnumerable<PhotoBooking.Models.GoiDichVu>
+
+@{
+    ViewData["Title"] = "Danh sách buổi chụp";
+}
+
+<div class="bg-light py-5 mb-5 text-center">
+    <div class="container">
+        <h1 class="fw-bold display-5">Khám phá các Gói chụp</h1>
+        <p class="lead text-muted">Hàng trăm lựa chọn từ các nhiếp ảnh gia hàng đầu</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <span class="text-muted">Hiển thị <strong>@Model.Count()</strong> kết quả</span>
+
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle rounded-pill px-4" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa-solid fa-sort me-2"></i> Sắp xếp theo
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li><a class="dropdown-item" asp-action="Index">Mới nhất</a></li>
+                <li><a class="dropdown-item" asp-action="Index" asp-route-sortOrder="price_asc">Giá: Thấp đến Cao</a></li>
+                <li><a class="dropdown-item" asp-action="Index" asp-route-sortOrder="price_desc">Giá: Cao đến Thấp</a></li>
+            </ul>
+        </div>
+    </div>
+
+    @if (Model.Count() > 0)
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var package in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm hover-card">
+
+                        <div class="position-relative overflow-hidden" style="height: 220px;">
+                            @if (!string.IsNullOrEmpty(package.AnhDaiDien))
+                            {
+                                <img src="@package.AnhDaiDien" class="card-img-top h-100 w-100 object-fit-cover" alt="@package.TenGoi">
+                            }
+                            else
+                            {
+                                <img src="https://source.unsplash.com/random/400x300/?photography&sig=@package.MaGoi" class="card-img-top h-100 w-100 object-fit-cover" alt="Demo">
+                            }
+
+                            <div class="position-absolute bottom-0 end-0 bg-danger text-white px-3 py-1 m-2 rounded-pill fw-bold small shadow">
+                                @package.GiaTien.ToString("N0") đ
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="text-uppercase text-primary fw-bold small mb-2">
+                                @package.MaDanhMucNavigation?.TenDanhMuc
+                            </div>
+
+                            <h5 class="card-title fw-bold text-truncate" title="@package.TenGoi">
+                                <a asp-controller="Home" asp-action="Details" asp-route-id="@package.MaGoi" class="text-dark text-decoration-none stretched-link">
+                                    @package.TenGoi
+                                </a>
+                            </h5>
+
+                            <div class="d-flex align-items-center mt-3 pt-3 border-top">
+                                <img src="https://ui-avatars.com/api/?name=@package.MaNhiepAnhGiaNavigation?.HoVaTen&background=random"
+                                     class="rounded-circle me-2" width="25" height="25">
+                                <small class="text-muted">@package.MaNhiepAnhGiaNavigation?.HoVaTen</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" width="200" />
+            <h4 class="text-muted mt-3">Chưa có gói chụp nào.</h4>
+        </div>
+    }
+</div>
+
+<style>
+    .object-fit-cover {
+        object-fit: cover;
+    }
+
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,.1) !important;
+        }
+</style>

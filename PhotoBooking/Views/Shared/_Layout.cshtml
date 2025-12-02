@@ -72,19 +72,19 @@
                     <ul class="navbar-nav flex-grow-1">
                         @* Link bên trái (Giữ nguyên) *@
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Giới Thiệu</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Đặt lịch</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Danh sách buổi chụp</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Service" asp-action="Index">Danh sách buổi chụp</a>
                         </li
                          <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Nhiếp ảnh gia</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Photographer" asp-action="Index">Nhiếp ảnh gia</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Liên hệ</a>
                         </li>
                     </ul>
 
@@ -129,7 +129,7 @@
     {
         @* === TRƯỜNG HỢP CHƯA ĐĂNG NHẬP === *@
         <li class="nav-item">
-            <a class="nav-link text-dark" href="#">Đăng ký</a>
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Đăng ký</a>
         </li>
         <li class="nav-item ms-2">
             <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Login">

@@ -291,3 +291,4 @@ GO
 -- Kiểm tra lại (Tất cả sẽ trả về 0 dòng)
 SELECT * FROM DonDatLich;
 -- SELECT * FROM NguoiDung;
+select * from GoiDichVu;

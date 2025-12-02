@@ -1,0 +1,87 @@
+﻿@model PhotoBooking.Models.NguoiDung
+
+@{
+    ViewData["Title"] = "Hồ sơ: " + Model.HoVaTen;
+}
+
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center">
+                <img src="@(Model.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + Model.HoVaTen)"
+                     class="rounded-circle shadow" width="150" height="150" style="object-fit: cover;">
+            </div>
+            <div class="col-md-9">
+                <span class="badge bg-danger mb-2">Nhiếp ảnh gia chuyên nghiệp</span>
+                <h1 class="fw-bold">@Model.HoVaTen</h1>
+                <p class="text-muted"><i class="fa-solid fa-location-dot me-2"></i> @Model.MaDiaDiemNavigation?.TenThanhPho</p>
+                <p class="lead fs-6">
+                    @(Model.GioiThieu ?? "Nhiếp ảnh gia này chưa cập nhật giới thiệu.")
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <ul class="nav nav-tabs mb-4" id="profileTab" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#packages" type="button">
+                Các Gói Dịch Vụ (@Model.GoiDichVus.Count)
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#albums" type="button">
+                Album Ảnh Mẫu (@Model.AlbumAnhs.Count)
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="packages">
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                @foreach (var item in Model.GoiDichVus)
+                {
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <img src="@(item.AnhDaiDien ?? "https://source.unsplash.com/random/400x300/?photography&sig=" + item.MaGoi)"
+                                 class="card-img-top" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">@item.TenGoi</h5>
+                                <p class="text-danger fw-bold">@item.GiaTien.ToString("N0") đ</p>
+                                <a asp-controller="Home" asp-action="Details" asp-route-id="@item.MaGoi" class="btn btn-outline-danger w-100 rounded-pill">
+                                    Xem chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="albums">
+            <div class="row g-4">
+                @foreach (var album in Model.AlbumAnhs)
+                {
+                    <div class="col-md-4">
+                        <div class="card shadow-sm">
+                            @{
+                                var coverImg = album.AnhChiTiets.FirstOrDefault()?.DuongDanAnh ?? "https://placehold.co/400x300?text=Empty+Album";
+                            }
+                            <img src="@coverImg" class="card-img-top" style="height: 250px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">@album.TieuDe</h5>
+                                <p class="card-text text-muted small">@album.MoTa</p>
+                                <span class="badge bg-secondary">@album.AnhChiTiets.Count ảnh</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (Model.AlbumAnhs.Count == 0)
+                {
+                    <div class="col-12 text-center text-muted">Nhiếp ảnh gia chưa cập nhật Album nào.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

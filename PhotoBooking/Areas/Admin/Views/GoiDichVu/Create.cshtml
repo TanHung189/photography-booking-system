@@ -11,7 +11,24 @@
         </div>
         <div class="card-body">
             <form asp-action="Create" enctype="multipart/form-data">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-4 p-3 border rounded bg-light">
+                    <label class="control-label fw-bold mb-2">Ảnh Đại Diện</label>
+
+                    <div class="mb-2">
+                        <label class="small text-muted">Cách 1: Tải ảnh từ máy tính (Ưu tiên)</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                    </div>
+
+                    <div class="text-center text-muted small my-2">- HOẶC -</div>
+
+                    <div>
+                        <label class="small text-muted">Cách 2: Dán đường dẫn ảnh (URL) có sẵn</label>
+                        <input type="text" name="imageUrl" class="form-control" placeholder="https://example.com/anh-dep.jpg" />
+                    </div>
+
+                    <span asp-validation-for="AnhDaiDien" class="text-danger"></span>
+                </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -55,11 +72,6 @@
                 <div class="mb-3">
                     <label asp-for="SanPhamBanGiao" class="control-label fw-bold">Sản Phẩm Bàn Giao</label>
                     <input asp-for="SanPhamBanGiao" class="form-control" placeholder="Ví dụ: 10 ảnh chỉnh sửa, toàn bộ file gốc..." />
-                </div>
-
-                <div class="mb-4">
-                    <label class="control-label fw-bold">Ảnh Đại Diện</label>
-                    <input type="file" name="imageFile" class="form-control" accept="image/*" />
                 </div>
 
                 <div class="text-end">

@@ -33,14 +33,14 @@ namespace PhotoBooking.Controllers
             // Lưu ý: Hiện tại chúng ta đang so sánh mật khẩu dạng thô (plaintext).
             // Ở giai đoạn sau, chúng ta NÊN nâng cấp lên mã hóa MD5 hoặc BCrypt.
             var user = _context.NguoiDungs
-                .FirstOrDefault(u => u.TenDangNhap == username && u.MatKhau == password);
+        .FirstOrDefault(u => u.TenDangNhap == username);
 
-            // 2. Nếu không tìm thấy (user == null) -> Đăng nhập thất bại
-            if (user == null)
+            // 2. Kiểm tra:
+            // - User có tồn tại không?
+            // - Mật khẩu nhập vào (password) có khớp với mã hóa trong DB (user.MatKhau) không?
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.MatKhau))
             {
-                // Gửi thông báo lỗi sang View để hiển thị lên
                 ViewBag.Error = "Tên đăng nhập hoặc mật khẩu không chính xác!";
-                // Trả về lại trang Login để nhập lại
                 return View();
             }
 
@@ -74,6 +74,93 @@ namespace PhotoBooking.Controllers
 
             // 5. Chuyển hướng về trang chủ
             return RedirectToAction("Index", "Home");
+        }
+
+        // =============================================
+        // GET: Hiển thị trang Đăng ký
+        // =============================================
+        [HttpGet]
+        public IActionResult Register()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
+        }
+
+        // =============================================
+        // POST: Xử lý Đăng ký
+        // =============================================
+        [HttpPost]
+        public async Task<IActionResult> Register(NguoiDung model, string ConfirmPassword)
+        {
+            // =========================================================
+            // 1. GÁN GIÁ TRỊ MẶC ĐỊNH TRƯỚC (QUAN TRỌNG)
+            // =========================================================
+            // Phải gán ngay để ModelState không báo lỗi "VaiTro field is required"
+            model.VaiTro = "Customer";
+            model.NgayTao = DateTime.Now;
+            // Avatar random nếu chưa có
+            if (string.IsNullOrEmpty(model.AnhDaiDien))
+            {
+                model.AnhDaiDien = "https://ui-avatars.com/api/?name=" + model.HoVaTen + "&background=random";
+            }
+
+            // =========================================================
+            // 2. XÓA BỎ KIỂM TRA LỖI CHO CÁC TRƯỜNG ĐÃ GÁN HOẶC KHÔNG CẦN
+            // =========================================================
+            // Vì ta đã gán VaiTro ở trên, nên ta xóa lỗi của nó đi (để chắc ăn)
+            ModelState.Remove("VaiTro");
+            ModelState.Remove("AnhDaiDien");
+            ModelState.Remove("NgayTao");
+
+            // Các bảng liên quan (như cũ)
+            ModelState.Remove("MaDiaDiemNavigation");
+            ModelState.Remove("DonDatLichMaKhachHangNavigations");
+            ModelState.Remove("DonDatLichMaNhiepAnhGiaNavigations");
+            ModelState.Remove("GoiDichVus");
+            ModelState.Remove("AlbumAnhs");
+            ModelState.Remove("DanhGia");
+
+            // =========================================================
+            // 3. BẮT ĐẦU KIỂM TRA
+            // =========================================================
+            if (ModelState.IsValid)
+            {
+                // Kiểm tra mật khẩu xác nhận
+                if (model.MatKhau != ConfirmPassword)
+                {
+                    ViewBag.Error = "Mật khẩu xác nhận không khớp!";
+                    return View(model);
+                }
+
+                // Kiểm tra trùng tên đăng nhập
+                if (_context.NguoiDungs.Any(u => u.TenDangNhap == model.TenDangNhap))
+                {
+                    ViewBag.Error = "Tên đăng nhập này đã được sử dụng!";
+                    return View(model);
+                }
+
+                // Mã hóa mật khẩu
+                model.MatKhau = BCrypt.Net.BCrypt.HashPassword(model.MatKhau);
+
+                // Lưu vào DB
+                _context.Add(model);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Đăng ký thành công! Hãy đăng nhập.";
+                return RedirectToAction("Login");
+            }
+
+            // DEBUG: Nếu vẫn lỗi thì xem nó báo gì ở Output
+            var errors = ModelState.Values.SelectMany(v => v.Errors);
+            foreach (var err in errors)
+            {
+                System.Diagnostics.Debug.WriteLine("Lỗi Validation: " + err.ErrorMessage);
+            }
+
+            return View(model);
         }
 
         // xử lý đăng xuất logout

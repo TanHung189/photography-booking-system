@@ -4,6 +4,14 @@
     ViewData["Title"] = "Quản lý Gói Dịch Vụ";
 }
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-xmark me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <style>
     /* Style mặc định cho ảnh: Nhỏ gọn */
     .transition-img {
