@@ -84,21 +84,21 @@
                     <ul class="navbar-nav flex-grow-1">
                         @* Link bên trái (Giữ nguyên) *@
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Giới Thiệu</a>
+                            <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="Home" asp-action="Index">Giới Thiệu</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Đặt lịch</a>
+                            <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="Home" asp-action="Index">Đặt lịch</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Service" asp-action="Index">Danh sách buổi chụp</a>
+                            <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="Service" asp-action="Index">Danh sách buổi chụp</a>
                         </li
                          <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Photographer" asp-action="Index">Nhiếp ảnh gia</a>
+                            <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="Photographer" asp-action="Index">Nhiếp ảnh gia</a>
                         </li>
                         @if (User.Identity.IsAuthenticated && !User.IsInRole("Photographer") && !User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="YeuCau" asp-action="MyRequests">
+                                <a class="nav-link text-dark fw-bold" asp-controller="YeuCau" asp-action="MyRequests">
                                     Yêu cầu của tôi
                                 </a>
                             </li>
@@ -108,12 +108,12 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-primary fw-bold" asp-controller="YeuCau" asp-action="JobMarket">
-                                    <i class="fa-solid fa-briefcase me-1"></i> Săn việc
+                                    Săn việc
                                 </a>
                             </li>
                         }
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Liên hệ</a>
+                            <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="Home" asp-action="Privacy">Liên hệ</a>
                         </li>
                     </ul>
 

@@ -30,6 +30,10 @@ public partial class NguoiDung
     public DateTime? NgayTao { get; set; }
 
     public int? SoNamKinhNghiem { get; set; }
+    public string? MaXacNhan { get; set; }
+    public DateTime? HanMaXacNhan { get; set; }
+
+    public string? TinhThanh { get; set; }
 
     public virtual ICollection<AlbumAnh> AlbumAnhs { get; set; } = new List<AlbumAnh>();
 

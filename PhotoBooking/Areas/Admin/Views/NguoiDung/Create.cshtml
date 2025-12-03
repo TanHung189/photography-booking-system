@@ -60,11 +60,13 @@
                 <h6 class="text-muted text-uppercase small fw-bold mb-3">Thông tin bổ sung</h6>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Khu vực hoạt động</label>
-                        <select asp-for="MaDiaDiem" class="form-select" asp-items="ViewBag.MaDiaDiem">
-                            <option value="">-- Chọn địa điểm --</option>
+                    <div class="form-floating mb-3">
+                        <input type="hidden" asp-for="TinhThanh" id="TinhThanhInput" />
+
+                        <select class="form-select" id="province-select" style="height: 58px; padding-top: 25px;">
+                            <option value="" selected>Chọn Tỉnh/Thành phố...</option>
                         </select>
+                        <label for="province-select">Khu vực hoạt động</label>
                     </div>
 
                     <div class="col-md-6 mb-3" id="expField">

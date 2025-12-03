@@ -107,9 +107,19 @@ namespace PhotoBooking.Areas.Admin.Controllers
         {
             if (id != nguoiDung.MaNguoiDung) return NotFound();
 
-            // Bỏ qua validate các bảng liên quan
+            // --- KIỂM TRA TRÙNG EMAIL (LOGIC MỚI) ---
+            // Tìm xem có ai KHÁC (id != nguoiDung.MaNguoiDung) mà đang dùng email này không
+            bool isEmailExists = await _context.NguoiDungs.AnyAsync(u => u.Email == nguoiDung.Email && u.MaNguoiDung != id);
+
+            if (isEmailExists)
+            {
+                ModelState.AddModelError("Email", "Email này đã được sử dụng bởi người khác!");
+            }
+            // -----------------------------------------
+
+            // Bỏ qua validate các bảng liên quan (Giữ nguyên code cũ)
             ModelState.Remove("MaDiaDiemNavigation");
-            ModelState.Remove("MatKhau"); // Không bắt buộc nhập lại mật khẩu nếu không đổi
+            ModelState.Remove("MatKhau");
 
             if (ModelState.IsValid)
             {
@@ -128,7 +138,7 @@ namespace PhotoBooking.Areas.Admin.Controllers
                         nguoiDung.MatKhau = BCrypt.Net.BCrypt.HashPassword(nguoiDung.MatKhau);
                     }
 
-                    // Giữ lại ngày tạo và Avatar cũ nếu không upload mới
+                    nguoiDung.MatKhau = string.IsNullOrEmpty(nguoiDung.MatKhau) ? userCu.MatKhau : BCrypt.Net.BCrypt.HashPassword(nguoiDung.MatKhau);
                     nguoiDung.NgayTao = userCu.NgayTao;
                     if (string.IsNullOrEmpty(nguoiDung.AnhDaiDien)) nguoiDung.AnhDaiDien = userCu.AnhDaiDien;
 

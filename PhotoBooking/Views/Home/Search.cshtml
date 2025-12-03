@@ -55,6 +55,38 @@
     }
 </div>
 
+<select class="form-select border-0 fw-bold" name="searchLocation" id="province-select-search">
+    <option value="">Bạn muốn chụp ở đâu?</option>
+</select>
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Lấy giá trị vừa tìm kiếm từ ViewBag (do Controller gửi sang)
+            var selectedLoc = '@ViewBag.SelectedLocation';
+
+            fetch('https://provinces.open-api.vn/api/?depth=1')
+                .then(response => response.json())
+                .then(data => {
+                    var select = document.getElementById('province-select-search');
+
+                    data.forEach(item => {
+                        var cleanName = item.name.replace('Tỉnh ', '').replace('Thành phố ', '');
+                        var option = document.createElement('option');
+                        option.value = cleanName;
+                        option.text = cleanName;
+
+                        // Nếu tên trùng với cái vừa tìm -> Đánh dấu chọn
+                        if (cleanName === selectedLoc) {
+                            option.selected = true;
+                        }
+
+                        select.appendChild(option);
+                    });
+                });
+        });
+    </script>
+}
+
 @* Tái sử dụng CSS hover *@
 <style>
     .hover-card {

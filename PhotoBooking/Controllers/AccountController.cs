@@ -2,9 +2,12 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PhotoBooking.Models; 
+using Microsoft.EntityFrameworkCore;
+using PhotoBooking.Models;
+using PhotoBooking.Services;
 using PhotoBooking.Web.Services;
 using System.Security.Claims;
+
 
 namespace PhotoBooking.Controllers
 {
@@ -12,10 +15,13 @@ namespace PhotoBooking.Controllers
     {
         private readonly PhotoBookingContext _context;// readonly (chỉ đọc) chốt an toàn
         private readonly PhotoService _photoService;
-        public AccountController(PhotoBookingContext context, PhotoService photoService)
+        private readonly EmailSender _emailSender;
+
+        public AccountController(PhotoBookingContext context, PhotoService photoService, EmailSender emailSender)
         {
             _context = context;
             _photoService = photoService;
+            _emailSender = emailSender;
         }
 
         //Get: hiển thị trang đăng nhập
@@ -103,9 +109,14 @@ namespace PhotoBooking.Controllers
             // 1. GÁN GIÁ TRỊ MẶC ĐỊNH TRƯỚC (QUAN TRỌNG)
             // =========================================================
             // Phải gán ngay để ModelState không báo lỗi "VaiTro field is required"
-            model.VaiTro = "Customer";
+            if (model.VaiTro != "Photographer")
+            {
+                // Nếu người dùng chọn lung tung hoặc không chọn -> Mặc định về Customer
+                // Dòng này cũng chặn luôn việc ai đó cố tình gửi "Admin" lên
+                model.VaiTro = "Customer";
+            }
             model.NgayTao = DateTime.Now;
-            // Avatar random nếu chưa có
+            model.SoNamKinhNghiem = 0; // Mặc định kinh nghiệm là 0
             if (string.IsNullOrEmpty(model.AnhDaiDien))
             {
                 model.AnhDaiDien = "https://ui-avatars.com/api/?name=" + model.HoVaTen + "&background=random";
@@ -115,11 +126,13 @@ namespace PhotoBooking.Controllers
             // 2. XÓA BỎ KIỂM TRA LỖI CHO CÁC TRƯỜNG ĐÃ GÁN HOẶC KHÔNG CẦN
             // =========================================================
             // Vì ta đã gán VaiTro ở trên, nên ta xóa lỗi của nó đi (để chắc ăn)
-            ModelState.Remove("VaiTro");
+
             ModelState.Remove("AnhDaiDien");
             ModelState.Remove("NgayTao");
+            ModelState.Remove("SoNamKinhNghiem");
 
             // Các bảng liên quan (như cũ)
+            ModelState.Remove("MaDiaDiem");
             ModelState.Remove("MaDiaDiemNavigation");
             ModelState.Remove("DonDatLichMaKhachHangNavigations");
             ModelState.Remove("DonDatLichMaNhiepAnhGiaNavigations");
@@ -238,6 +251,94 @@ namespace PhotoBooking.Controllers
 
             TempData["SuccessPass"] = "Đổi mật khẩu thành công!";
             return RedirectToAction(nameof(ProfileCustomer));
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        //Actio Quên mật khẩu
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var user = await _context.NguoiDungs.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+            {
+                // Bảo mật: Không báo lỗi "Email không tồn tại" để tránh hacker dò mail
+                // Cứ báo thành công ảo hoặc báo chung chung
+                TempData["Success"] = "Nếu email tồn tại, mã xác nhận đã được gửi.";
+                return View();
+            }
+
+            // Tạo mã ngẫu nhiên 6 số
+            string code = new Random().Next(100000, 999999).ToString();
+
+            // Lưu vào DB (Hết hạn sau 10 phút)
+            user.MaXacNhan = code;
+            user.HanMaXacNhan = DateTime.Now.AddMinutes(10);
+            await _context.SaveChangesAsync();
+
+            // Gửi Email
+            string subject = "[PotoBooking] Mã xác nhận quên mật khẩu";
+            string body = $"<h3>Mã xác nhận của bạn là: <b style='color:red; font-size:20px;'>{code}</b></h3>" +
+                          "<p>Mã này có hiệu lực trong 10 phút. Tuyệt đối không chia sẻ cho ai.</p>";
+
+            await _emailSender.SendEmailAsync(email, subject, body);
+
+            // Chuyển sang trang Nhập mã
+            return RedirectToAction("ResetPassword", new { email = email });
+        }
+
+        // ==========================================
+        // 2. TRANG ĐẶT LẠI MẬT KHẨU (Nhập Mã + Pass mới)
+        // ==========================================
+        [HttpGet]
+        public IActionResult ResetPassword(string email)
+        {
+            ViewBag.Email = email;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(string email, string code, string newPassword, string confirmPassword)
+        {
+            var user = await _context.NguoiDungs.FirstOrDefaultAsync(u => u.Email == email);
+
+            // Kiểm tra các điều kiện
+            if (user == null)
+            {
+                ViewBag.Error = "Email không hợp lệ.";
+                return View();
+            }
+            if (user.MaXacNhan != code)
+            {
+                ViewBag.Error = "Mã xác nhận không đúng.";
+                ViewBag.Email = email; return View();
+            }
+            if (user.HanMaXacNhan < DateTime.Now)
+            {
+                ViewBag.Error = "Mã xác nhận đã hết hạn. Vui lòng thử lại.";
+                ViewBag.Email = email; return View();
+            }
+            if (newPassword != confirmPassword)
+            {
+                ViewBag.Error = "Mật khẩu xác nhận không khớp.";
+                ViewBag.Email = email; return View();
+            }
+
+            // Đổi mật khẩu thành công
+            user.MatKhau = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+            // Xóa mã xác nhận đi để không dùng lại được
+            user.MaXacNhan = null;
+            user.HanMaXacNhan = null;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đổi mật khẩu thành công! Hãy đăng nhập ngay.";
+            return RedirectToAction("Login");
         }
 
         // xử lý đăng xuất logout

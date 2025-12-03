@@ -1,105 +1,174 @@
 ﻿@model PhotoBooking.Models.NguoiDung
 
 @{
-    ViewData["Title"] = "Hồ sơ cá nhân";
+    ViewData["Title"] = "Hồ sơ của tôi";
+    var coverImage = Model.AnhBia ?? "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1920&q=80";
 }
 
-<div class="container-fluid py-4">
+<form asp-action="Update" enctype="multipart/form-data" id="profileForm">
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fa-solid fa-check-circle me-2"></i> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="position-relative mb-5">
+        <div class="group-cover-upload" style="height: 300px; overflow: hidden; border-radius: 0 0 20px 20px; position: relative;">
+            <img src="@coverImage" class="w-100 h-100 object-fit-cover" id="previewCover" alt="Cover Photo">
+
+            <div class="cover-overlay position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50 d-none"></div>
+
+            <label for="coverFile" class="btn btn-light btn-sm position-absolute top-50 start-50 translate-middle shadow-sm fw-bold" style="opacity: 0.9">
+                <i class="fa-solid fa-camera me-2"></i> Đổi ảnh bìa
+            </label>
+            <input type="file" name="coverFile" id="coverFile" class="d-none" accept="image/*" onchange="previewImage(this, 'previewCover')">
         </div>
-    }
 
-    <form asp-action="Update" enctype="multipart/form-data">
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card shadow border-0 text-center p-4">
-                    <div class="mb-3 position-relative d-inline-block mx-auto">
-                        <img src="@(Model.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + Model.HoVaTen)"
-                             class="rounded-circle shadow-sm"
-                             style="width: 150px; height: 150px; object-fit: cover; border: 5px solid #f8f9fa;"
-                             id="previewAvatar">
+        <div class="container position-relative" style="margin-top: -70px;">
+            <div class="d-flex align-items-end">
+                <div class="position-relative">
+                    <img src="@(Model.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + Model.HoVaTen)"
+                         class="rounded-circle border border-4 border-white shadow"
+                         width="140" height="140" style="object-fit: cover; background: #fff;" id="previewAvatar">
 
-                        <label for="avatarFile" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 cursor-pointer shadow"
-                               style="width: 40px; height: 40px; cursor: pointer;" title="Đổi Avatar">
-                            <i class="fa-solid fa-camera"></i>
-                        </label>
-                        <input type="file" name="avatarFile" id="avatarFile" class="d-none" accept="image/*" onchange="previewImage(this)">
-                    </div>
+                    <label for="avatarFile" class="position-absolute bottom-0 end-0 bg-white text-dark rounded-circle p-2 shadow cursor-pointer border"
+                           style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="Đổi Avatar">
+                        <i class="fa-solid fa-camera small"></i>
+                    </label>
+                    <input type="file" name="avatarFile" id="avatarFile" class="d-none" accept="image/*" onchange="previewImage(this, 'previewAvatar')">
+                </div>
 
-                    <h5 class="fw-bold">@Model.HoVaTen</h5>
-                    <p class="text-muted text-uppercase small">@Model.VaiTro</p>
-
-                    <div class="mt-3 text-start">
-                        <label class="form-label fw-bold small">Ảnh bìa hồ sơ</label>
-                        <input type="file" name="coverFile" class="form-control form-control-sm" accept="image/*">
-                        @if (!string.IsNullOrEmpty(Model.AnhBia))
-                        {
-                            <div class="mt-2">
-                                <img src="@Model.AnhBia" class="img-fluid rounded" style="height: 100px; object-fit: cover; width: 100%;">
-                            </div>
-                        }
-                    </div>
+                <div class="ms-3 mb-2 text-white d-none d-md-block" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+                    <h2 class="fw-bold mb-0">@Model.HoVaTen</h2>
+                    <span class="badge bg-warning text-dark">@Model.VaiTro</span>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="col-md-8">
-                <div class="card shadow border-0">
-                    <div class="card-header bg-white py-3">
-                        <h6 class="m-0 fw-bold text-primary">Thông tin chi tiết</h6>
+    <div class="container pb-5">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 border-start border-4 border-success" role="alert">
+                <i class="fa-solid fa-check-circle me-2"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white py-3 border-bottom-0">
+                        <h5 class="fw-bold text-primary mb-0"><i class="fa-solid fa-user-pen me-2"></i> Thông tin cá nhân</h5>
                     </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
+                    <div class="card-body p-4">
+                        <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Họ và tên</label>
-                                <input asp-for="HoVaTen" class="form-control" required />
+                                <input asp-for="HoVaTen" class="form-control bg-light" required />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Số điện thoại</label>
-                                <input asp-for="SoDienThoai" class="form-control" />
+                                <input asp-for="SoDienThoai" class="form-control bg-light" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Email</label>
+                                <input asp-for="Email" class="form-control bg-light" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Tên đăng nhập (Không thể đổi)</label>
+                                <input asp-for="TenDangNhap" class="form-control" disabled />
+                            </div>
+
+                            @if (Model.VaiTro == "Photographer")
+                            {
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-orange">Kinh nghiệm (Năm)</label>
+                                    <input asp-for="SoNamKinhNghiem" class="form-control border-warning" type="number" min="0" />
+                                </div>
+                            }
+
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Giới thiệu bản thân (Bio)</label>
+                                <textarea asp-for="GioiThieu" class="form-control bg-light" rows="4" placeholder="Viết gì đó về bạn..."></textarea>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Email</label>
-                            <input asp-for="Email" class="form-control" />
-                        </div>
-
-                        @if (Model.VaiTro == "Photographer")
-                        {
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Kinh nghiệm (Năm)</label>
-                                <input asp-for="SoNamKinhNghiem" class="form-control" type="number" min="0" />
-                            </div>
-                        }
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Giới thiệu bản thân (Bio)</label>
-                            <textarea asp-for="GioiThieu" class="form-control" rows="5" placeholder="Hãy viết gì đó ấn tượng về bạn..."></textarea>
-                        </div>
-
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-primary px-4 fw-bold">
-                                <i class="fa-solid fa-save me-1"></i> Lưu thay đổi
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
+                                <i class="fa-solid fa-save me-2"></i> Lưu Thay Đổi
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-dark text-white">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-pie me-2"></i> Thống kê của bạn</h5>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span><i class="fa-solid fa-box-open me-2 text-secondary"></i> Gói dịch vụ</span>
+                            <span class="fw-bold fs-5">@Model.GoiDichVus.Count</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span><i class="fa-solid fa-images me-2 text-secondary"></i> Album ảnh</span>
+                            <span class="fw-bold fs-5">@Model.AlbumAnhs.Count</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fa-solid fa-calendar-check me-2 text-secondary"></i> Đơn hàng</span>
+                            <span class="fw-bold fs-5 text-warning">@Model.DonDatLichMaNhiepAnhGiaNavigations.Count</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-muted mb-3">Mẹo Profile đẹp</h6>
+                        <ul class="list-unstyled small text-secondary mb-0">
+                            <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Chọn ảnh bìa ngang, chất lượng cao (1920x600).</li>
+                            <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Ảnh đại diện nên chụp rõ mặt.</li>
+                            <li><i class="fa-solid fa-check text-success me-2"></i> Viết Bio ngắn gọn nhưng ấn tượng.</li>
+                        </ul>
+                        <div class="mt-4 d-grid">
+                            <a asp-area="" asp-controller="Photographer" asp-action="Profile" asp-route-id="@Model.MaNguoiDung" target="_blank" class="btn btn-outline-dark rounded-pill btn-sm">
+                                <i class="fa-solid fa-eye me-2"></i> Xem trang công khai
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
-</div>
+    </div>
+</form>
+
+<style>
+    .object-fit-cover {
+        object-fit: cover;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .text-orange {
+        color: #fd7e14;
+    }
+
+    /* Hiệu ứng hover ảnh bìa */
+    .group-cover-upload:hover .cover-overlay {
+        display: block !important;
+    }
+
+    .group-cover-upload:hover label {
+        background-color: white !important;
+        color: black !important;
+    }
+</style>
 
 <script>
-    function previewImage(input) {
+    // Script xem trước ảnh ngay lập tức khi chọn file
+    function previewImage(input, imgId) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
             reader.onload = function (e) {
-                document.getElementById('previewAvatar').src = e.target.result;
+                document.getElementById(imgId).src = e.target.result;
             }
             reader.readAsDataURL(input.files[0]);
         }

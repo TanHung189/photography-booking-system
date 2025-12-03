@@ -5,6 +5,7 @@ using PhotoBooking.Models;
 using PhotoBooking.ViewModels;
 using System.Diagnostics;
 using System.Security.Claims;
+using PhotoBooking.Services;
 
 namespace PhotoBooking.Controllers
 {
@@ -12,11 +13,12 @@ namespace PhotoBooking.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly PhotoBookingContext _context;
-
-        public HomeController(PhotoBookingContext context, ILogger<HomeController> logger)
+        private readonly EmailSender _emailSender;
+        public HomeController(PhotoBookingContext context, ILogger<HomeController> logger, EmailSender emailSender)
         {
             _context = context;
             _logger = logger;
+            _emailSender = emailSender;
         }
 
 
@@ -46,27 +48,36 @@ namespace PhotoBooking.Controllers
         }
 
         [HttpGet]
-        public IActionResult Search(int? locationId, int? categoryId)
+        public IActionResult Search(string searchLocation, int? categoryId)
         {
+            // 1. Bắt đầu truy vấn
             var query = _context.GoiDichVus
                 .Include(g => g.MaNhiepAnhGiaNavigation)
+                    .ThenInclude(u => u.MaDiaDiemNavigation) // Include thêm bảng Địa điểm của Nhiếp ảnh gia
                 .Include(g => g.MaDanhMucNavigation)
                 .AsQueryable();
 
-            //vi?t b? l?c 
-            if (locationId.HasValue)
+            // 2. Lọc theo TÊN ĐỊA ĐIỂM (Thay vì ID)
+            if (!string.IsNullOrEmpty(searchLocation))
             {
-                query = query.Where(g => g.
-                MaNhiepAnhGiaNavigation.MaDiaDiem == locationId.Value);
+                // Tìm những gói mà Nhiếp ảnh gia có địa chỉ chứa từ khóa (VD: Hà Nội)
+                query = query.Where(g => g.MaNhiepAnhGiaNavigation.MaDiaDiemNavigation.TenThanhPho.Contains(searchLocation));
             }
 
-            if (categoryId.HasValue)
+            // 3. Lọc theo Danh mục (Giữ nguyên vì dropdown danh mục vẫn dùng ID)
+            if (categoryId.HasValue && categoryId.Value > 0)
             {
                 query = query.Where(g => g.MaDanhMuc == categoryId.Value);
             }
-            //th?c thi truy v?n và l?y k?t qu? thành danh ssach
-            var results = query.OrderByDescending(g => g.MaGoi).ToList();
-            return View(results);
+
+            // 4. Sắp xếp & Lấy kết quả
+            var result = query.OrderByDescending(g => g.MaGoi).ToList();
+
+            // Lưu lại để hiển thị trên View
+            ViewBag.SelectedLocation = searchLocation;
+            ViewBag.SelectedCategory = categoryId;
+
+            return View(result);
         }
 
         [HttpGet]
@@ -141,6 +152,29 @@ namespace PhotoBooking.Controllers
             _context.Add(donMoi);
             await _context.SaveChangesAsync();
 
+            // --- GỬI EMAIL XÁC NHẬN CHO KHÁCH ---
+            var userEmail = User.FindFirst(ClaimTypes.Name)?.Value; // Cách lấy email tùy vào lúc login bạn lưu claim nào, nếu chưa lưu Email thì phải query DB lại.
+            var khachHang = await _context.NguoiDungs.FindAsync(maKhachHang);
+
+            if (!string.IsNullOrEmpty(khachHang.Email))
+            {
+                string subject = $"[PotoBooking] Xác nhận đơn đặt lịch #{donMoi.MaDon}";
+                string content = $@"
+            <h3>Cảm ơn bạn đã đặt lịch tại PotoBooking!</h3>
+            <p>Xin chào <b>{khachHang.HoVaTen}</b>,</p>
+            <p>Yêu cầu đặt lịch của bạn đã được gửi đi. Nhiếp ảnh gia sẽ sớm phản hồi.</p>
+            <ul>
+                <li><b>Mã đơn:</b> #{donMoi.MaDon}</li>
+                <li><b>Ngày chụp:</b> {donMoi.NgayChup:dd/MM/yyyy HH:mm}</li>
+                <li><b>Địa điểm:</b> {donMoi.DiaChiChup}</li>
+                <li><b>Tổng tiền:</b> {donMoi.TongTien:N0} đ</li>
+            </ul>
+            <p>Vui lòng truy cập website để theo dõi trạng thái đơn hàng.</p>
+        ";
+
+                await _emailSender.SendEmailAsync(khachHang.Email, subject, content);
+            }
+          
             // 5. Thông báo thành công
             // Sử dụng TempData để gửi một tin nhắn ngắn sang trang kế tiếp
             TempData["SuccessMessage"] = "🎉 Chúc mừng! Bạn đã gửi yêu cầu đặt lịch thành công. Nhiếp ảnh gia sẽ sớm liên hệ lại.";

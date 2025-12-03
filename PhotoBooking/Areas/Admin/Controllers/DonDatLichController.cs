@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml; // thư viện xuất báo cáo excel
 using OfficeOpenXml.Style;
 using PhotoBooking.Models;
+using PhotoBooking.Services;
+using PhotoBooking.Web.Services;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -20,10 +22,11 @@ namespace PhotoBooking.Areas.Admin.Controllers
     public class DonDatLichController : Controller
     {
         private readonly PhotoBookingContext _context;
-
-        public DonDatLichController(PhotoBookingContext context)
+        private readonly EmailSender _emailSender;
+        public DonDatLichController(PhotoBookingContext context, EmailSender emailSender)
         {
             _context = context;
+            _emailSender = emailSender;
         }
 
         // GET: Admin/DonDatLich
@@ -76,12 +79,39 @@ namespace PhotoBooking.Areas.Admin.Controllers
         // ACTION: DUYỆT ĐƠN
         public async Task<IActionResult> Approve(int id)
         {
-            var don = await _context.DonDatLiches.FindAsync(id);
-            if (don != null && don.TrangThai == 0) // Chỉ duyệt đơn đang chờ
+            var don = await _context.DonDatLiches
+                .Include(d => d.MaKhachHangNavigation) // Include để lấy Email khách
+                .Include(d => d.MaGoiNavigation)       // Include để lấy tên Gói
+                .FirstOrDefaultAsync(d => d.MaDon == id);
+
+            if (don != null && don.TrangThai == 0)
             {
-                don.TrangThai = 1; // 1 = Đã xác nhận
+                // 1. Cập nhật trạng thái
+                don.TrangThai = 1; // Đã xác nhận
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Đã duyệt đơn hàng #" + id;
+
+                // 2. Gửi Email thông báo
+                if (!string.IsNullOrEmpty(don.MaKhachHangNavigation?.Email))
+                {
+                    string subject = $"[TAHU.FOTO] Đơn hàng #{don.MaDon} đã được xác nhận! ✅";
+                    string content = $@"
+                <h3>Xin chào {don.MaKhachHangNavigation.HoVaTen},</h3>
+                <p>Tin vui! Yêu cầu đặt lịch của bạn đã được Nhiếp ảnh gia chấp nhận.</p>
+                <div style='background-color: #f8f9fa; padding: 15px; border-left: 4px solid #28a745;'>
+                    <p><b>Gói chụp:</b> {don.MaGoiNavigation?.TenGoi ?? "Đặt lịch riêng"}</p>
+                    <p><b>Thời gian:</b> {don.NgayChup:dd/MM/yyyy HH:mm}</p>
+                    <p><b>Địa điểm:</b> {don.DiaChiChup}</p>
+                    <p style='color:red; font-weight:bold'>Tổng tiền: {don.TongTien:N0} đ</p>
+                </div>
+                <p>Vui lòng chuẩn bị đúng giờ nhé!</p>
+                <p>Trân trọng,<br>Đội ngũ TAHU.FOTO</p>
+            ";
+
+                    // Gọi hàm gửi mail (không cần await để tránh user phải chờ lâu)
+                    _emailSender.SendEmailAsync(don.MaKhachHangNavigation.Email, subject, content);
+                }
+
+                TempData["Success"] = "Đã duyệt đơn và gửi email thông báo.";
             }
             return RedirectToAction(nameof(Index));
         }
@@ -89,12 +119,34 @@ namespace PhotoBooking.Areas.Admin.Controllers
         // ACTION: TỪ CHỐI / HỦY ĐƠN
         public async Task<IActionResult> Reject(int id)
         {
-            var don = await _context.DonDatLiches.FindAsync(id);
+            var don = await _context.DonDatLiches
+                .Include(d => d.MaKhachHangNavigation)
+                .Include(d => d.MaGoiNavigation)
+                .FirstOrDefaultAsync(d => d.MaDon == id);
+
             if (don != null)
             {
-                don.TrangThai = 3; // 3 = Đã hủy
+                // 1. Cập nhật trạng thái
+                don.TrangThai = 3; // Đã hủy/Từ chối
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Đã từ chối đơn hàng #" + id;
+
+                // 2. Gửi Email thông báo
+                if (!string.IsNullOrEmpty(don.MaKhachHangNavigation?.Email))
+                {
+                    string subject = $"[TAHU.FOTO] Đơn hàng #{don.MaDon} đã bị từ chối ❌";
+                    string content = $@"
+                <h3>Xin chào {don.MaKhachHangNavigation.HoVaTen},</h3>
+                <p>Rất tiếc, nhiếp ảnh gia không thể nhận yêu cầu đặt lịch này của bạn.</p>
+                <p><b>Lý do:</b> Lịch trình bận hoặc không phù hợp.</p>
+                <p>Bạn vui lòng tham khảo các nhiếp ảnh gia khác trên hệ thống nhé.</p>
+                <hr>
+                <a href='https://localhost:7155'>Quay lại Website</a>
+            ";
+
+                    _emailSender.SendEmailAsync(don.MaKhachHangNavigation.Email, subject, content);
+                }
+
+                TempData["Success"] = "Đã từ chối đơn hàng.";
             }
             return RedirectToAction(nameof(Index));
         }

@@ -67,27 +67,37 @@ namespace PhotoBooking.Controllers
 
         public async Task<IActionResult> Profile(int id)
         {
+            // A. Lấy thông tin Nhiếp ảnh gia và toàn bộ dữ liệu liên quan
             var user = await _context.NguoiDungs
                 .Include(u => u.MaDiaDiemNavigation)
-                .Include(u => u.GoiDichVus).ThenInclude(g => g.MaDanhMucNavigation)
-                .Include(u => u.AlbumAnhs).ThenInclude(a => a.AnhChiTiets)
-                // Include thêm để tính điểm đánh giá
+                // Lấy Gói dịch vụ -> Đơn hàng -> Đánh giá
                 .Include(u => u.GoiDichVus).ThenInclude(g => g.DonDatLiches).ThenInclude(d => d.DanhGium)
+                .Include(u => u.GoiDichVus).ThenInclude(g => g.MaDanhMucNavigation)
+                // Lấy Album -> Ảnh chi tiết
+                .Include(u => u.AlbumAnhs).ThenInclude(a => a.AnhChiTiets)
                 .FirstOrDefaultAsync(m => m.MaNguoiDung == id);
 
-            if (user == null) return NotFound();
+            if (user == null || user.VaiTro != "Photographer")
+            {
+                return NotFound();
+            }
 
-            // Chuyển sang ViewModel
+            // B. Chuyển sang ViewModel (Tính toán số liệu)
             var vm = new PhotographerViewModel();
             vm.User = user;
-            vm.PackageCount = user.GoiDichVus.Count;
-            vm.NamKinhNghiem = user.SoNamKinhNghiem ?? 0;
 
-            // Tính điểm
-            var allRatings = user.GoiDichVus.SelectMany(g => g.DonDatLiches)
-                                 .Where(d => d.DanhGium != null).Select(d => d.DanhGium.SoSao);
-            vm.AvgRating = allRatings.Any() ? allRatings.Average() : 0;
-            vm.ReviewCount = allRatings.Count();
+            // 1. Tính kinh nghiệm & Số lượng
+            vm.NamKinhNghiem = user.SoNamKinhNghiem ?? 0;
+            vm.PackageCount = user.GoiDichVus.Count;
+
+            // 2. Tính điểm đánh giá trung bình
+            // Gom tất cả đơn hàng từ tất cả các gói
+            var allBookings = user.GoiDichVus.SelectMany(g => g.DonDatLiches);
+            // Lọc ra các đơn có đánh giá
+            var ratings = allBookings.Where(d => d.DanhGium != null).Select(d => d.DanhGium.SoSao);
+
+            vm.AvgRating = ratings.Any() ? ratings.Average() : 0;
+            vm.ReviewCount = ratings.Count();
 
             return View(vm);
         }

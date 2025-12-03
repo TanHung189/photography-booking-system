@@ -61,9 +61,15 @@
                                 </td>
 
                                 <td>
-                                    @if (item.MaDiaDiemNavigation != null)
+                                    @* Ưu tiên 1: Hiển thị từ cột TinhThanh (Dữ liệu mới từ API) *@
+                                    @if (!string.IsNullOrEmpty(item.TinhThanh))
                                     {
-                                        <span><i class="fa-solid fa-location-dot text-danger me-1"></i> @item.MaDiaDiemNavigation.TenThanhPho</span>
+                                        <span><i class="fa-solid fa-location-dot text-danger me-1"></i> @item.TinhThanh</span>
+                                    }
+                                    @* Ưu tiên 2: Nếu không có, thử hiển thị từ bảng DiaDiem cũ *@
+                                    else if (item.MaDiaDiemNavigation != null)
+                                    {
+                                        <span><i class="fa-solid fa-location-dot text-secondary me-1"></i> @item.MaDiaDiemNavigation.TenThanhPho</span>
                                     }
                                     else
                                     {
@@ -92,3 +98,4 @@
         </div>
     </div>
 </div>
+

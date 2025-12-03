@@ -1,36 +1,33 @@
-﻿@* Khai báo kiểu dữ liệu mà View này sẽ nhận được *@
-@model PhotoBooking.ViewModels.HomeViewModel
+﻿@model PhotoBooking.ViewModels.HomeViewModel
 
 @{
     ViewData["Title"] = "Trang chủ - PhotoBooking";
 }
 
-<section class="hero-banner text-center text-white d-flex align-items-center" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1452587925148-ce544e77e70d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover; height: 500px;">
-    <div class="container">
-        <h1 class="display-4 fw-bold mb-4">Lưu giữ khoảnh khắc đáng nhớ của bạn</h1>
-        <p class="lead mb-5">Kết nối với hơn 1000+ nhiếp ảnh gia chuyên nghiệp trên toàn quốc.</p>
+<section class="hero-banner text-center text-white d-flex align-items-center position-relative"
+         style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1554048612-387768052bf7?auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover; height: 600px;">
 
-        <div class="search-box bg-white p-3 rounded-pill shadow-lg mx-auto" style="max-width: 800px;">
-            <form class="row g-2 align-items-center" asp-controller="Home" asp-action="Search" method="get">
-                <div class="col-md-4">
+    <div class="container position-relative z-2">
+        <h1 class="display-3 fw-bold mb-3 animate__animated animate__fadeInDown">Bắt trọn từng khoảnh khắc</h1>
+        <p class="lead mb-5 animate__animated animate__fadeInUp animate__delay-1s fs-4">Nền tảng kết nối nhiếp ảnh gia hàng đầu Việt Nam</p>
+
+        <div class="search-box bg-white p-4 rounded-4 shadow-lg mx-auto animate__animated animate__fadeInUp animate__delay-1s" style="max-width: 850px;">
+            <form class="row g-3 align-items-end" asp-controller="Home" asp-action="Search" method="get">
+                <div class="col-md-4 text-start">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Địa điểm</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-transparent border-0"><i class="fa-solid fa-location-dot text-danger"></i></span>
-
-                        <select class="form-select border-0 fw-bold" aria-label="Chọn địa điểm" name="locationId">
-                            <option value="">Bạn muốn chụp ở đâu?</option>
-                            @foreach (var item in Model.Locations)
-                            {
-                                <option value="@item.MaDiaDiem">@item.TenThanhPho</option>
-                            }
+                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-location-dot text-danger"></i></span>
+                        <select class="form-select border-0 bg-light fw-bold" name="searchLocation" id="province-select">
+                            <option value="">Toàn quốc</option>
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4 border-start border-end">
+                <div class="col-md-4 text-start border-start border-end">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Dịch vụ</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-transparent border-0"><i class="fa-solid fa-camera text-primary"></i></span>
-
-                        <select class="form-select border-0 fw-bold" aria-label="Chọn dịch vụ" name="categoryId">
-                            <option value="">Loại hình dịch vụ?</option>
+                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-camera text-primary"></i></span>
+                        <select class="form-select border-0 bg-light fw-bold" name="categoryId">
+                            <option value="">Tất cả thể loại</option>
                             @foreach (var item in Model.Categories)
                             {
                                 <option value="@item.MaDanhMuc">@item.TenDanhMuc</option>
@@ -39,61 +36,127 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <button type="submit" class="btn btn-danger rounded-pill w-100 fw-bold py-2">Tìm kiếm ngay <i class="fa-solid fa-magnifying-glass ms-2"></i></button>
+                    <button type="submit" class="btn btn-danger w-100 py-3 fw-bold rounded-3 shadow-sm hover-up">
+                        TÌM KIẾM NGAY <i class="fa-solid fa-magnifying-glass ms-2"></i>
+                    </button>
                 </div>
             </form>
+        </div>
+
+        <div class="mt-4 text-white-50 d-flex justify-content-center gap-4 small">
+            <span><i class="fa-solid fa-check-circle me-1"></i> 1000+ Nhiếp ảnh gia</span>
+            <span><i class="fa-solid fa-check-circle me-1"></i> 5000+ Khách hàng tin dùng</span>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h6 class="text-primary fw-bold text-uppercase ls-2">Khám phá</h6>
+            <h2 class="fw-bold">Dịch vụ phổ biến</h2>
+        </div>
+
+        <div class="row justify-content-center text-center g-4">
+            <div class="col-6 col-md-2">
+                <a href="/Home/Search?categoryId=1" class="text-decoration-none text-dark category-item d-block">
+                    <div class="icon-circle bg-primary-subtle text-primary mx-auto mb-3">
+                        <i class="fa-solid fa-rings-wedding fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold">Chụp Cưới</h6>
+                </a>
+            </div>
+            <div class="col-6 col-md-2">
+                <a href="/Home/Search?categoryId=2" class="text-decoration-none text-dark category-item d-block">
+                    <div class="icon-circle bg-success-subtle text-success mx-auto mb-3">
+                        <i class="fa-solid fa-graduation-cap fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold">Kỷ Yếu</h6>
+                </a>
+            </div>
+            <div class="col-6 col-md-2">
+                <a href="/Home/Search?categoryId=3" class="text-decoration-none text-dark category-item d-block">
+                    <div class="icon-circle bg-danger-subtle text-danger mx-auto mb-3">
+                        <i class="fa-solid fa-shirt fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold">Thời Trang</h6>
+                </a>
+            </div>
+            <div class="col-6 col-md-2">
+                <a href="/Home/Search?categoryId=4" class="text-decoration-none text-dark category-item d-block">
+                    <div class="icon-circle bg-warning-subtle text-warning mx-auto mb-3">
+                        <i class="fa-solid fa-people-roof fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold">Gia Đình</h6>
+                </a>
+            </div>
+            <div class="col-6 col-md-2">
+                <a href="/Home/Search" class="text-decoration-none text-dark category-item d-block">
+                    <div class="icon-circle bg-dark-subtle text-dark mx-auto mb-3">
+                        <i class="fa-solid fa-ellipsis fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold">Xem Thêm</h6>
+                </a>
+            </div>
         </div>
     </div>
 </section>
 
 <section class="py-5 bg-light">
-    <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold">Gói chụp mới nhất</h2>
-            <a href="#" class="text-decoration-none fw-bold">Xem tất cả <i class="fa-solid fa-arrow-right ms-1"></i></a>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-5">
+            <div>
+                <h6 class="text-danger fw-bold text-uppercase ls-2">Trending</h6>
+                <h2 class="fw-bold mb-0">Gói chụp mới nhất</h2>
+            </div>
+            <a href="/Service/Index" class="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                Xem tất cả <i class="fa-solid fa-arrow-right ms-2"></i>
+            </a>
         </div>
 
         <div class="row row-cols-1 row-cols-md-3 g-4">
             @foreach (var package in Model.FeaturedPackages)
             {
                 <div class="col">
-                    <div class="card h-100 border-0 shadow-sm hover-card">
-                        @* --- THAY ĐỔI CHÍNH Ở ĐÂY --- *@
-                        @if (!string.IsNullOrEmpty(package.AnhDaiDien))
-                        {
-                            <img src="@package.AnhDaiDien" class="card-img-top" alt="@package.TenGoi" style="height: 200px; object-fit: cover;">
-                        }
-                        else
-                        {
-                            <img src="https://source.unsplash.com/random/400x300/?photography&sig=@package.MaGoi" class="card-img-top" alt="Demo Image" style="height: 200px; object-fit: cover;">
-                        }
-                        @* --- KẾT THÚC THAY ĐỔI --- *@
-
-                        <div class="card-body">
-                            <span class="badge bg-primary-subtle text-primary mb-2">@package.MaDanhMucNavigation.TenDanhMuc</span>
-                            <h5 class="card-title fw-bold text-truncate" title="@package.TenGoi">@package.TenGoi</h5>
-
-                            <div class="d-flex align-items-center mb-3">
-                                <img src="https://ui-avatars.com/api/?name=@package.MaNhiepAnhGiaNavigation.HoVaTen&background=random" class="rounded-circle me-2" width="30" height="30" alt="Avatar">
-                                <small class="text-muted">
-                                    Bởi
-                                    <a asp-controller="Photographer" asp-action="Profile" asp-route-id="@package.MaNhiepAnhGiaNavigation.MaNguoiDung" class="text-decoration-none fw-bold text-dark hover-link">
-                                        @package.MaNhiepAnhGiaNavigation.HoVaTen
-                                    </a>
-                                </small>
-                            </div>
-
-                            <div class="d-flex justify-content-between text-muted small mb-3">
-                                <span><i class="fa-regular fa-clock me-1"></i> @package.ThoiLuong phút</span>
-                                <span><i class="fa-solid fa-user-group me-1"></i> Tối đa @package.SoNguoiToiDa người</span>
-                            </div>
-
-                            <h5 class="text-danger fw-bold mb-0">@package.GiaTien.ToString("N0") đ</h5>
+                    <div class="card h-100 border-0 shadow-sm hover-card rounded-4 overflow-hidden">
+                        <div class="position-relative">
+                            @if (!string.IsNullOrEmpty(package.AnhDaiDien))
+                            {
+                                <img src="@package.AnhDaiDien" class="card-img-top object-fit-cover" alt="@package.TenGoi" style="height: 220px;">
+                            }
+                            else
+                            {
+                                <img src="https://source.unsplash.com/random/400x300/?photography&sig=@package.MaGoi" class="card-img-top object-fit-cover" style="height: 220px;">
+                            }
+                            <span class="badge bg-white text-dark position-absolute top-0 start-0 m-3 shadow-sm">
+                                @package.MaDanhMucNavigation.TenDanhMuc
+                            </span>
+                            <span class="badge bg-danger position-absolute bottom-0 end-0 m-3 shadow-sm">
+                                <i class="fa-solid fa-star me-1"></i> New
+                            </span>
                         </div>
-                        <div class="card-footer bg-white border-0 pt-0">
-                            <a asp-controller="Home" asp-action="Details" asp-route-id="@package.MaGoi" class="btn btn-outline-danger w-100 rounded-pill fw-bold">
-                                Xem chi tiết
-                            </a>
+
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-bold text-truncate mb-1">
+                                <a asp-controller="Home" asp-action="Details" asp-route-id="@package.MaGoi" class="text-dark text-decoration-none stretched-link">
+                                    @package.TenGoi
+                                </a>
+                            </h5>
+
+                            <div class="d-flex align-items-center mt-3 mb-3">
+                                <img src="https://ui-avatars.com/api/?name=@package.MaNhiepAnhGiaNavigation.HoVaTen&background=random" class="rounded-circle me-2" width="30" height="30">
+                                <small class="text-muted">by <strong>@package.MaNhiepAnhGiaNavigation.HoVaTen</strong></small>
+                            </div>
+
+                            <div class="d-flex justify-content-between text-secondary small bg-light p-2 rounded mb-3">
+                                <span><i class="fa-regular fa-clock me-1"></i> @package.ThoiLuong phút</span>
+                                <span><i class="fa-solid fa-user-group me-1"></i> Max @package.SoNguoiToiDa người</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                                <div class="text-danger fw-bold fs-5">@package.GiaTien.ToString("N0") đ</div>
+                                <button class="btn btn-sm btn-primary rounded-pill px-3">Đặt lịch</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -102,12 +165,99 @@
     </div>
 </section>
 
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1554080353-a576cf803bda?auto=format&fit=crop&w=1000&q=80" class="img-fluid rounded-4 shadow-lg" alt="About Us">
+            </div>
+            <div class="col-lg-6">
+                <h6 class="text-primary fw-bold text-uppercase ls-2">Về TAHU.FOTO</h6>
+                <h2 class="fw-bold display-6 mb-4">Nền tảng kết nối nhiếp ảnh uy tín số 1</h2>
+                <p class="text-muted mb-4">Chúng tôi giúp bạn dễ dàng tìm kiếm và đặt lịch với những nhiếp ảnh gia tài năng nhất, đảm bảo chất lượng và sự hài lòng tuyệt đối.</p>
+
+                <div class="d-flex mb-4">
+                    <div class="icon-square bg-primary-subtle text-primary rounded-3 me-3 d-flex align-items-center justify-content-center" style="width:50px; height:50px; min-width:50px;">
+                        <i class="fa-solid fa-shield-halved fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold">An toàn & Tin cậy</h5>
+                        <p class="text-muted small mb-0">Hệ thống đánh giá minh bạch, thông tin nhiếp ảnh gia được xác thực kỹ càng.</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-4">
+                    <div class="icon-square bg-success-subtle text-success rounded-3 me-3 d-flex align-items-center justify-content-center" style="width:50px; height:50px; min-width:50px;">
+                        <i class="fa-solid fa-hand-holding-dollar fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold">Chi phí hợp lý</h5>
+                        <p class="text-muted small mb-0">Đa dạng mức giá từ sinh viên đến cao cấp, công khai minh bạch không phụ phí.</p>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <div class="icon-square bg-warning-subtle text-warning rounded-3 me-3 d-flex align-items-center justify-content-center" style="width:50px; height:50px; min-width:50px;">
+                        <i class="fa-solid fa-bolt fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold">Đặt lịch siêu tốc</h5>
+                        <p class="text-muted small mb-0">Chỉ với 3 bước đơn giản: Tìm kiếm - Chọn gói - Xác nhận.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 text-white text-center" style="background: #111;">
+    <div class="container py-4">
+        <h2 class="fw-bold mb-3">Bạn là Nhiếp ảnh gia?</h2>
+        <p class="lead text-white-50 mb-4">Tham gia ngay cộng đồng TAHU.FOTO để tiếp cận hàng nghìn khách hàng tiềm năng mỗi tháng.</p>
+        <a href="#" class="btn btn-light btn-lg rounded-pill px-5 fw-bold hover-scale">Đăng ký Đối tác</a>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/provinces.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            loadProvinces('province-select');
+        });
+    </script>
+}
+
 <style>
-    .hover-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    .ls-2 {
+        letter-spacing: 2px;
     }
-    .hover-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+
+    .object-fit-cover {
+        object-fit: cover;
+    }
+
+    .icon-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s;
+    }
+
+    .category-item:hover .icon-circle {
+        transform: scale(1.1);
+    }
+
+    .hover-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+
+    .hover-up:hover {
+        transform: translateY(-2px);
     }
 </style>

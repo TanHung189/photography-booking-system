@@ -192,7 +192,9 @@
                                 <input class="form-check-input" type="checkbox" id="remember">
                                 <label class="form-check-label text-muted" for="remember">Ghi nhớ</label>
                             </div>
-                            <a href="#" class="text-decoration-none small text-muted fw-bold">Quên mật khẩu?</a>
+                            <a asp-controller="Account" asp-action="ForgotPassword" class="text-decoration-none small text-muted fw-bold">
+                                Quên mật khẩu?
+                            </a>
                         </div>
                         <div class="d-grid mb-4">
                             <button type="submit" class="btn btn-dark-custom btn-lg text-white">Đăng nhập ngay</button>

@@ -4,6 +4,7 @@ using PhotoBooking.Models;                         // 3. Namespace chứa DbCont
 using PhotoBooking.Web.Services;                    // 4. (Mở comment dòng này nếu bạn đã tạo file PhotoService.cs)
 using OfficeOpenXml;
 
+
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,7 @@ builder.Services.AddSession(options =>
 // 4. Đăng ký Service Upload ảnh (Cloudinary)
 // Nếu bạn chưa tạo file Services/PhotoService.cs thì tạm thời comment dòng dưới lại để không lỗi
 builder.Services.AddScoped<PhotoBooking.Web.Services.PhotoService>();
+builder.Services.AddScoped<PhotoBooking.Services.EmailSender>();
 
 // 5. Thêm MVC
 builder.Services.AddControllersWithViews();
