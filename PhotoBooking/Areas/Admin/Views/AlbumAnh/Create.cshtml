@@ -1,0 +1,47 @@
+﻿@model PhotoBooking.Models.AlbumAnh
+
+@{
+    ViewData["Title"] = "Tạo Album mới";
+}
+
+<div class="container-fluid py-4">
+    <div class="card shadow mb-4" style="max-width: 700px; margin: 0 auto;">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin Album</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="TieuDe" class="form-label fw-bold">Tên Album</label>
+                    <input asp-for="TieuDe" class="form-control" placeholder="VD: Ảnh cưới ngoại cảnh Đà Lạt..." required />
+                    <span asp-validation-for="TieuDe" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="MoTa" class="form-label fw-bold">Mô tả ngắn</label>
+                    <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="mb-4 p-3 bg-light rounded border border-dashed">
+                    <label class="form-label fw-bold mb-2">Tải ảnh lên (Chọn nhiều ảnh)</label>
+
+                    <input type="file" name="photos" class="form-control" multiple accept="image/*" />
+
+                    <div class="form-text mt-2">
+                        <i class="fa-solid fa-circle-info me-1"></i>
+                        Giữ phím <strong>Ctrl</strong> để chọn nhiều ảnh cùng lúc.
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <a asp-action="Index" class="btn btn-secondary me-2">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-primary px-4 fw-bold">
+                        <i class="fa-solid fa-cloud-arrow-up me-1"></i> Tạo & Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

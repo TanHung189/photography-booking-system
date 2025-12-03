@@ -1,17 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PhotoBooking.Models; 
+using PhotoBooking.Web.Services;
 using System.Security.Claims;
+
 namespace PhotoBooking.Controllers
 {
     public class AccountController : Controller
     {
         private readonly PhotoBookingContext _context;// readonly (chỉ đọc) chốt an toàn
-
-        public AccountController(PhotoBookingContext context)
+        private readonly PhotoService _photoService;
+        public AccountController(PhotoBookingContext context, PhotoService photoService)
         {
             _context = context;
+            _photoService = photoService;
         }
 
         //Get: hiển thị trang đăng nhập
@@ -47,12 +51,12 @@ namespace PhotoBooking.Controllers
             // 3. Nếu tìm thấy -> Đăng nhập thành công -> Tạo "Vé thông hành" (Claims)
             // Chúng ta sẽ lưu những thông tin cần thiết nhất vào Cookie để dùng lại sau này
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.HoVaTen),            // Lưu Họ tên (để hiển thị "Chào,Bùi Đỗ Tấn Hưng")
-                new Claim(ClaimTypes.NameIdentifier, user.TenDangNhap), // Lưu Username (ID định danh chính)
-                new Claim(ClaimTypes.Role, user.VaiTro),             // Lưu Vai trò (để phân quyền Admin/Khách)
-                new Claim("UserId", user.MaNguoiDung.ToString()),    // Lưu ID số (để truy vấn dữ liệu liên quan)
-                new Claim("Avatar", user.AnhDaiDien ?? "")           // Lưu link Avatar (nếu có, không thì để rỗng)
+{
+                new Claim(ClaimTypes.Name, user.HoVaTen),
+                new Claim(ClaimTypes.NameIdentifier, user.TenDangNhap),
+                new Claim(ClaimTypes.Role, user.VaiTro),
+                new Claim("UserId", user.MaNguoiDung.ToString()),
+                new Claim("Avatar", user.AnhDaiDien ?? "")
             };
 
             // Tạo danh tính (Identity) từ các thông tin trên, xác nhận dùng "Kiểu Cookie"
@@ -161,6 +165,79 @@ namespace PhotoBooking.Controllers
             }
 
             return View(model);
+        }
+
+        // ==========================================
+        // XEM & SỬA HỒ SƠ CÁ NHÂN (GET)
+        // ==========================================
+        [Authorize]
+        public async Task<IActionResult> ProfileCustomer()
+        {
+            var userId = int.Parse(User.FindFirst("UserId").Value);
+            var user = await _context.NguoiDungs.FindAsync(userId);
+            return View(user);
+        }
+
+        // ==========================================
+        // CẬP NHẬT THÔNG TIN (POST)
+        // ==========================================
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile(NguoiDung model, IFormFile avatarFile)
+        {
+            var userId = int.Parse(User.FindFirst("UserId").Value);
+            var userInDb = await _context.NguoiDungs.FindAsync(userId);
+
+            if (userInDb == null) return NotFound();
+
+            // 1. Cập nhật thông tin cơ bản
+            userInDb.HoVaTen = model.HoVaTen;
+            userInDb.SoDienThoai = model.SoDienThoai;
+            userInDb.Email = model.Email;
+
+            // 2. Xử lý Avatar (Nếu có chọn ảnh mới)
+            if (avatarFile != null)
+            {
+                userInDb.AnhDaiDien = await _photoService.UploadPhotoAsync(avatarFile);
+            }
+
+            _context.Update(userInDb);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Cập nhật thông tin thành công!";
+            return RedirectToAction(nameof(ProfileCustomer));
+        }
+
+        // ==========================================
+        // ĐỔI MẬT KHẨU (POST)
+        // ==========================================
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(string CurrentPassword, string NewPassword, string ConfirmNewPassword)
+        {
+            var userId = int.Parse(User.FindFirst("UserId").Value);
+            var user = await _context.NguoiDungs.FindAsync(userId);
+
+            // 1. Kiểm tra mật khẩu cũ
+            if (!BCrypt.Net.BCrypt.Verify(CurrentPassword, user.MatKhau))
+            {
+                TempData["ErrorPass"] = "Mật khẩu hiện tại không đúng.";
+                return RedirectToAction(nameof(ProfileCustomer));
+            }
+
+            // 2. Kiểm tra xác nhận mật khẩu mới
+            if (NewPassword != ConfirmNewPassword)
+            {
+                TempData["ErrorPass"] = "Xác nhận mật khẩu mới không khớp.";
+                return RedirectToAction(nameof(ProfileCustomer));
+            }
+
+            // 3. Đổi mật khẩu
+            user.MatKhau = BCrypt.Net.BCrypt.HashPassword(NewPassword);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessPass"] = "Đổi mật khẩu thành công!";
+            return RedirectToAction(nameof(ProfileCustomer));
         }
 
         // xử lý đăng xuất logout

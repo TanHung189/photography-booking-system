@@ -1,0 +1,72 @@
+﻿@model PhotoBooking.Models.YeuCau
+
+@{
+    ViewData["Title"] = "Đăng yêu cầu mới";
+}
+
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold">Bạn cần tìm thợ chụp ảnh?</h2>
+                    <p class="text-muted">Điền thông tin bên dưới, các nhiếp ảnh gia sẽ liên hệ với bạn.</p>
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                    <div class="card-header bg-white py-3 px-4 border-bottom">
+                        <h5 class="mb-0 fw-bold text-primary"><i class="fa-solid fa-pen-to-square me-2"></i> Nội dung yêu cầu</h5>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <form asp-action="Create">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                            <div class="form-floating mb-3">
+                                <input asp-for="TieuDe" class="form-control" id="tieude" placeholder="Tiêu đề" required />
+                                <label for="tieude">Tiêu đề (VD: Cần chụp kỷ yếu lớp 12A...)</label>
+                                <span asp-validation-for="TieuDe" class="text-danger small"></span>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input asp-for="NganSach" class="form-control" id="ngansach" type="number" placeholder="Ngân sách" />
+                                        <label for="ngansach">Ngân sách dự kiến (VNĐ)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input asp-for="NgayCanChup" class="form-control" id="ngaychup" type="datetime-local" />
+                                        <label for="ngaychup">Thời gian chụp mong muốn</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input asp-for="DiaChi" class="form-control" id="diachi" placeholder="Địa chỉ" required />
+                                <label for="diachi">Địa điểm chụp (Ghi rõ Quận/Huyện)</label>
+                            </div>
+
+                            <div class="form-floating mb-4">
+                                <textarea asp-for="MoTa" class="form-control" id="mota" style="height: 150px" placeholder="Mô tả"></textarea>
+                                <label for="mota">Mô tả chi tiết (Phong cách, số lượng ảnh, yêu cầu khác...)</label>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a asp-action="MyRequests" class="text-decoration-none text-muted">
+                                    <i class="fa-solid fa-arrow-left me-1"></i> Quay lại
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm">
+                                    Đăng tin ngay <i class="fa-regular fa-paper-plane ms-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

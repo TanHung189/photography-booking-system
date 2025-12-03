@@ -150,6 +150,11 @@
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="AlbumAnh" asp-action="Index">
+                                <i class="fa-solid fa-images me-2"></i> Quản lý Portfolio
+                            </a>
+                        </li>
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item mt-3">
@@ -173,6 +178,8 @@
                                     <i class="fa-solid fa-list me-2"></i> Quản lý Danh mục
                                 </a>
                             </li>
+
+                        
                         }
 
                     </ul>

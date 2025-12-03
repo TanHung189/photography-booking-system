@@ -1,0 +1,60 @@
+﻿@model IEnumerable<PhotoBooking.Models.AlbumAnh>
+
+@{
+    ViewData["Title"] = "Quản lý Album ảnh";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between mb-4">
+        <h2 class="h3 text-gray-800">Thư viện Album</h2>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="fa-solid fa-plus me-1"></i> Tạo Album mới
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        @foreach (var item in Model)
+        {
+            var coverImg = item.AnhChiTiets.FirstOrDefault()?.DuongDanAnh ?? "https://placehold.co/400x300?text=Empty";
+
+            <div class="col-md-4 col-xl-3">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="position-relative">
+                        <img src="@coverImg" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        <span class="position-absolute bottom-0 end-0 bg-dark text-white px-2 py-1 m-2 rounded opacity-75 small">
+                            <i class="fa-solid fa-image me-1"></i> @item.AnhChiTiets.Count
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold text-truncate">@item.TieuDe</h5>
+                        <p class="card-text text-muted small text-truncate">@item.MoTa</p>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 d-flex justify-content-between">
+                        <a asp-action="Details" asp-route-id="@item.MaAlbum" class="btn btn-sm btn-outline-primary rounded-pill">
+                            <i class="fa-solid fa-eye me-1"></i> Xem ảnh
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.MaAlbum" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Xóa album này?')">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5 text-muted">
+                <i class="fa-regular fa-images fs-1 mb-3"></i>
+                <p>Chưa có album nào. Hãy tạo ngay!</p>
+            </div>
+        }
+    </div>
+</div>

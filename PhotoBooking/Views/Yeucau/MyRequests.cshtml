@@ -1,0 +1,77 @@
+﻿@model IEnumerable<PhotoBooking.Models.YeuCau>
+
+@{
+    ViewData["Title"] = "Yêu cầu của tôi";
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">📋 Yêu cầu đã đăng</h2>
+        <a asp-action="Create" class="btn btn-primary rounded-pill px-4">
+            <i class="fa-solid fa-plus me-1"></i> Đăng yêu cầu mới
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-check-circle me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model.Count() > 0)
+    {
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Tiêu đề</th>
+                            <th>Ngân sách</th>
+                            <th>Ngày cần chụp</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày đăng</th>
+                            <th class="text-end pe-4">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-primary">@item.TieuDe</div>
+                                    <small class="text-muted"><i class="fa-solid fa-location-dot me-1"></i> @item.DiaChi</small>
+                                </td>
+                                <td class="fw-bold text-success">@item.NganSach?.ToString("N0") đ</td>
+                                <td>@item.NgayCanChup?.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @if (item.TrangThai == 0)
+                                    {
+                                        <span class="badge bg-success">Đang tìm thợ</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Đã đóng</span>
+                                    }
+                                </td>
+                                <td class="text-muted small">@item.NgayTao?.ToString("dd/MM/yyyy")</td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="Delete" asp-route-id="@item.MaYeuCau" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc muốn xóa tin này?')">
+                                        <i class="fa-solid fa-trash"></i> Xóa
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 bg-light rounded">
+            <p class="text-muted">Bạn chưa đăng yêu cầu tìm thợ nào.</p>
+        </div>
+    }
+</div>

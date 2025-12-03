@@ -1,4 +1,7 @@
-﻿@model IEnumerable<PhotoBooking.Models.DonDatLich>
+﻿@model IPagedList<PhotoBooking.Models.DonDatLich>
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+
 
 @{
     ViewData["Title"] = "Quản lý Đơn đặt lịch";
@@ -8,11 +11,35 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Danh sách Đơn đặt lịch</h6>
-            @if (TempData["Success"] != null)
-            {
-                <span class="badge bg-success">@TempData["Success"]</span>
-            }
+
+            <div>
+                @if (TempData["Success"] != null)
+                {
+                    <span class="badge bg-success me-2">@TempData["Success"]</span>
+                }
+
+                <a asp-action="ExportExcel" class="btn btn-success btn-sm shadow-sm">
+                    <i class="fa-solid fa-file-excel me-1"></i> Xuất Excel
+                </a>
+            </div>
         </div>
+
+        <div class="row mb-3 px-3">
+            <div class="col-md-6">
+                <form asp-action="Index" method="get" class="d-flex">
+                    <input type="text" name="searchString" class="form-control me-2"
+                           placeholder="Tìm theo tên khách hoặc mã đơn..."
+                           value="@ViewData["CurrentFilter"]" />
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i></button>
+
+                    @if (ViewData["CurrentFilter"] != null)
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Xóa</a>
+                    }
+                </form>
+            </div>
+        </div>
+
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover align-middle" width="100%" cellspacing="0">
@@ -87,6 +114,15 @@
                         }
                     </tbody>
                 </table>
+
+                <div class="d-flex justify-content-center mt-4">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchString = ViewData["CurrentFilter"] }), 
+    new PagedListRenderOptions {
+        LiElementClasses = new string[] { "page-item" },
+        PageClasses = new string[] { "page-link" },
+        UlElementClasses = new string[] { "pagination" }
+    })
+</div>
             </div>
         </div>
     </div>

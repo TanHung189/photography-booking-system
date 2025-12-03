@@ -115,10 +115,52 @@ CREATE TABLE AnhChiTiet (
 );
 GO
 
+-- Tạo bảng Yêu Cầu (Job Requests)
+CREATE TABLE YeuCau (
+    MaYeuCau INT IDENTITY(1,1) PRIMARY KEY,
+    MaKhachHang INT NOT NULL,  
+    TieuDe NVARCHAR(200) NOT NULL,      -- VD: Cần thợ chụp sinh nhật bé
+    MoTa NVARCHAR(MAX),                 -- VD: Yêu cầu thợ nhiệt tình, trả ảnh nhanh...
+    DiaChi NVARCHAR(200),               -- VD: Quận 1, TP.HCM
+    NganSach DECIMAL(18, 2),            -- VD: 2.000.000
+    NgayCanChup DATETIME2,              -- Khách muốn chụp ngày nào
+    -- Trạng thái tin đăng
+    -- 0: Đang tìm (Mở), 1: Đã chốt thợ (Đóng), 2: Đã hủy
+    TrangThai INT DEFAULT 0,
+    NgayTao DATETIME2 DEFAULT GETDATE(),
+    
+    FOREIGN KEY (MaKhachHang) REFERENCES NguoiDung(MaNguoiDung) ON DELETE CASCADE
+);
+GO
+
 -- Cập nhật dữ liệu mẫu cho có số liệu đẹp
 UPDATE NguoiDung SET SoNamKinhNghiem = 5 WHERE TenDangNhap = 'lee_minh';
 UPDATE NguoiDung SET SoNamKinhNghiem = 3 WHERE TenDangNhap = 'sarah_tran';
 UPDATE NguoiDung SET SoNamKinhNghiem = 2 WHERE TenDangNhap = 'tung_nui';
+
+-- 1. Thêm cột MaNhiepAnhGia vào bảng DonDatLich (Để biết đặt ai nếu không chọn gói)
+ALTER TABLE DonDatLich
+ADD MaNhiepAnhGia INT;
+GO
+
+-- 2. Cập nhật dữ liệu cũ: Lấy MaNhiepAnhGia từ bảng GoiDichVu đổ sang
+-- (Bước này quan trọng để không bị mất dữ liệu liên kết cũ)
+UPDATE d
+SET d.MaNhiepAnhGia = g.MaNhiepAnhGia
+FROM DonDatLich d
+JOIN GoiDichVu g ON d.MaGoi = g.MaGoi;
+GO
+
+-- 3. Tạo khóa ngoại cho cột MaNhiepAnhGia mới
+ALTER TABLE DonDatLich
+ADD CONSTRAINT FK_DonDatLich_NguoiDung_Photographer
+FOREIGN KEY (MaNhiepAnhGia) REFERENCES NguoiDung(MaNguoiDung);
+GO
+
+-- 4. Cho phép cột MaGoi được phép NULL (Vì đặt trực tiếp thì không có gói)
+ALTER TABLE DonDatLich
+ALTER COLUMN MaGoi INT NULL;
+GO
 
 -- A. DIA DIEM
 INSERT INTO DiaDiem (TenThanhPho, Slug) VALUES 
@@ -204,6 +246,10 @@ INSERT INTO AlbumAnh (TieuDe, MoTa, MaNhiepAnhGia) VALUES
 (N'Street Style Saigon', N'Phong cách đường phố', @IdSarah);
 GO
 
+DECLARE @IdKhach INT = (SELECT TOP 1 MaNguoiDung FROM NguoiDung WHERE VaiTro = 'Customer');
+INSERT INTO YeuCau (MaKhachHang, TieuDe, MoTa, DiaChi, NganSach, NgayCanChup)
+VALUES (@IdKhach, N'Tìm thợ chụp Lookbook gấp', N'Cần chụp 5 bộ đồ cho shop thời trang', N'Studio tại Cầu Giấy', 1500000, GETDATE()+2);
+GO
 -- ==================================================
 -- TRUY VẤN DỮ LIỆU TẤT CẢ CÁC BẢNG
 -- ==================================================
@@ -296,6 +342,7 @@ GO
 
 -- Kiểm tra lại (Tất cả sẽ trả về 0 dòng)
 SELECT * FROM DonDatLich;
--- 
+Select * from DanhGia;
 SELECT * FROM NguoiDung;
 select * from GoiDichVu;
+Select * from YeuCau;

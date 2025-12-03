@@ -1,84 +1,92 @@
 ﻿@model PhotoBooking.Models.NguoiDung
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết người dùng";
 }
 
-<h1>Details</h1>
+<div class="container-fluid py-4">
+    <div class="card shadow mb-4 border-0" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+            <h6 class="m-0 fw-bold text-primary">Hồ sơ thành viên #@Model.MaNguoiDung</h6>
+            <span class="badge @(Model.VaiTro == "Admin" ? "bg-danger" : Model.VaiTro == "Photographer" ? "bg-info text-dark" : "bg-secondary")">
+                @Model.VaiTro
+            </span>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-4 text-center border-end">
+                    <img src="@(Model.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + Model.HoVaTen + "&size=200")"
+                         class="rounded-circle shadow-sm mb-3 border" width="150" height="150" style="object-fit: cover;">
 
-<div>
-    <h4>NguoiDung</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TenDangNhap)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TenDangNhap)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MatKhau)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MatKhau)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.HoVaTen)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.HoVaTen)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoDienThoai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoDienThoai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VaiTro)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VaiTro)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AnhDaiDien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AnhDaiDien)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AnhBia)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AnhBia)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GioiThieu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GioiThieu)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayTao)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayTao)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaDiaDiemNavigation)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaDiaDiemNavigation.MaDiaDiem)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaNguoiDung">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                    <h4 class="fw-bold text-dark">@Model.HoVaTen</h4>
+                    <p class="text-muted mb-4">@@@Model.TenDangNhap</p>
+
+                    <div class="list-group list-group-flush text-start small">
+                        <div class="list-group-item d-flex justify-content-between px-0">
+                            <span>Ngày tham gia</span>
+                            <span class="fw-bold">@Model.NgayTao?.ToString("dd/MM/yyyy")</span>
+                        </div>
+                        @if (Model.VaiTro == "Photographer")
+                        {
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span>Gói dịch vụ</span>
+                                <span class="fw-bold">@Model.GoiDichVus.Count</span>
+                            </div>
+                        }
+                        <div class="list-group-item d-flex justify-content-between px-0">
+                            <span>Đơn đã đặt</span>
+                            <span class="fw-bold">@Model.DonDatLichMaKhachHangNavigations.Count</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8 ps-md-4">
+                    <h6 class="text-muted text-uppercase small fw-bold mb-3 mt-3 mt-md-0">Thông tin liên hệ</h6>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-4 fw-bold text-secondary">Email:</label>
+                        <div class="col-sm-8">@(Model.Email ?? "Chưa cập nhật")</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-4 fw-bold text-secondary">Số điện thoại:</label>
+                        <div class="col-sm-8">@(Model.SoDienThoai ?? "Chưa cập nhật")</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-4 fw-bold text-secondary">Khu vực:</label>
+                        <div class="col-sm-8">
+                            <i class="fa-solid fa-location-dot text-danger me-1"></i>
+                            @(Model.MaDiaDiemNavigation?.TenThanhPho ?? "Chưa cập nhật")
+                        </div>
+                    </div>
+
+                    @if (Model.VaiTro == "Photographer")
+                    {
+                        <hr class="my-4 opacity-25">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3">Hồ sơ nhiếp ảnh</h6>
+
+                        <div class="row mb-3">
+                            <label class="col-sm-4 fw-bold text-secondary">Kinh nghiệm:</label>
+                            <div class="col-sm-8">@(Model.SoNamKinhNghiem ?? 0) năm</div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-sm-4 fw-bold text-secondary">Giới thiệu:</label>
+                            <div class="col-sm-8 fst-italic text-muted">
+                                @(string.IsNullOrEmpty(Model.GioiThieu) ? "Chưa có thông tin giới thiệu." : Model.GioiThieu)
+                            </div>
+                        </div>
+                    }
+
+                    <div class="mt-5 text-end">
+                        <a asp-action="Index" class="btn btn-light border me-2">Quay lại</a>
+                        <a asp-action="Edit" asp-route-id="@Model.MaNguoiDung" class="btn btn-warning fw-bold">
+                            <i class="fa-solid fa-pen me-1"></i> Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,87 +1,41 @@
 ﻿@model PhotoBooking.Models.NguoiDung
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Xóa người dùng";
 }
 
-<h1>Delete</h1>
+<div class="container-fluid py-4">
+    <div class="card shadow mb-4 border-0" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-header py-3 bg-danger text-white text-center">
+            <h5 class="m-0 fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i> XÁC NHẬN XÓA</h5>
+        </div>
+        <div class="card-body p-4 text-center">
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>NguoiDung</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TenDangNhap)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TenDangNhap)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MatKhau)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MatKhau)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.HoVaTen)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.HoVaTen)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoDienThoai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoDienThoai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VaiTro)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VaiTro)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AnhDaiDien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AnhDaiDien)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AnhBia)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AnhBia)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GioiThieu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GioiThieu)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayTao)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayTao)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaDiaDiemNavigation)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaDiaDiemNavigation.MaDiaDiem)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="MaNguoiDung" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+            <div class="mb-4">
+                <img src="@(Model.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + Model.HoVaTen)"
+                     class="rounded-circle shadow-sm border" width="100" height="100">
+            </div>
+
+            <h3 class="fw-bold text-dark">@Model.HoVaTen</h3>
+            <p class="text-muted">@@@Model.TenDangNhap | @Model.VaiTro</p>
+
+            <div class="alert alert-warning mt-4 text-start small">
+                <i class="fa-solid fa-circle-info me-1 fw-bold"></i>
+                <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác!
+                <ul class="mb-0 mt-1 ps-3">
+                    <li>Nếu đây là <strong>Nhiếp ảnh gia</strong>: Tất cả Gói chụp, Album ảnh và Đơn hàng liên quan sẽ bị ảnh hưởng hoặc lỗi.</li>
+                    <li>Nếu đây là <strong>Khách hàng</strong>: Lịch sử đặt hàng của họ sẽ bị xóa (tùy cấu trúc DB).</li>
+                </ul>
+            </div>
+
+            <form asp-action="Delete" class="mt-4">
+                <input type="hidden" asp-for="MaNguoiDung" />
+
+                <a asp-action="Index" class="btn btn-light border px-4 me-2">Hủy bỏ</a>
+                <button type="submit" class="btn btn-danger px-4 fw-bold">
+                    <i class="fa-solid fa-trash me-1"></i> Xác nhận Xóa Vĩnh Viễn
+                </button>
+            </form>
+        </div>
+    </div>
 </div>

@@ -4,6 +4,8 @@
     ViewData["Title"] = "Quản lý lịch đặt";
 }
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <div class="bg-light py-5" style="min-height: 100vh;">
     <div class="container">
         <div class="row justify-content-center">
@@ -57,6 +59,40 @@
     </div>
 </div>
 
+@section Scripts {
+    <script>
+        function updateRating(maDon, soSao) {
+            // 1. Cập nhật giá trị vào ô Input Ẩn (Để gửi về Server)
+            var inputElement = document.getElementById("rating-input-" + maDon);
+            if (inputElement) {
+                inputElement.value = soSao;
+                console.log("Đã cập nhật đơn " + maDon + " thành " + soSao + " sao."); // Kiểm tra F12
+            } else {
+                console.error("Không tìm thấy ô input của đơn " + maDon);
+            }
+
+            // 2. Đổi màu các ngôi sao (Hiệu ứng thị giác)
+            for (var i = 1; i <= 5; i++) {
+                var star = document.getElementById("star-" + maDon + "-" + i);
+                if (star) {
+                    if (i <= soSao) {
+                        star.style.color = "#ffc107"; // Vàng
+                    } else {
+                        star.style.color = "#e4e5e9"; // Xám
+                    }
+                }
+            }
+
+            // 3. Cập nhật chữ hiển thị
+            var textElement = document.getElementById("rating-text-" + maDon);
+            if (textElement) {
+                var texts = ["Rất tệ", "Kém", "Bình thường", "Tốt", "Tuyệt vời"];
+                textElement.innerText = texts[soSao - 1] + " (" + soSao + "/5)";
+            }
+        }
+    </script>
+}
+
 <style>
     /* CSS Tùy chỉnh cho Tab */
     .nav-pills .nav-link {
@@ -87,4 +123,22 @@
         object-fit: cover;
         border-radius: 10px;
     }
+
+    .cursor-pointer {
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .cursor-pointer:hover {
+            transform: scale(1.2);
+        }
+
+    .text-warning {
+        color: #ffc107 !important;
+    }
+
+    .text-secondary {
+        color: #e4e5e9 !important;
+    }
+    /* Màu xám nhạt */
 </style>

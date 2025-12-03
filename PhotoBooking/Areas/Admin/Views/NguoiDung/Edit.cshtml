@@ -1,84 +1,103 @@
 ﻿@model PhotoBooking.Models.NguoiDung
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Chỉnh sửa thành viên";
 }
 
-<h1>Edit</h1>
+<div class="container-fluid py-4">
+    <div class="card shadow mb-4 border-0" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header py-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="m-0 fw-bold text-warning"><i class="fa-solid fa-user-pen me-2"></i> Cập nhật: @Model.TenDangNhap</h5>
+            @if (!string.IsNullOrEmpty(Model.AnhDaiDien))
+            {
+                <img src="@Model.AnhDaiDien" class="rounded-circle border" width="40" height="40">
+            }
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Edit" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="MaNguoiDung" />
+                <input type="hidden" asp-for="TenDangNhap" /> <input type="hidden" asp-for="NgayTao" />
+                <input type="hidden" asp-for="AnhDaiDien" /> <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3">Bảo mật & Vai trò</h6>
 
-<h4>NguoiDung</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="MaNguoiDung" />
-            <div class="form-group">
-                <label asp-for="TenDangNhap" class="control-label"></label>
-                <input asp-for="TenDangNhap" class="form-control" />
-                <span asp-validation-for="TenDangNhap" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MatKhau" class="control-label"></label>
-                <input asp-for="MatKhau" class="form-control" />
-                <span asp-validation-for="MatKhau" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="HoVaTen" class="control-label"></label>
-                <input asp-for="HoVaTen" class="form-control" />
-                <span asp-validation-for="HoVaTen" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SoDienThoai" class="control-label"></label>
-                <input asp-for="SoDienThoai" class="form-control" />
-                <span asp-validation-for="SoDienThoai" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="VaiTro" class="control-label"></label>
-                <input asp-for="VaiTro" class="form-control" />
-                <span asp-validation-for="VaiTro" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AnhDaiDien" class="control-label"></label>
-                <input asp-for="AnhDaiDien" class="form-control" />
-                <span asp-validation-for="AnhDaiDien" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AnhBia" class="control-label"></label>
-                <input asp-for="AnhBia" class="form-control" />
-                <span asp-validation-for="AnhBia" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="GioiThieu" class="control-label"></label>
-                <input asp-for="GioiThieu" class="form-control" />
-                <span asp-validation-for="GioiThieu" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaDiaDiem" class="control-label"></label>
-                <select asp-for="MaDiaDiem" class="form-control" asp-items="ViewBag.MaDiaDiem"></select>
-                <span asp-validation-for="MaDiaDiem" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NgayTao" class="control-label"></label>
-                <input asp-for="NgayTao" class="form-control" />
-                <span asp-validation-for="NgayTao" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tên đăng nhập</label>
+                            <input asp-for="TenDangNhap" class="form-control bg-light" disabled />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MatKhau" class="form-label fw-bold">Mật khẩu mới</label>
+                            <input asp-for="MatKhau" value="" type="password" class="form-control" placeholder="Để trống nếu không muốn đổi" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Vai trò</label>
+                            <select asp-for="VaiTro" class="form-select" id="roleSelect" asp-items="ViewBag.RoleList"></select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3">Thông tin cá nhân</h6>
+
+                        <div class="mb-3">
+                            <label asp-for="HoVaTen" class="form-label fw-bold">Họ và tên</label>
+                            <input asp-for="HoVaTen" class="form-control" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-bold">Email</label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="SoDienThoai" class="form-label fw-bold">Số điện thoại</label>
+                            <input asp-for="SoDienThoai" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4 opacity-25">
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Khu vực hoạt động</label>
+                        <select asp-for="MaDiaDiem" class="form-select" asp-items="ViewBag.MaDiaDiem">
+                            <option value="">-- Chọn địa điểm --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3" id="expField">
+                        <label asp-for="SoNamKinhNghiem" class="form-label fw-bold">Kinh nghiệm (Năm)</label>
+                        <input asp-for="SoNamKinhNghiem" class="form-control" type="number" min="0" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Đổi Avatar (Tùy chọn)</label>
+                    <input type="file" name="avatarFile" class="form-control" accept="image/*" />
+                </div>
+
+                <div class="text-end">
+                    <a asp-action="Index" class="btn btn-light border rounded-pill px-4 me-2">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 fw-bold">Cập nhật</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            function toggleExp() {
+                if ($("#roleSelect").val() === "Photographer") {
+                    $("#expField").show();
+                } else {
+                    $("#expField").hide();
+                }
+            }
+            $("#roleSelect").change(toggleExp);
+            toggleExp();
+        });
+    </script>
 }

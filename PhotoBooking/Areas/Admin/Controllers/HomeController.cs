@@ -49,7 +49,21 @@ namespace PhotoBooking.Web.Areas.Admin.Controllers
             // 5. Lấy danh sách đơn hàng để hiển thị bảng (Mới nhất lên đầu)
             var listDonHang = query.OrderByDescending(d => d.NgayTao).ToList();
 
-            return View(listDonHang);
+            int choDuyet = listDonHang.Count(x => x.TrangThai == 0);
+            int daDuyet = listDonHang.Count(x => x.TrangThai == 1);
+            int hoanThanh = listDonHang.Count(x => x.TrangThai == 2);
+            int daHuy = listDonHang.Count(x => x.TrangThai == 3);
+
+            // Gửi dữ liệu sang View bằng ViewBag
+            ViewBag.ChartData = new int[] { choDuyet, daDuyet, hoanThanh, daHuy };
+            // ------------------------------------------
+
+            // Thống kê thẻ Card (như cũ)
+            ViewBag.TongDonHang = listDonHang.Count;
+            ViewBag.DonChoDuyet = choDuyet;
+            ViewBag.TongDoanhThu = listDonHang.Where(d => d.TrangThai == 2).Sum(d => d.TongTien ?? 0);
+
+            return View(listDonHang ?? new List<DonDatLich>());
         }
 
         // ==========================================

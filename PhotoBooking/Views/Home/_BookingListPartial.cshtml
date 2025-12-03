@@ -1,5 +1,7 @@
 ﻿@model List<PhotoBooking.Models.DonDatLich>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 @if (Model.Count == 0)
 {
     <div class="text-center py-5">
@@ -14,7 +16,6 @@ else
         <div class="card booking-card shadow-sm border-0 mb-3 rounded-4 overflow-hidden">
             <div class="card-body p-0">
                 <div class="d-flex flex-column flex-md-row">
-
                     <div class="p-3">
                         <img src="@(item.MaGoiNavigation?.AnhDaiDien ?? "https://source.unsplash.com/random/200x200/?camera")"
                              class="img-service shadow-sm" alt="Service Image">
@@ -43,23 +44,16 @@ else
                                     <span class="badge bg-danger mb-2">❌ Đã hủy</span>
                                 }
 
-                                <h5 class="fw-bold mb-1">@item.MaGoiNavigation?.TenGoi</h5>
+                                <h5 class="fw-bold mb-1">@(item.MaGoiNavigation?.TenGoi ?? "Đặt lịch riêng")</h5>
                                 <p class="text-muted small mb-1">
-                                    <i class="fa-solid fa-camera me-1"></i> @item.MaGoiNavigation?.MaNhiepAnhGiaNavigation?.HoVaTen
+                                    <i class="fa-solid fa-camera me-1"></i> @(item.MaGoiNavigation?.MaNhiepAnhGiaNavigation?.HoVaTen ?? "Nhiếp ảnh gia")
                                 </p>
                                 <p class="text-muted small mb-0">
-                                    <i class="fa-regular fa-calendar-days me-1"></i>
-                                    <span class="fw-bold text-dark">@item.NgayChup.ToString("dd/MM/yyyy")</span>
-                                    lúc <span class="fw-bold text-dark">@item.NgayChup.ToString("HH:mm")</span>
+                                    <i class="fa-regular fa-calendar-days me-1"></i> @item.NgayChup.ToString("dd/MM/yyyy HH:mm")
                                 </p>
                             </div>
-
                             <div class="text-end">
                                 <div class="fs-5 fw-bold text-danger">@item.TongTien?.ToString("N0") đ</div>
-                                @if (item.TienDaCoc > 0)
-                                {
-                                    <small class="text-muted">Đã cọc: @item.TienDaCoc?.ToString("N0") đ</small>
-                                }
                             </div>
                         </div>
 
@@ -68,17 +62,140 @@ else
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">Mã đơn: #@item.MaDon</small>
                             <div>
+                                @if (item.TrangThai == 2)
+                                {
+                                    <button class="btn btn-warning btn-sm rounded-pill px-3 me-2 fw-bold"
+                                            data-bs-toggle="modal" data-bs-target="#reviewModal-@item.MaDon">
+                                        <i class="fa-regular fa-star me-1"></i> Đánh giá
+                                    </button>
+                                }
+
                                 <a asp-action="Details" asp-route-id="@item.MaGoi" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                                     Mua lại
                                 </a>
-                                <button class="btn btn-primary btn-sm rounded-pill px-3 ms-2">
-                                    Xem chi tiết
-                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="reviewModal-@item.MaDon" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title fw-bold">Đánh giá đơn hàng #@item.MaDon</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <form asp-controller="Home" asp-action="SubmitReview" method="post">
+                        <div class="modal-body text-center p-4">
+
+                            <input type="hidden" name="MaDon" value="@item.MaDon" />
+
+                            <input type="hidden" name="SoSao" id="rating-input-@item.MaDon" value="5" />
+
+                            <p class="mb-3 fw-bold text-secondary">Bạn chấm mấy sao?</p>
+
+                            <div class="mb-3 d-flex justify-content-center gap-2" id="star-container-@item.MaDon">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="fa-solid fa-star fa-2x cursor-pointer"
+                                       id="star-@item.MaDon-@i"
+                                       style="color: @(i <= 5 ? "#ffc107" : "#e4e5e9"); transition: 0.2s;"
+                                       onclick="updateRating(@item.MaDon, @i)"></i>
+                                }
+                            </div>
+
+                            <div class="fw-bold text-warning mb-3" id="rating-text-@item.MaDon">Tuyệt vời (5/5)</div>
+
+                            <textarea name="BinhLuan" class="form-control" rows="3" placeholder="Nhập lời nhắn của bạn..."></textarea>
+                        </div>
+
+                        <div class="modal-footer border-0 pt-0 pb-4 justify-content-center">
+                            <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-dark rounded-pill px-5 fw-bold">Gửi đánh giá</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     }
 }
+
+<script>
+    function setRating(maDon, soSao) {
+        // 1. Cập nhật giá trị cho ô input ẩn
+        document.getElementById(`ratingValue-${maDon}`).value = soSao;
+
+        // 2. Đổi màu các ngôi sao
+        // Tìm div chứa các ngôi sao của đơn hàng này
+        let container = document.querySelector(`.rating-stars[data-id="${maDon}"]`);
+        let stars = container.querySelectorAll('i');
+
+        // Lặp qua 5 ngôi sao
+        stars.forEach((star, index) => {
+            if (index < soSao) {
+                // Nếu vị trí nhỏ hơn số sao chọn -> Màu vàng
+                star.classList.remove('text-secondary');
+                star.classList.add('text-warning');
+            } else {
+                // Ngược lại -> Màu xám
+                star.classList.remove('text-warning');
+                star.classList.add('text-secondary');
+            }
+        });
+    }
+</script>
+
+<style>
+    .rating-css div {
+        color: #ffe400;
+        font-size: 30px;
+        font-family: sans-serif;
+        font-weight: 800;
+        text-align: center;
+        text-transform: uppercase;
+        padding: 10px 0;
+    }
+
+    .rating-css input {
+        display: none;a
+    }
+
+        .rating-css input + label {
+            font-size: 40px;
+            text-shadow: 1px 1px 0 #8f8420;
+            cursor: pointer;
+        }
+
+        .rating-css input:checked + label ~ label {
+            color: #b4b4b4;
+        }
+    /* Đổi màu các sao phía sau sao được chọn */
+    .rating-css label:active {
+        transform: scale(0.8);
+        transition: 0.3s ease;
+    }
+    /* Đảo ngược thứ tự hiển thị để CSS checked hoạt động đúng logic (chọn 4 sao thì 1,2,3,4 sáng) */
+    .star-icon {
+        direction: rtl;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+        .cursor-pointer:hover {
+            transform: scale(1.2);
+        }
+
+    .text-warning {
+        color: #ffc107 !important;
+    }
+
+    .text-secondary {
+        color: #d1d1d1 !important;
+    }
+</style>

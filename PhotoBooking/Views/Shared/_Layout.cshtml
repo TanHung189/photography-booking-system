@@ -53,6 +53,18 @@
         letter-spacing: 2px;
         margin-left: 5px;
     }
+
+    .dropdown-toggle::after {
+        display: none !important; /* Ẩn tam giác nhỏ bên cạnh ảnh */
+    }
+    /* Hiệu ứng hiện menu mượt mà */
+    .animated { animation-duration: 0.3s; }
+    .fadeIn { animation-name: fadeIn; }
+    @("@keyframes") fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
 </style>
 </head>
 <body>
@@ -83,6 +95,23 @@
                          <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Photographer" asp-action="Index">Nhiếp ảnh gia</a>
                         </li>
+                        @if (User.Identity.IsAuthenticated && !User.IsInRole("Photographer") && !User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="YeuCau" asp-action="MyRequests">
+                                    Yêu cầu của tôi
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.Identity.IsAuthenticated && (User.IsInRole("Photographer") || User.IsInRole("Admin")))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-primary fw-bold" asp-controller="YeuCau" asp-action="JobMarket">
+                                    <i class="fa-solid fa-briefcase me-1"></i> Săn việc
+                                </a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Liên hệ</a>
                         </li>
@@ -92,47 +121,71 @@
 <ul class="navbar-nav ms-auto align-items-center">
     @if (User.Identity != null && User.Identity.IsAuthenticated)
     {
-        @* === TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP === *@
+        // 1. Lấy Avatar từ Claim ra
+        var avatarClaim = User.FindFirst("Avatar")?.Value;
+        var userName = User.Identity.Name;
         
-        @* 1. Lời chào *@
-        <li class="nav-item me-3">
-            <span class="nav-link text-dark fw-bold">
-                👋 Xin chào, @User.Identity.Name!
-            </span>
-        </li>
+        // Nếu không có avatar thì dùng ảnh tạo tự động theo tên
+        var avatarUrl = string.IsNullOrEmpty(avatarClaim) 
+                        ? $"https://ui-avatars.com/api/?name={userName}&background=random&color=fff" 
+                        : avatarClaim;
 
-        @* 2. Nút Lịch sử đơn (Ai đăng nhập cũng thấy) *@
-        <li class="nav-item me-2">
-            <a class="nav-link text-primary fw-bold" asp-controller="Home" asp-action="MyBookings">
-                <i class="fa-solid fa-list-check me-1"></i> Lịch sử đơn
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="@avatarUrl" alt="Avatar" 
+                     class="rounded-circle border border-2 border-white shadow-sm" 
+                     width="40" height="40" 
+                     style="object-fit: cover;">
             </a>
-        </li>
+            
+            <ul class="dropdown-menu dropdown-menu-end shadow animated fadeIn" aria-labelledby="userDropdown" style="border-radius: 10px; border: none; min-width: 200px;">
+                
+                <li>
+                    <h6 class="dropdown-header text-dark fw-bold py-2">
+                        @userName
+                        <br><span class="small text-muted fw-normal">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</span>
+                    </h6>
+                </li>
+                <li><hr class="dropdown-divider"></li>
 
-        @* 3. Nút Quản trị (Chỉ Admin hoặc Photographer mới thấy) *@
-        @if (User.IsInRole("Admin") || User.IsInRole("Photographer"))
-        {
-            <li class="nav-item me-2">
-                <a class="nav-link text-danger fw-bold" asp-area="Admin" asp-controller="Home" asp-action="Index">
-                    <i class="fa-solid fa-user-shield me-1"></i> Quản trị
-                </a>
-            </li>
-        }
+                <li>
+                    <a class="dropdown-item py-2" asp-area="" asp-controller="Account" asp-action="ProfileCustomer">
+                        <i class="fa-regular fa-id-card me-2 text-secondary" style="width:20px"></i> Hồ sơ của tôi
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2" asp-area="" asp-controller="Home" asp-action="MyBookings">
+                        <i class="fa-solid fa-list-check me-2 text-secondary" style="width:20px"></i> Lịch sử đơn
+                    </a>
+                </li>
 
-        @* 4. Nút Đăng xuất *@
-        <li class="nav-item">
-            <a class="btn btn-outline-danger btn-sm" asp-controller="Account" asp-action="Logout">
-                Đăng xuất
-            </a>
+                @if (User.IsInRole("Admin") || User.IsInRole("Photographer"))
+                {
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item py-2 text-danger fw-bold" asp-area="Admin" asp-controller="Home" asp-action="Index">
+                            <i class="fa-solid fa-user-shield me-2" style="width:20px"></i> Trang Quản Trị
+                        </a>
+                    </li>
+                }
+
+                <li><hr class="dropdown-divider"></li>
+                
+                <li>
+                    <a class="dropdown-item py-2 text-danger" asp-area="" asp-controller="Account" asp-action="Logout">
+                        <i class="fa-solid fa-power-off me-2" style="width:20px"></i> Đăng xuất
+                    </a>
+                </li>
+            </ul>
         </li>
     }
     else
     {
-        @* === TRƯỜNG HỢP CHƯA ĐĂNG NHẬP === *@
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Đăng ký</a>
+            <a class="nav-link fw-bold text-dark" asp-area="" asp-controller="Account" asp-action="Register">Đăng ký</a>
         </li>
         <li class="nav-item ms-2">
-            <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Login">
+            <a class="btn btn-dark rounded-pill px-4 btn-sm fw-bold" asp-area="" asp-controller="Account" asp-action="Login">
                 Đăng nhập
             </a>
         </li>

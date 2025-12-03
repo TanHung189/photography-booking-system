@@ -60,71 +60,108 @@
         </div>
     </div>
 
-    <div class="card shadow border-0 mb-4">
-        <div class="card-header py-3 bg-white">
-            <h6 class="m-0 fw-bold text-primary">Danh sách Đơn đặt lịch gần đây</h6>
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow border-0 h-100">
+                <div class="card-header py-3 bg-white d-flex align-items-center justify-content-between">
+                    <h6 class="m-0 fw-bold text-primary"><i class="fa-solid fa-chart-pie me-2"></i>Trạng thái đơn hàng</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-uppercase small fw-bold">
-                        <tr>
-                            <th class="ps-4">Mã</th>
-                            <th>Khách hàng</th>
-                            <th>Gói dịch vụ</th>
-                            <th>Ngày chụp</th>
-                            <th>Trạng thái</th>
-                            <th class="text-end pe-4">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
+
+        <div class="card shadow border-0 mb-4">
+            <div class="card-header py-3 bg-white">
+                <h6 class="m-0 fw-bold text-primary">Danh sách Đơn đặt lịch gần đây</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light text-uppercase small fw-bold">
                             <tr>
-                                <td class="ps-4 fw-bold text-muted">#@item.MaDon</td>
-                                <td>
-                                    <div class="fw-bold">@item.MaKhachHangNavigation.HoVaTen</div>
-                                    <small class="text-muted">@item.MaKhachHangNavigation.SoDienThoai</small>
-                                </td>
-                                <td>@item.MaGoiNavigation.TenGoi</td>
-                                <td>
-                                    <div>@item.NgayChup.ToString("dd/MM/yyyy")</div>
-                                    <small class="text-muted">@item.NgayChup.ToString("HH:mm")</small>
-                                </td>
-                                <td>
-                                    @if (item.TrangThai == 0)
-                                    {
-                                        <span class="badge bg-warning text-dark">⏳ Chờ duyệt</span>
-                                    }
-                                    else if (item.TrangThai == 1)
-                                    {
-                                        <span class="badge bg-success">✅ Đã duyệt</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">❌ Từ chối</span>
-                                    }
-                                </td>
-                                <td class="text-end pe-4">
-                                    @if (item.TrangThai == 0)
-                                    {
-                                        <a asp-action="Approve" asp-route-id="@item.MaDon" class="btn btn-success btn-sm me-1" title="Duyệt">
-                                            <i class="fa-solid fa-check"></i>
-                                        </a>
-                                        <a asp-action="Reject" asp-route-id="@item.MaDon" class="btn btn-outline-danger btn-sm" title="Từ chối" onclick="return confirm('Từ chối đơn này?')">
-                                            <i class="fa-solid fa-xmark"></i>
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted small">---</span>
-                                    }
-                                </td>
+                                <th class="ps-4">Mã</th>
+                                <th>Khách hàng</th>
+                                <th>Gói dịch vụ</th>
+                                <th>Ngày chụp</th>
+                                <th>Trạng thái</th>
+                                <th class="text-end pe-4">Hành động</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model ?? Enumerable.Empty<PhotoBooking.Models.DonDatLich>())
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold">#@item.MaDon</td>
+                                    <td>
+                                        <div class="fw-bold">@(item.MaKhachHangNavigation?.HoVaTen ?? "Khách vãng lai")</div>
+                                        <small class="text-muted">@(item.MaKhachHangNavigation?.SoDienThoai ?? "---")</small>
+                                    </td>
+                                    <td>
+                                        @(item.MaGoiNavigation?.TenGoi ?? "Đặt lịch riêng/Đã xóa")
+                                    </td>
+                                    <td>
+                                        <div>@item.NgayChup.ToString("dd/MM/yyyy")</div>
+                                    </td>
+                                    <td>
+                                        @if (item.TrangThai == 0)
+                                        {
+                                            <span class="badge bg-warning text-dark">⏳ Chờ duyệt</span>
+                                        }
+                                        else if (item.TrangThai == 1)
+                                        {
+                                            <span class="badge bg-success">✅ Đã duyệt</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">❌ Đã hủy</span>
+                                        }
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <a asp-controller="DonDatLich" asp-action="Index" class="btn btn-primary btn-sm">Chi tiết</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Lấy dữ liệu từ ViewBag (C#) chuyển sang Javascript
+    // Serialize mảng int[] thành chuỗi JSON: [5, 2, 1, 0]
+    var chartData = @Html.Raw(Json.Serialize(ViewBag.ChartData));
+
+    var ctx = document.getElementById('statusChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'doughnut', // Loại biểu đồ: Tròn khuyết (doughnut) hoặc 'pie' (tròn)
+        data: {
+            labels: ['Chờ duyệt', 'Đã duyệt', 'Hoàn thành', 'Đã hủy'],
+            datasets: [{
+                data: chartData, // Dữ liệu: [Chờ, Duyệt, Xong, Hủy]
+                backgroundColor: [
+                    '#ffc107', // Vàng (Chờ)
+                    '#0d6efd', // Xanh dương (Duyệt)
+                    '#198754', // Xanh lá (Xong)
+                    '#dc3545'  // Đỏ (Hủy)
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom' // Chú thích nằm dưới
+                }
+            }
+        }
+    });
+</script>

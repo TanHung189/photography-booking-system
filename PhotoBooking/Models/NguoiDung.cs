@@ -40,4 +40,6 @@ public partial class NguoiDung
     public virtual ICollection<GoiDichVu> GoiDichVus { get; set; } = new List<GoiDichVu>();
 
     public virtual DiaDiem? MaDiaDiemNavigation { get; set; }
+
+    public virtual ICollection<YeuCau> YeuCaus { get; set; } = new List<YeuCau>();
 }

@@ -158,11 +158,14 @@ namespace PhotoBooking.Controllers
             int userId = int.Parse(userIdClaim.Value);
 
             var listDonHang = await _context.DonDatLiches
-                .Include(d => d.MaGoiNavigation) // Lấy thông tin Gói
-                    .ThenInclude(g => g.MaNhiepAnhGiaNavigation) // Lấy thông tin Nhiếp ảnh gia từ Gói
-                .Where(d => d.MaKhachHang == userId)
-                .OrderByDescending(d => d.NgayTao) // Mới nhất lên đầu
-                .ToListAsync();
+        .Include(d => d.MaGoiNavigation)
+            .ThenInclude(g => g.MaNhiepAnhGiaNavigation)
+        // 👇 THÊM DÒNG NÀY:
+        .Include(d => d.DanhGium) // Để view check (item.DanhGia == null)
+                                 // 👆
+        .Where(d => d.MaKhachHang == userId)
+        .OrderByDescending(d => d.NgayTao)
+        .ToListAsync();
 
             return View(listDonHang);
         }
@@ -204,6 +207,38 @@ namespace PhotoBooking.Controllers
 
             // Quay lại trang Profile của nhiếp ảnh gia đó
             return RedirectToAction("Profile", "Photographer", new { id = MaNhiepAnhGia });
+        }
+
+        // ==========================================
+        // Action Gửi Đánh Giá (POST)
+        // ==========================================
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> SubmitReview(int MaDon, int SoSao, string BinhLuan)
+        {
+            // Tạm thời bỏ qua kiểm tra người dùng và trạng thái để test việc lưu
+            var review = new DanhGium
+            {
+                MaDon = MaDon,
+                SoSao = SoSao,
+                BinhLuan = BinhLuan ?? "Không có bình luận", // Tránh null
+                NgayDanhGia = DateTime.Now
+            };
+
+            try
+            {
+                _context.DanhGia.Add(review);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Đã lưu đánh giá thành công!";
+            }
+            catch (Exception ex)
+            {
+                // Nếu lỗi, in ra màn hình console của Visual Studio để xem
+                System.Diagnostics.Debug.WriteLine("LỖI LƯU DB: " + ex.Message);
+                TempData["Error"] = "Lỗi lưu: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(MyBookings));
         }
     }
 }
