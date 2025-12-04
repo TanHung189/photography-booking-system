@@ -56,7 +56,12 @@
                                     }
                                 </td>
                                 <td class="text-muted small">@item.NgayTao?.ToString("dd/MM/yyyy")</td>
+
                                 <td class="text-end pe-4">
+
+                                    <a asp-action="Details" asp-route-id="@item.MaYeuCau" class="btn btn-sm btn-primary me-2" title="Xem danh sách báo giá">
+                                        <i class="fa-solid fa-eye"></i> Xem ứng viên
+                                    </a>
                                     <a asp-action="Delete" asp-route-id="@item.MaYeuCau" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc muốn xóa tin này?')">
                                         <i class="fa-solid fa-trash"></i> Xóa
                                     </a>

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PhotoBooking")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+944c44096fd4d2ba78e24b0a77b75ac68c00c4db")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b739295e9cfda4b5474ef2845a6f808efa1b4858")]
 [assembly: System.Reflection.AssemblyProductAttribute("PhotoBooking")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PhotoBooking")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

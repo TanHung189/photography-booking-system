@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PhotoBooking.Models;
+using X.PagedList.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

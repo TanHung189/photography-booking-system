@@ -4,6 +4,7 @@ namespace PhotoBooking.ViewModels
 {
     public class HomeViewModel
     {
+        public IEnumerable<PhotographerViewModel> Photographers { get; set; }
         // 1. Danh sách các gói chụp nổi bật (Ví dụ: 6 gói mới nhất)
         public List<GoiDichVu> FeaturedPackages { get; set; } = new List<GoiDichVu>();
 

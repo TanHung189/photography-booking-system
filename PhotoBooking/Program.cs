@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;               // 2. Thư viện kết nối
 using PhotoBooking.Models;                         // 3. Namespace chứa DbContext và Models
 using PhotoBooking.Web.Services;                    // 4. (Mở comment dòng này nếu bạn đã tạo file PhotoService.cs)
 using OfficeOpenXml;
-
+using PhotoBooking.Web.Hubs;
 
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -43,7 +43,7 @@ builder.Services.AddScoped<PhotoBooking.Services.EmailSender>();
 
 // 5. Thêm MVC
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddSignalR();
 var app = builder.Build();
 
 // ====================================================
@@ -66,6 +66,7 @@ app.UseAuthentication(); // 1. Kiểm tra danh tính (Bạn là ai?)
 app.UseAuthorization();  // 2. Kiểm tra quyền hạn (Bạn được làm gì?)
 
 app.UseSession(); // Kích hoạt Session
+app.MapHub<PhotoBooking.Web.Hubs.BookingHub>("/bookingHub");
 
 app.MapControllerRoute(
     name: "areas",

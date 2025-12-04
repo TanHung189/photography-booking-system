@@ -1,0 +1,40 @@
+﻿@model PhotoBooking.Models.DanhMuc
+
+@{
+    ViewData["Title"] = "Xóa danh mục";
+}
+
+<div class="container-fluid py-4">
+    <div class="card shadow mb-4 border-0" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-header py-3 bg-danger text-white text-center">
+            <h5 class="m-0 fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i> XÁC NHẬN XÓA</h5>
+        </div>
+        <div class="card-body p-4 text-center">
+
+            <div class="mb-4">
+                @if (!string.IsNullOrEmpty(Model.AnhDaiDien))
+                {
+                    <img src="@Model.AnhDaiDien" class="rounded shadow-sm border" width="100" height="100" style="object-fit: cover;">
+                }
+            </div>
+
+            <h3 class="fw-bold text-dark">@Model.TenDanhMuc</h3>
+            <p class="text-muted">Mã số: #@Model.MaDanhMuc</p>
+
+            <div class="alert alert-warning text-start small mt-4">
+                <i class="fa-solid fa-circle-info me-1 fw-bold"></i>
+                <strong>Lưu ý:</strong>
+                Hành động này không thể hoàn tác. Nếu danh mục này đang chứa các Gói dịch vụ, bạn có thể không xóa được (do ràng buộc khóa ngoại). Hãy xóa hoặc chuyển các gói dịch vụ sang danh mục khác trước.
+            </div>
+
+            <form asp-action="Delete" class="mt-4">
+                <input type="hidden" asp-for="MaDanhMuc" />
+
+                <a asp-action="Index" class="btn btn-light border px-4 me-2">Hủy bỏ</a>
+                <button type="submit" class="btn btn-danger px-4 fw-bold">
+                    <i class="fa-solid fa-trash me-1"></i> Xác nhận Xóa
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

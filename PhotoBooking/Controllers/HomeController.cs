@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using PhotoBooking.Models;
+using PhotoBooking.Services;
 using PhotoBooking.ViewModels;
 using System.Diagnostics;
 using System.Security.Claims;
-using PhotoBooking.Services;
+using PhotoBooking.Web.Hubs;
 
 namespace PhotoBooking.Controllers
 {
@@ -14,11 +16,13 @@ namespace PhotoBooking.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly PhotoBookingContext _context;
         private readonly EmailSender _emailSender;
-        public HomeController(PhotoBookingContext context, ILogger<HomeController> logger, EmailSender emailSender)
+        private readonly IHubContext<BookingHub> _hubContext;
+        public HomeController(PhotoBookingContext context, ILogger<HomeController> logger, EmailSender emailSender, IHubContext<BookingHub> hubContext)
         {
             _context = context;
             _logger = logger;
             _emailSender = emailSender;
+            _hubContext = hubContext;
         }
 
 
@@ -29,7 +33,6 @@ namespace PhotoBooking.Controllers
 
 
 
-
             viewModel.FeaturedPackages = _context.GoiDichVus
                 .Include(g => g.MaNhiepAnhGiaNavigation) // Kèm thông tin Photographer
                 .Include(g => g.MaDanhMucNavigation)     // Kèm thông tin Danh m?c
@@ -37,7 +40,22 @@ namespace PhotoBooking.Controllers
                 .Take(6)                                 // Ch? l?y 6 cái
                 .ToList();
 
+            viewModel.Photographers = _context.NguoiDungs // <-- Tên bảng User trong DB của bạn
+        .Where(u => u.VaiTro == "Photographer") // Lọc theo vai trò (sửa 'VaiTro' cho đúng tên cột)
+        .OrderByDescending(u => u.MaNguoiDung)
+        .Take(4)
+        .Select(u => new PhotographerViewModel
+        {
+            // --- QUAN TRỌNG: Gán đối tượng User ---
+            User = u,
 
+            // --- Gán các thông số phụ ---
+            // Nếu trong DB chưa có logic tính toán, ta có thể gán tạm hoặc tính toán tại đây
+            AvgRating = 5.0,
+            ReviewCount = 10,
+            NamKinhNghiem = 3
+        })
+        .ToList();
             viewModel.Categories = _context.DanhMucs.ToList();
 
 
@@ -110,76 +128,70 @@ namespace PhotoBooking.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        // ==========================================
+        // Action Xử lý Đặt lịch (POST) - Đã tích hợp Email & SignalR
+        // ==========================================
         [HttpPost]
-        [Authorize] // BẮT BUỘC: Chỉ cho phép người đã đăng nhập gọi hàm này
+        [Authorize]
         public async Task<IActionResult> Book(int MaGoi, DateTime NgayChup, string DiaChiChup, string GhiChu)
         {
-            // 1. Lấy ID của khách hàng đang đăng nhập
-            // Chúng ta lấy nó từ cái Claim "UserId" đã lưu lúc đăng nhập
+            // 1. Lấy ID người dùng từ Cookie
             var userIdClaim = User.FindFirst("UserId");
-            if (userIdClaim == null)
-            {
-                // Trường hợp hiếm: Đã đăng nhập nhưng không tìm thấy ID -> Bắt đăng nhập lại
-                return RedirectToAction("Login", "Account");
-            }
+            if (userIdClaim == null) return RedirectToAction("Login", "Account");
             int maKhachHang = int.Parse(userIdClaim.Value);
 
-            // 2. Lấy thông tin Gói dịch vụ để biết giá tiền
-            var package = await _context.GoiDichVus.FindAsync(MaGoi);
-            if (package == null)
-            {
-                return NotFound("Gói dịch vụ không tồn tại.");
-            }
+            // 2. Lấy thông tin Khách hàng (CHỈ KHAI BÁO 1 LẦN Ở ĐÂY)
+            var khachHang = await _context.NguoiDungs.FindAsync(maKhachHang);
 
-            // 3. Tạo đối tượng Đơn đặt lịch mới (DonDatLich)
+            // 3. Lấy thông tin Gói dịch vụ
+            var package = await _context.GoiDichVus.FindAsync(MaGoi);
+            if (package == null) return NotFound("Gói dịch vụ không tồn tại.");
+
+            // 4. Tạo đơn hàng
             var donMoi = new DonDatLich
             {
                 MaGoi = MaGoi,
+                MaNhiepAnhGia = package.MaNhiepAnhGia, // Gán đúng chủ gói
                 MaKhachHang = maKhachHang,
                 NgayChup = NgayChup,
                 DiaChiChup = DiaChiChup,
                 GhiChu = GhiChu,
-                // Tự động lấy giá từ gói dịch vụ điền vào đơn
                 TongTien = package.GiaTien,
-                TienDaCoc = package.GiaCoc ?? 0, // Nếu giá cọc null thì lấy bằng 0
-                                                 // Đặt trạng thái mặc định
-                TrangThai = 0, // 0: Chờ duyệt
-                TrangThaiThanhToan = 0, // 0: Chưa thanh toán
+                TienDaCoc = package.GiaCoc ?? 0,
+                TrangThai = 0,
+                TrangThaiThanhToan = 0,
                 NgayTao = DateTime.Now
             };
 
-            // 4. Lưu vào Cơ sở dữ liệu
             _context.Add(donMoi);
             await _context.SaveChangesAsync();
 
-            // --- GỬI EMAIL XÁC NHẬN CHO KHÁCH ---
-            var userEmail = User.FindFirst(ClaimTypes.Name)?.Value; // Cách lấy email tùy vào lúc login bạn lưu claim nào, nếu chưa lưu Email thì phải query DB lại.
-            var khachHang = await _context.NguoiDungs.FindAsync(maKhachHang);
+            // 5. --- GỬI THÔNG BÁO (SIGNALR) ---
+            // Báo cho Admin/Nhiếp ảnh gia biết có đơn mới
+            await _hubContext.Clients.All.SendAsync("ReceiveBooking", khachHang.HoVaTen, donMoi.MaDon);
 
+            // 6. --- GỬI EMAIL XÁC NHẬN ---
             if (!string.IsNullOrEmpty(khachHang.Email))
             {
-                string subject = $"[PotoBooking] Xác nhận đơn đặt lịch #{donMoi.MaDon}";
+                string subject = $"[TAHU.FOTO] Xác nhận yêu cầu đặt lịch #{donMoi.MaDon}";
                 string content = $@"
-            <h3>Cảm ơn bạn đã đặt lịch tại PotoBooking!</h3>
+            <h3>Cảm ơn bạn đã đặt lịch tại TAHU.FOTO!</h3>
             <p>Xin chào <b>{khachHang.HoVaTen}</b>,</p>
-            <p>Yêu cầu đặt lịch của bạn đã được gửi đi. Nhiếp ảnh gia sẽ sớm phản hồi.</p>
+            <p>Yêu cầu đặt lịch cho gói <b>{package.TenGoi}</b> đã được ghi nhận.</p>
             <ul>
-                <li><b>Mã đơn:</b> #{donMoi.MaDon}</li>
-                <li><b>Ngày chụp:</b> {donMoi.NgayChup:dd/MM/yyyy HH:mm}</li>
+                <li><b>Thời gian:</b> {donMoi.NgayChup:dd/MM/yyyy HH:mm}</li>
                 <li><b>Địa điểm:</b> {donMoi.DiaChiChup}</li>
                 <li><b>Tổng tiền:</b> {donMoi.TongTien:N0} đ</li>
             </ul>
-            <p>Vui lòng truy cập website để theo dõi trạng thái đơn hàng.</p>
+            <p>Nhiếp ảnh gia sẽ sớm phản hồi yêu cầu của bạn.</p>
         ";
 
-                await _emailSender.SendEmailAsync(khachHang.Email, subject, content);
+                // Gọi hàm gửi mail (không cần await để web chạy nhanh hơn)
+                _emailSender.SendEmailAsync(khachHang.Email, subject, content);
             }
-          
-            // 5. Thông báo thành công
-            // Sử dụng TempData để gửi một tin nhắn ngắn sang trang kế tiếp
-            TempData["SuccessMessage"] = "🎉 Chúc mừng! Bạn đã gửi yêu cầu đặt lịch thành công. Nhiếp ảnh gia sẽ sớm liên hệ lại.";
 
-            // 6. Quay lại trang chi tiết gói chụp đó
+            // 7. Hoàn tất
+            TempData["SuccessMessage"] = "🎉 Đặt lịch thành công! Vui lòng kiểm tra Email.";
             return RedirectToAction("Details", new { id = MaGoi });
         }
 

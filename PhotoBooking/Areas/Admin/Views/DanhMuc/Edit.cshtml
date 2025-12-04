@@ -1,0 +1,40 @@
+﻿@model PhotoBooking.Models.DanhMuc
+
+@{
+    ViewData["Title"] = "Danh mục";
+}
+
+<div class="container-fluid py-4">
+    <div class="card shadow mb-4 border-0" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-header py-3 bg-white border-bottom">
+            <h5 class="m-0 fw-bold text-primary">Thông tin danh mục</h5>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="TenDanhMuc" class="form-label fw-bold">Tên danh mục</label>
+                    <input asp-for="TenDanhMuc" class="form-control" placeholder="VD: Chụp Flycam..." required />
+                    <span asp-validation-for="TenDanhMuc" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MoTa" class="form-label fw-bold">Mô tả ngắn</label>
+                    <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="AnhDaiDien" class="form-label fw-bold">Link ảnh đại diện</label>
+                    <input asp-for="AnhDaiDien" class="form-control" placeholder="Dán link ảnh từ Cloudinary/Unsplash..." />
+                    <div class="form-text">Ảnh này sẽ hiện trên trang chủ ở phần "Dịch vụ phổ biến".</div>
+                </div>
+
+                <div class="text-end">
+                    <a asp-action="Index" class="btn btn-light border rounded-pill px-4 me-2">Quay lại</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

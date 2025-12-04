@@ -31,6 +31,8 @@ public partial class PhotoBookingContext : DbContext
 
     public virtual DbSet<NguoiDung> NguoiDungs { get; set; }
 
+    public virtual DbSet<UngTuyen> UngTuyens { get; set; }
+
     public virtual DbSet<YeuCau> YeuCaus { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -162,16 +164,38 @@ public partial class PhotoBookingContext : DbContext
 
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.HoVaTen).HasMaxLength(100);
+            entity.Property(e => e.MaXacNhan).HasMaxLength(50);
             entity.Property(e => e.MatKhau).HasMaxLength(100);
             entity.Property(e => e.NgayTao).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.SoDienThoai).HasMaxLength(20);
             entity.Property(e => e.SoNamKinhNghiem).HasDefaultValue(0);
             entity.Property(e => e.TenDangNhap).HasMaxLength(50);
+            entity.Property(e => e.TinhThanh).HasMaxLength(100);
             entity.Property(e => e.VaiTro).HasMaxLength(20);
 
             entity.HasOne(d => d.MaDiaDiemNavigation).WithMany(p => p.NguoiDungs)
                 .HasForeignKey(d => d.MaDiaDiem)
                 .HasConstraintName("FK__NguoiDung__MaDia__3C69FB99");
+        });
+
+        modelBuilder.Entity<UngTuyen>(entity =>
+        {
+            entity.HasKey(e => e.MaUngTuyen).HasName("PK__UngTuyen__D7EBDC49DFD4C447");
+
+            entity.ToTable("UngTuyen");
+
+            entity.Property(e => e.GiaBao).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.NgayUngTuyen).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.TrangThai).HasDefaultValue(0);
+
+            entity.HasOne(d => d.MaNhiepAnhGiaNavigation).WithMany(p => p.UngTuyens)
+                .HasForeignKey(d => d.MaNhiepAnhGia)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__UngTuyen__MaNhie__05D8E0BE");
+
+            entity.HasOne(d => d.MaYeuCauNavigation).WithMany(p => p.UngTuyens)
+                .HasForeignKey(d => d.MaYeuCau)
+                .HasConstraintName("FK__UngTuyen__MaYeuC__04E4BC85");
         });
 
         modelBuilder.Entity<YeuCau>(entity =>

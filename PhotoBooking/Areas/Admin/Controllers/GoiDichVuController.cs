@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using X.PagedList.Extensions;
 
 namespace PhotoBooking.Areas.Admin.Controllers
 {
@@ -26,7 +27,7 @@ namespace PhotoBooking.Areas.Admin.Controllers
         }
 
         // GET: Admin/GoiDichVu
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
             var userIdStr = User.FindFirst("UserId")?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -43,7 +44,17 @@ namespace PhotoBooking.Areas.Admin.Controllers
                 query = query.Where(g => g.MaNhiepAnhGia == userId);
             }
 
-            return View(await query.ToListAsync());
+            // --- 6. PHÂN TRANG (Mới) ---
+            int pageSize = 10; // Số dòng trên 1 trang
+            int pageNumber = (page ?? 1); // Nếu không có trang thì mặc định trang 1
+
+            // Chuyển đổi sang danh sách phân trang (ToPagedList)
+            // Lưu ý: X.PagedList hoạt động tốt nhất với dữ liệu đã tải về hoặc IQueryable
+            // Để đơn giản và tránh lỗi async, ta ToList trước rồi mới phân trang
+            var listData = await query.ToListAsync();
+            var pagedList = listData.ToPagedList(pageNumber, pageSize);
+
+            return View(pagedList);
         }
 
         // GET: Admin/GoiDichVu/Details/5

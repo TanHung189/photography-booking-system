@@ -36,10 +36,12 @@ CREATE TABLE NguoiDung (
     MaDiaDiem INT,
 	SoNamKinhNghiem INT DEFAULT 0,
     NgayTao DATETIME2 DEFAULT GETDATE(),
+	MaXacNhan NVARCHAR(50) NULL,
+	HanMaXacNhan DATETIME2 NULL,
+	TinhThanh NVARCHAR(100)
     FOREIGN KEY (MaDiaDiem) REFERENCES DiaDiem(MaDiaDiem)
 );
 GO
-
 
 CREATE TABLE DanhMuc (
     MaDanhMuc INT IDENTITY(1,1) PRIMARY KEY,
@@ -133,6 +135,22 @@ CREATE TABLE YeuCau (
 );
 GO
 
+CREATE TABLE UngTuyen (
+    MaUngTuyen INT IDENTITY(1,1) PRIMARY KEY,
+    MaYeuCau INT NOT NULL,
+    MaNhiepAnhGia INT NOT NULL,
+    
+    GiaBao DECIMAL(18, 2) NOT NULL, -- Giá thợ muốn nhận
+    LoiNhan NVARCHAR(MAX),          -- Lời chào hàng
+    
+    TrangThai INT DEFAULT 0,        -- 0: Chờ duyệt, 1: Được chọn, 2: Bị từ chối
+    NgayUngTuyen DATETIME2 DEFAULT GETDATE(),
+    
+    FOREIGN KEY (MaYeuCau) REFERENCES YeuCau(MaYeuCau) ON DELETE CASCADE, -- Xóa tin thì xóa luôn ứng tuyển
+    FOREIGN KEY (MaNhiepAnhGia) REFERENCES NguoiDung(MaNguoiDung)
+);
+GO
+
 -- Cập nhật dữ liệu mẫu cho có số liệu đẹp
 UPDATE NguoiDung SET SoNamKinhNghiem = 5 WHERE TenDangNhap = 'lee_minh';
 UPDATE NguoiDung SET SoNamKinhNghiem = 3 WHERE TenDangNhap = 'sarah_tran';
@@ -189,6 +207,125 @@ INSERT INTO NguoiDung (TenDangNhap, MatKhau, HoVaTen, Email, SoDienThoai, VaiTro
 ('khachhang1', '123456', N'Nguyễn Văn An', 'an.nguyen@gmail.com', '0900000001', 'Customer', 1),
 ('khachhang2', '123456', N'Trần Thị Bích', 'bich.tran@gmail.com', '0900000002', 'Customer', 2),
 ('khachhang3', '123456', N'Lê Hoàng Cường', 'cuong.le@gmail.com', '0900000003', 'Customer', 1);
+USE PhotoBookingTH;
+GO
+
+-- =======================================================
+-- 1. THÊM DANH MỤC MỚI (CATEGORIES)
+-- =======================================================
+INSERT INTO DanhMuc (TenDanhMuc, MoTa, AnhDaiDien) VALUES 
+(N'Chụp Đồ Ăn (Food)', N'Hình ảnh quảng cáo món ăn, menu nhà hàng chuyên nghiệp', 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&w=800&q=80'),
+(N'Chụp Sự Kiện (Event)', N'Ghi lại khoảnh khắc hội nghị, tiệc tùng, khai trương', 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80'),
+(N'Chụp Kiến Trúc & Nội Thất', N'Quảng bá không gian sống, khách sạn, resort', 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80'),
+(N'Chụp Thú Cưng (Pet)', N'Lưu giữ khoảnh khắc đáng yêu của boss và sen', 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=800&q=80');
+GO
+
+-- =======================================================
+-- 2. THÊM NHIẾP ẢNH GIA MỚI (PHOTOGRAPHERS)
+-- =======================================================
+
+-- Lấy ID Địa điểm (Để gán cho user)
+DECLARE @HN INT = (SELECT TOP 1 MaDiaDiem FROM DiaDiem WHERE Slug = 'ha-noi');
+DECLARE @HCM INT = (SELECT TOP 1 MaDiaDiem FROM DiaDiem WHERE Slug = 'tp-hcm');
+DECLARE @DN INT = (SELECT TOP 1 MaDiaDiem FROM DiaDiem WHERE Slug = 'da-nang');
+
+-- Hash mật khẩu "123456" (Dùng chung cho nhanh)
+DECLARE @Pass NVARCHAR(MAX) = '$2a$11$Z9/bXX/y.X/y.X/y.X/y.e1.1.1.1.1.1.1.1.1.1.1.1.1'; 
+
+INSERT INTO NguoiDung (TenDangNhap, MatKhau, HoVaTen, Email, SoDienThoai, VaiTro, MaDiaDiem, SoNamKinhNghiem, GioiThieu, AnhDaiDien) VALUES
+-- Chuyên Food - HCM
+('foodie_tuan', @Pass, N'Tuấn Foodie', 'tuan.food@gmail.com', '0909111222', 'Photographer', @HCM, 4, N'Chuyên gia Food Stylist & Photography. Đã hợp tác với Golden Gate, The Coffee House.', 'https://ui-avatars.com/api/?name=Tuan+Foodie&background=FF9800&color=fff'),
+
+-- Chuyên Sự kiện - Hà Nội
+('event_pro_hn', @Pass, N'Hà Nội Event Media', 'hnevent@gmail.com', '0909333444', 'Photographer', @HN, 8, N'Đội ngũ quay chụp sự kiện chuyên nghiệp. Thiết bị hiện đại 4K, Flycam.', 'https://ui-avatars.com/api/?name=Event+HN&background=2196F3&color=fff'),
+
+-- Chuyên Nội thất - Đà Nẵng
+('arch_design_dn', @Pass, N'Không Gian Việt', 'kgv.dn@gmail.com', '0909555666', 'Photographer', @DN, 5, N'Chuyên chụp ảnh căn hộ Airbnb, Resort, Villa tại Đà Nẵng - Hội An.', 'https://ui-avatars.com/api/?name=Khong+Gian&background=607D8B&color=fff'),
+
+-- Chuyên Thú cưng - HCM
+('pet_lover_saigon', @Pass, N'Pet Studio Sài Gòn', 'pet.sg@gmail.com', '0909777888', 'Photographer', @HCM, 3, N'Studio thân thiện với thú cưng. Có sẵn phụ kiện và đồ chơi cho các bé.', 'https://ui-avatars.com/api/?name=Pet+Studio&background=E91E63&color=fff'),
+
+-- Chuyên Chân dung - Hà Nội
+('portrait_art_hn', @Pass, N'Thanh Xuân Portrait', 'thanhxuan@gmail.com', '0909999000', 'Photographer', @HN, 2, N'Lưu giữ thanh xuân qua những bức ảnh chân dung đầy cảm xúc.', 'https://ui-avatars.com/api/?name=Thanh+Xuan&background=9C27B0&color=fff'),
+
+-- Chuyên Cưới - Đà Nẵng
+('wedding_danang', @Pass, N'Nắng Wedding', 'nang.wd@gmail.com', '0909123123', 'Photographer', @DN, 6, N'Chụp ảnh cưới phong cách tự nhiên, bắt trọn khoảnh khắc hạnh phúc.', 'https://ui-avatars.com/api/?name=Nang+Wedding&background=FF5722&color=fff');
+GO
+
+USE PhotoBookingTH;
+GO
+
+-- =======================================================
+-- KHAI BÁO BIẾN (BẮT BUỘC PHẢI CHẠY CÙNG LÚC VỚI LỆNH INSERT DƯỚI)
+-- =======================================================
+
+-- 1. Lấy ID Nhiếp ảnh gia
+DECLARE @IdFoodie INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'foodie_tuan');
+DECLARE @IdEventHN INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'event_pro_hn');
+DECLARE @IdArchDN INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'arch_design_dn');
+DECLARE @IdPetSG INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'pet_lover_saigon');
+DECLARE @IdPortraitHN INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'portrait_art_hn');
+DECLARE @IdWeddingDN INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'wedding_danang');
+
+-- 2. Lấy ID Danh mục (Chắc chắn danh mục đã được tạo trước đó)
+DECLARE @CatFood INT = (SELECT MaDanhMuc FROM DanhMuc WHERE TenDanhMuc LIKE N'%Đồ Ăn%');
+DECLARE @CatEvent INT = (SELECT MaDanhMuc FROM DanhMuc WHERE TenDanhMuc LIKE N'%Sự Kiện%');
+DECLARE @CatArch INT = (SELECT MaDanhMuc FROM DanhMuc WHERE TenDanhMuc LIKE N'%Kiến Trúc%');
+DECLARE @CatPet INT = (SELECT MaDanhMuc FROM DanhMuc WHERE TenDanhMuc LIKE N'%Thú Cưng%');
+DECLARE @CatLookbook INT = (SELECT MaDanhMuc FROM DanhMuc WHERE TenDanhMuc LIKE N'%Lookbook%');
+DECLARE @CatWedding INT = (SELECT MaDanhMuc FROM DanhMuc WHERE TenDanhMuc LIKE N'%Cưới%');
+
+-- =======================================================
+-- THỰC HIỆN INSERT (Chạy liền mạch với phần khai báo trên)
+-- =======================================================
+
+-- 1. Gói Đồ Ăn (Foodie Tuấn)
+IF @IdFoodie IS NOT NULL AND @CatFood IS NOT NULL
+BEGIN
+    INSERT INTO GoiDichVu (TenGoi, GiaTien, GiaCoc, ThoiLuong, SoNguoiToiDa, MoTaChiTiet, SanPhamBanGiao, MaDanhMuc, MaNhiepAnhGia, AnhDaiDien) VALUES 
+    (N'Chụp Menu Nhà Hàng (Cơ bản)', 3000000, 1000000, 180, 1, N'Chụp món ăn trên nền trắng hoặc setup đơn giản. Tối đa 10 món.', N'10 ảnh retouch kỹ, toàn bộ file gốc', @CatFood, @IdFoodie, 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80'),
+    (N'Concept Food Art Creative', 5000000, 2000000, 240, 1, N'Setup concept nghệ thuật, có Food Stylist hỗ trợ.', N'15 ảnh chất lượng cao dùng chạy quảng cáo', @CatFood, @IdFoodie, 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&w=800&q=80');
+END
+
+-- 2. Gói Sự Kiện (Event HN)
+IF @IdEventHN IS NOT NULL AND @CatEvent IS NOT NULL
+BEGIN
+    INSERT INTO GoiDichVu (TenGoi, GiaTien, GiaCoc, ThoiLuong, SoNguoiToiDa, MoTaChiTiet, SanPhamBanGiao, MaDanhMuc, MaNhiepAnhGia, AnhDaiDien) VALUES 
+    (N'Chụp Hội Thảo/Workshop (Nửa ngày)', 2500000, 500000, 240, 100, N'Chụp toàn cảnh, diễn giả, khách mời check-in.', N'200+ file đã chỉnh sáng, trả ảnh sau 24h', @CatEvent, @IdEventHN, 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80'),
+    (N'Quay Phim Highlight Sự Kiện', 4500000, 1500000, 240, 100, N'Quay và dựng video highlight 3-5 phút.', N'01 Video Full HD', @CatEvent, @IdEventHN, 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80');
+END
+
+-- 3. Gói Nội Thất (Arch DN)
+IF @IdArchDN IS NOT NULL AND @CatArch IS NOT NULL
+BEGIN
+    INSERT INTO GoiDichVu (TenGoi, GiaTien, GiaCoc, ThoiLuong, SoNguoiToiDa, MoTaChiTiet, SanPhamBanGiao, MaDanhMuc, MaNhiepAnhGia, AnhDaiDien) VALUES 
+    (N'Chụp Căn Hộ Airbnb/Homestay', 2000000, 500000, 120, 1, N'Chụp góc rộng, chi tiết decor để đăng bán phòng.', N'20 ảnh HDR chất lượng cao', @CatArch, @IdArchDN, 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80'),
+    (N'Chụp Biệt Thự/Resort Cao Cấp', 8000000, 3000000, 480, 1, N'Chụp kiến trúc ngoại thất và nội thất. Sử dụng ánh sáng nhân tạo.', N'30 ảnh retouch cao cấp', @CatArch, @IdArchDN, 'https://images.unsplash.com/photo-1600596542815-22b845069566?auto=format&fit=crop&w=800&q=80');
+END
+
+-- 4. Gói Thú Cưng (Pet SG)
+IF @IdPetSG IS NOT NULL AND @CatPet IS NOT NULL
+BEGIN
+    INSERT INTO GoiDichVu (TenGoi, GiaTien, GiaCoc, ThoiLuong, SoNguoiToiDa, MoTaChiTiet, SanPhamBanGiao, MaDanhMuc, MaNhiepAnhGia, AnhDaiDien) VALUES 
+    (N'Chụp Boss tại Studio', 1200000, 300000, 90, 1, N'Phông nền màu sắc, có sẵn phụ kiện nón, kính cho bé.', N'10 ảnh chỉnh sửa dễ thương', @CatPet, @IdPetSG, 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80'),
+    (N'Dã Ngoại Công Viên Cùng Boss', 1800000, 500000, 120, 2, N'Chụp khoảnh khắc bé chạy nhảy tự nhiên ngoài trời.', N'Toàn bộ file gốc + 15 ảnh chỉnh sửa', @CatPet, @IdPetSG, 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=800&q=80');
+END
+
+-- 5. Gói Chân Dung (Portrait HN)
+IF @IdPortraitHN IS NOT NULL AND @CatLookbook IS NOT NULL
+BEGIN
+    INSERT INTO GoiDichVu (TenGoi, GiaTien, GiaCoc, ThoiLuong, SoNguoiToiDa, MoTaChiTiet, SanPhamBanGiao, MaDanhMuc, MaNhiepAnhGia, AnhDaiDien) VALUES 
+    (N'Nàng Thơ Hà Nội', 1500000, 0, 90, 1, N'Chụp áo dài trắng tinh khôi tại Phan Đình Phùng hoặc Hồ Tây.', N'15 ảnh blend màu film', @CatLookbook, @IdPortraitHN, 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=800&q=80');
+END
+
+-- 6. Gói Cưới (Wedding DN)
+IF @IdWeddingDN IS NOT NULL AND @CatWedding IS NOT NULL
+BEGIN
+    INSERT INTO GoiDichVu (TenGoi, GiaTien, GiaCoc, ThoiLuong, SoNguoiToiDa, MoTaChiTiet, SanPhamBanGiao, MaDanhMuc, MaNhiepAnhGia, AnhDaiDien) VALUES 
+    (N'Pre-wedding Hội An Cổ Kính', 6000000, 2000000, 240, 2, N'Chụp phố cổ Hội An buổi sáng và thả đèn hoa đăng buổi tối.', N'1 Album 30x30, 2 ảnh lớn', @CatWedding, @IdWeddingDN, 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80'),
+    (N'Bình Minh Biển Mỹ Khê', 4000000, 1000000, 120, 2, N'Đón bình minh trên biển Đà Nẵng. Concept lãng mạn, nhẹ nhàng.', N'20 ảnh chỉnh sửa, toàn bộ file gốc', @CatWedding, @IdWeddingDN, 'https://images.unsplash.com/photo-1510076857177-be9321a29160?auto=format&fit=crop&w=800&q=80');
+END
+GO
 
 -- D. GÓI DỊCH VỤ (Sử dụng biến để lấy ID động, tránh lỗi khóa ngoại)
 DECLARE @IdLeMinh INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'lee_minh');
@@ -207,8 +344,7 @@ INSERT INTO GoiDichVu (TenGoi, GiaTien, GiaCoc, ThoiLuong, SoNguoiToiDa, MoTaChi
 (N'Profile Doanh Nhân', 2000000, 500000, 60, 1, N'Chụp ảnh profile chuyên nghiệp tại văn phòng hoặc studio.', N'5 ảnh CV chất lượng cao', @IdDMLookbook, @IdSarah, 'https://www.pinterest.com/pin/126593439522022455/'),
 (N'Săn Mây Đà Lạt', 4500000, 1000000, 240, 2, N'Khởi hành từ 4h sáng để săn mây tại đồi chè Cầu Đất.', N'Video ngắn 1 phút + Toàn bộ ảnh gốc', @IdDMKyYeu, @IdTungNui, 'https://www.pinterest.com/pin/126593439522022455/');
 
--- E. ÐON Ð?T L?CH (S? D?NG BI?N Ð? L?Y ID Ð?NG -> KH?C PH?C L?I 547)
--- L?y ID Khách hàng th?c t?
+
 DECLARE @IdKhach1 INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'khachhang1');
 DECLARE @IdKhach2 INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'khachhang2');
 DECLARE @IdKhach3 INT = (SELECT MaNguoiDung FROM NguoiDung WHERE TenDangNhap = 'khachhang3');
@@ -287,7 +423,7 @@ PRINT N'--- 8. Bảng Chi Tiết Ảnh (AnhChiTiet) ---';
 SELECT * FROM AnhChiTiet;
 
 PRINT N'Bắt đầu quá trình xóa dữ liệu mẫu...';
-
+/*
 -- =======================================================
 -- XÓA DỮ LIỆU THEO THỨ TỰ NGƯỢC LẠI (TRÁNH LỖI KHÓA NGOẠI)
 -- =======================================================
@@ -338,7 +474,7 @@ PRINT N'- Đã xóa DanhMuc và DiaDiem';
 PRINT N'--------------------------------------------------';
 PRINT N'ĐÃ XÓA TOÀN BỘ DỮ LIỆU MẪU THÀNH CÔNG!';
 PRINT N'Cơ sở dữ liệu PhotoBookingTH đã trốn rỗng.';
-GO
+GO*/
 
 -- Kiểm tra lại (Tất cả sẽ trả về 0 dòng)
 SELECT * FROM DonDatLich;
@@ -346,3 +482,5 @@ Select * from DanhGia;
 SELECT * FROM NguoiDung;
 select * from GoiDichVu;
 Select * from YeuCau;
+select * from DanhMuc;
+

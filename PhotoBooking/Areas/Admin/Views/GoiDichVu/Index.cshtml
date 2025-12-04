@@ -1,4 +1,6 @@
-﻿@model IEnumerable<PhotoBooking.Models.GoiDichVu>
+﻿@model IPagedList<PhotoBooking.Models.GoiDichVu>
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
 
 @{
     ViewData["Title"] = "Quản lý Gói Dịch Vụ";
@@ -81,6 +83,15 @@
                         }
                     </tbody>
                 </table>
+
+                <div class="d-flex justify-content-center mt-4">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchString = ViewData["CurrentFilter"] }), 
+    new PagedListRenderOptions {
+        LiElementClasses = new string[] { "page-item" },
+        PageClasses = new string[] { "page-link" },
+        UlElementClasses = new string[] { "pagination" }
+    })
+</div>
             </div>
         </div>
     </div>

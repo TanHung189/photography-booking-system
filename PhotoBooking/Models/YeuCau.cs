@@ -24,4 +24,6 @@ public partial class YeuCau
     public DateTime? NgayTao { get; set; }
 
     public virtual NguoiDung MaKhachHangNavigation { get; set; } = null!;
+
+    public virtual ICollection<UngTuyen> UngTuyens { get; set; } = new List<UngTuyen>();
 }

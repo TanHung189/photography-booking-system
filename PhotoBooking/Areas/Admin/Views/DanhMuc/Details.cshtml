@@ -1,0 +1,44 @@
+﻿@model PhotoBooking.Models.DanhMuc
+
+@{
+    ViewData["Title"] = "Chi tiết danh mục";
+}
+
+<div class="container-fluid py-4">
+    <div class="card shadow mb-4 border-0" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+            <h6 class="m-0 fw-bold text-primary">Thông tin danh mục #@Model.MaDanhMuc</h6>
+            <span class="badge bg-secondary">@Model.GoiDichVus.Count gói dịch vụ</span>
+        </div>
+        <div class="card-body p-4 text-center">
+
+            <div class="mb-4">
+                @if (!string.IsNullOrEmpty(Model.AnhDaiDien))
+                {
+                    <img src="@Model.AnhDaiDien" class="img-thumbnail shadow-sm" style="max-height: 200px; object-fit: cover;">
+                }
+                else
+                {
+                    <div class="alert alert-secondary d-inline-block">
+                        <i class="fa-regular fa-image fa-2x"></i><br>Chưa có ảnh
+                    </div>
+                }
+            </div>
+
+            <h3 class="fw-bold text-dark mb-3">@Model.TenDanhMuc</h3>
+
+            <div class="text-start bg-light p-3 rounded border mb-4">
+                <label class="small text-muted fw-bold text-uppercase">Mô tả:</label>
+                <p class="mb-0">@(Model.MoTa ?? "Không có mô tả")</p>
+            </div>
+
+            <div class="d-flex justify-content-center gap-2">
+                <a asp-action="Index" class="btn btn-light border px-4">Quay lại</a>
+                <a asp-action="Edit" asp-route-id="@Model.MaDanhMuc" class="btn btn-warning px-4 fw-bold">
+                    <i class="fa-solid fa-pen me-1"></i> Chỉnh sửa
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>

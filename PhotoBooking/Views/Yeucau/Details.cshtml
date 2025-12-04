@@ -1,0 +1,70 @@
+﻿@model PhotoBooking.Models.YeuCau
+@{
+    ViewData["Title"] = "Chi tiết yêu cầu";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-primary mb-3">Thông tin yêu cầu</h5>
+                    <h4 class="fw-bold">@Model.TieuDe</h4>
+                    <hr>
+                    <p><strong>Ngân sách:</strong> <span class="text-success">@Model.NganSach?.ToString("N0") đ</span></p>
+                    <p><strong>Ngày chụp:</strong> @Model.NgayCanChup?.ToString("dd/MM/yyyy")</p>
+                    <p><strong>Địa điểm:</strong> @Model.DiaChi</p>
+                    <p class="text-muted bg-light p-3 rounded">@Model.MoTa</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h4 class="fw-bold mb-4">📸 Các nhiếp ảnh gia đã báo giá (@Model.UngTuyens.Count)</h4>
+
+            @if (Model.UngTuyens.Count == 0)
+            {
+                <div class="alert alert-info">Chưa có nhiếp ảnh gia nào ứng tuyển.</div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var item in Model.UngTuyens)
+                    {
+                        <div class="col-12">
+                            <div class="card shadow-sm border-0 hover-shadow">
+                                <div class="card-body d-flex align-items-center">
+                                    <img src="@(item.MaNhiepAnhGiaNavigation.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + item.MaNhiepAnhGiaNavigation.HoVaTen)"
+                                         class="rounded-circle me-3 border" width="60" height="60" style="object-fit:cover">
+
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between">
+                                            <h5 class="fw-bold mb-0">
+                                                <a asp-controller="Photographer" asp-action="Profile" asp-route-id="@item.MaNhiepAnhGia" target="_blank" class="text-decoration-none text-dark">
+                                                    @item.MaNhiepAnhGiaNavigation.HoVaTen
+                                                </a>
+                                            </h5>
+                                            <div class="fs-5 fw-bold text-danger">@item.GiaBao.ToString("N0") đ</div>
+                                        </div>
+                                        <p class="text-muted small mb-0 mt-1 fst-italic">"@item.LoiNhan"</p>
+                                        <small class="text-secondary">Gửi lúc: @item.NgayUngTuyen?.ToString("dd/MM HH:mm")</small>
+                                    </div>
+
+                                    @if (Model.TrangThai == 0)
+                                    {
+                                        <form asp-action="AcceptOffer" method="post" class="ms-3">
+                                            <input type="hidden" name="id" value="@item.MaUngTuyen" />
+                                            <button class="btn btn-success rounded-pill fw-bold btn-sm px-3">
+                                                <i class="fa-solid fa-check me-1"></i> Chọn
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

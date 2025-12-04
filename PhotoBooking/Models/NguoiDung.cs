@@ -30,7 +30,9 @@ public partial class NguoiDung
     public DateTime? NgayTao { get; set; }
 
     public int? SoNamKinhNghiem { get; set; }
+
     public string? MaXacNhan { get; set; }
+
     public DateTime? HanMaXacNhan { get; set; }
 
     public string? TinhThanh { get; set; }
@@ -44,6 +46,8 @@ public partial class NguoiDung
     public virtual ICollection<GoiDichVu> GoiDichVus { get; set; } = new List<GoiDichVu>();
 
     public virtual DiaDiem? MaDiaDiemNavigation { get; set; }
+
+    public virtual ICollection<UngTuyen> UngTuyens { get; set; } = new List<UngTuyen>();
 
     public virtual ICollection<YeuCau> YeuCaus { get; set; } = new List<YeuCau>();
 }

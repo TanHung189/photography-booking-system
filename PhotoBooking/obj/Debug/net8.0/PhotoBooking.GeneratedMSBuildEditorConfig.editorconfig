@@ -48,6 +48,26 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQWxidW1BbmhcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/DanhMuc/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcRGFuaE11Y1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/DanhMuc/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcRGFuaE11Y1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/DanhMuc/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcRGFuaE11Y1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/DanhMuc/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcRGFuaE11Y1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/DanhMuc/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcRGFuaE11Y1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Areas/Admin/Views/DonDatLich/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcRG9uRGF0TGljaFxDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -194,6 +214,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Views/Yeucau/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcWWV1Y2F1XENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Views/Yeucau/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcWWV1Y2F1XERldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Views/Yeucau/JobMarket.cshtml]
