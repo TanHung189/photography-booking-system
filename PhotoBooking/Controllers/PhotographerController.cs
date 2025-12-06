@@ -101,5 +101,19 @@ namespace PhotoBooking.Controllers
 
             return View(vm);
         }
+
+        public async Task<IActionResult> MyJobs()
+        {
+            var userId = int.Parse(User.FindFirst("UserId").Value);
+
+            var orders = await _context.DonDatLiches 
+                .Include(d => d.MaKhachHangNavigation) // Lấy thông tin khách
+                .Include(d => d.MaGoiNavigation)       // Lấy thông tin gói (Cái này có thể null)
+                .Where(d => d.MaNhiepAnhGia == userId) // Chỉ lấy đơn của thợ này
+                .OrderByDescending(d => d.NgayTao)
+                .ToListAsync();
+
+            return View(orders);
+        }
     }
 }

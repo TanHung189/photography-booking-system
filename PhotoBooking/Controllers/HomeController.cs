@@ -40,22 +40,23 @@ namespace PhotoBooking.Controllers
                 .Take(6)                                 // Ch? l?y 6 cái
                 .ToList();
 
-            viewModel.Photographers = _context.NguoiDungs // <-- Tên bảng User trong DB của bạn
-        .Where(u => u.VaiTro == "Photographer") // Lọc theo vai trò (sửa 'VaiTro' cho đúng tên cột)
-        .OrderByDescending(u => u.MaNguoiDung)
-        .Take(4)
-        .Select(u => new PhotographerViewModel
-        {
-            // --- QUAN TRỌNG: Gán đối tượng User ---
-            User = u,
+            viewModel.Photographers = _context.NguoiDungs
+    .Where(u => u.VaiTro == "Photographer")
+    .OrderByDescending(u => u.SoNamKinhNghiem)
+    .Take(4)
+    .Select(u => new PhotographerViewModel
+    {
+        User = u,
 
-            // --- Gán các thông số phụ ---
-            // Nếu trong DB chưa có logic tính toán, ta có thể gán tạm hoặc tính toán tại đây
-            AvgRating = 5.0,
-            ReviewCount = 10,
-            NamKinhNghiem = 3
-        })
-        .ToList();
+        // --- CODE MỚI: LẤY LIST ẢNH CHO SLIDE ---
+        // Lấy ảnh đại diện của 3 gói dịch vụ đầu tiên làm slide
+        SlideImages = _context.GoiDichVus
+                              .Where(g => g.MaNhiepAnhGia == u.MaNguoiDung)
+                              .Select(g => g.AnhDaiDien)
+                              .Take(3)
+                              .ToList()
+    })
+    .ToList();
             viewModel.Categories = _context.DanhMucs.ToList();
 
 
@@ -199,19 +200,30 @@ namespace PhotoBooking.Controllers
         [Authorize]
         public async Task<IActionResult> MyBookings()
         {
+            // 1. Lấy ID an toàn (Tránh lỗi FormatException)
             var userIdClaim = User.FindFirst("UserId");
-            if (userIdClaim == null) return RedirectToAction("Login", "Account");
-            int userId = int.Parse(userIdClaim.Value);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            var listDonHang = await _context.DonDatLiches
-        .Include(d => d.MaGoiNavigation)
-            .ThenInclude(g => g.MaNhiepAnhGiaNavigation)
-        // 👇 THÊM DÒNG NÀY:
-        .Include(d => d.DanhGium) // Để view check (item.DanhGia == null)
-                                 // 👆
-        .Where(d => d.MaKhachHang == userId)
-        .OrderByDescending(d => d.NgayTao)
-        .ToListAsync();
+            var listDonHang = await _context.DonDatLiches // Hoặc DonDatLichs (Check lại tên trong Context)
+
+                // A. Lấy thông tin Gói (để hiện tên gói, có thể null)
+                .Include(d => d.MaGoiNavigation)
+
+                // B. Lấy thông tin Thợ (QUAN TRỌNG: Lấy trực tiếp, không qua Gói)
+                // Để đơn custom (không gói) vẫn hiện tên thợ
+                .Include(d => d.MaNhiepAnhGiaNavigation)
+
+                // C. Lấy đánh giá (Để check xem đơn này đã được đánh giá chưa)
+                // Lưu ý: Tên property thường là DanhGia (số ít) hoặc DanhGias (số nhiều)
+                // Kiểm tra file Model DonDatLich.cs để biết chính xác
+                .Include(d => d.DanhGium)
+
+                .Where(d => d.MaKhachHang == userId)
+                .OrderByDescending(d => d.NgayTao)
+                .ToListAsync();
 
             return View(listDonHang);
         }

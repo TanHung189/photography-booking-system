@@ -2,10 +2,10 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-@if (Model.Count == 0)
+@if (Model == null || Model.Count == 0)
 {
     <div class="text-center py-5">
-        <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" width="150" />
+        <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" width="150" alt="Empty" />
         <p class="text-muted mt-3">Không có đơn đặt lịch nào ở mục này.</p>
     </div>
 }
@@ -17,39 +17,40 @@ else
             <div class="card-body p-0">
                 <div class="d-flex flex-column flex-md-row">
                     <div class="p-3">
-                        <img src="@(item.MaGoiNavigation?.AnhDaiDien ?? "https://source.unsplash.com/random/200x200/?camera")"
-                             class="img-service shadow-sm" alt="Service Image">
+                        <img src="@(item.MaGoiNavigation?.AnhDaiDien ?? item.MaNhiepAnhGiaNavigation?.AnhDaiDien ?? "https://ui-avatars.com/api/?name=Service&background=random")"
+                             class="img-service shadow-sm rounded-3"
+                             style="width: 150px; height: 120px; object-fit: cover;"
+                             alt="Service Image">
                     </div>
 
                     <div class="p-3 flex-grow-1">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                @if (item.TrangThai == 0)
+                                @if (item.TrangThai == 3) // Đã hủy
                                 {
-                                    <span class="badge bg-warning text-dark mb-2">⏳ Chờ xác nhận</span>
+                                    <span class="badge bg-secondary mb-2"><i class="fas fa-ban me-1"></i> Đã hủy</span>
                                 }
-                                else if (item.TrangThai == 1)
+                                else if (item.TrangThaiThanhToan == 1 && item.TrangThai != 2) // Đã cọc
                                 {
-
-                                    <span class="badge bg-primary mb-2">📅 Sắp tới</span>
+                                    <span class="badge bg-primary mb-2"><i class="fas fa-calendar-check me-1"></i> Đã xác nhận (Đã cọc)</span>
                                 }
-                                else if (item.TrangThai == 2)
+                                else if (item.TrangThai == 2) // Hoàn thành
                                 {
-
-                                    <span class="badge bg-success mb-2">✅ Hoàn thành</span>
+                                    <span class="badge bg-success mb-2"><i class="fas fa-check-circle me-1"></i> Hoàn thành</span>
                                 }
-                                else
+                                else // Mới tạo
                                 {
-
-                                    <span class="badge bg-danger mb-2">❌ Đã hủy</span>
+                                    <span class="badge bg-warning text-dark mb-2"><i class="fas fa-hourglass-half me-1"></i> Chờ thanh toán</span>
                                 }
 
-                                <h5 class="fw-bold mb-1">@(item.MaGoiNavigation?.TenGoi ?? "Đặt lịch riêng")</h5>
+                                <h5 class="fw-bold mb-1">@(item.MaGoiNavigation?.TenGoi ?? "📸 Chụp ảnh theo yêu cầu riêng")</h5>
                                 <p class="text-muted small mb-1">
-                                    <i class="fa-solid fa-camera me-1"></i> @(item.MaGoiNavigation?.MaNhiepAnhGiaNavigation?.HoVaTen ?? "Nhiếp ảnh gia")
+                                    <i class="fa-solid fa-camera me-1"></i>
+                                    @(item.MaNhiepAnhGiaNavigation?.HoVaTen ?? "Đang cập nhật")
                                 </p>
                                 <p class="text-muted small mb-0">
-                                    <i class="fa-regular fa-calendar-days me-1"></i> @item.NgayChup.ToString("dd/MM/yyyy HH:mm")
+                                    <i class="fa-regular fa-calendar-days me-1"></i>
+                                    @item.NgayChup.ToString("dd/MM/yyyy HH:mm")
                                 </p>
                             </div>
                             <div class="text-end">
@@ -60,18 +61,28 @@ else
                         <hr class="my-3 text-muted opacity-25">
 
                         <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">Mã đơn: #@item.MaDon</small>
+                            <small class="text-muted">Mã đơn: <span class="fw-bold text-dark">#@item.MaDon</span></small>
                             <div>
                                 @if (item.TrangThai == 2)
                                 {
-                                    <button class="btn btn-warning btn-sm rounded-pill px-3 me-2 fw-bold"
-                                            data-bs-toggle="modal" data-bs-target="#reviewModal-@item.MaDon">
-                                        <i class="fa-regular fa-star me-1"></i> Đánh giá
-                                    </button>
+                                    @if (item.DanhGium == null)
+                                    {
+                                        <button class="btn btn-warning btn-sm rounded-pill px-3 me-2 fw-bold"
+                                                data-bs-toggle="modal" data-bs-target="#reviewModal-@item.MaDon">
+                                            <i class="fa-regular fa-star me-1"></i> Đánh giá ngay
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-secondary btn-sm rounded-pill px-3 me-2" disabled>
+                                            <i class="fas fa-check me-1"></i> Đã đánh giá
+                                        </button>
+                                    }
                                 }
 
-                                <a asp-action="Details" asp-route-id="@item.MaGoi" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                                    Mua lại
+                                <a asp-controller="Booking" asp-action="Payment" asp-route-id="@item.MaDon"
+                                   class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                                    Chi tiết
                                 </a>
                             </div>
                         </div>
@@ -82,25 +93,25 @@ else
 
         <div class="modal fade" id="reviewModal-@item.MaDon" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header bg-warning text-dark">
-                        <h5 class="modal-title fw-bold">Đánh giá đơn hàng #@item.MaDon</h5>
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-warning text-dark border-0">
+                        <h5 class="modal-title fw-bold">Đánh giá dịch vụ #@item.MaDon</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
-                    <form asp-controller="Home" asp-action="SubmitReview" method="post">
+                    <form asp-controller="Review" asp-action="SubmitReview" method="post">
                         <div class="modal-body text-center p-4">
 
                             <input type="hidden" name="MaDon" value="@item.MaDon" />
 
                             <input type="hidden" name="SoSao" id="rating-input-@item.MaDon" value="5" />
 
-                            <p class="mb-3 fw-bold text-secondary">Bạn chấm mấy sao?</p>
+                            <p class="mb-3 fw-bold text-secondary">Bạn cảm thấy dịch vụ thế nào?</p>
 
-                            <div class="mb-3 d-flex justify-content-center gap-2" id="star-container-@item.MaDon">
+                            <div class="mb-3 d-flex justify-content-center gap-2">
                                 @for (int i = 1; i <= 5; i++)
                                 {
-                                    <i class="fa-solid fa-star fa-2x cursor-pointer"
+                                    <i class="fa-solid fa-star fa-2x cursor-pointer star-icon-js"
                                        id="star-@item.MaDon-@i"
                                        style="color: @(i <= 5 ? "#ffc107" : "#e4e5e9"); transition: 0.2s;"
                                        onclick="updateRating(@item.MaDon, @i)"></i>
@@ -109,12 +120,12 @@ else
 
                             <div class="fw-bold text-warning mb-3" id="rating-text-@item.MaDon">Tuyệt vời (5/5)</div>
 
-                            <textarea name="BinhLuan" class="form-control" rows="3" placeholder="Nhập lời nhắn của bạn..."></textarea>
+                            <textarea name="BinhLuan" class="form-control bg-light" rows="3" placeholder="Chia sẻ cảm nhận của bạn về thợ chụp..."></textarea>
                         </div>
 
                         <div class="modal-footer border-0 pt-0 pb-4 justify-content-center">
-                            <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Hủy</button>
-                            <button type="submit" class="btn btn-dark rounded-pill px-5 fw-bold">Gửi đánh giá</button>
+                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-dark rounded-pill px-5 fw-bold shadow">Gửi đánh giá</button>
                         </div>
                     </form>
                 </div>
@@ -124,78 +135,37 @@ else
 }
 
 <script>
-    function setRating(maDon, soSao) {
-        // 1. Cập nhật giá trị cho ô input ẩn
-        document.getElementById(`ratingValue-${maDon}`).value = soSao;
+    function updateRating(maDon, soSao) {
+        // 1. Cập nhật giá trị vào ô input ẩn (để gửi về server)
+        // Lưu ý: ID này phải khớp với input ở trên
+        const inputField = document.getElementById(`rating-input-${maDon}`);
+        if(inputField) inputField.value = soSao;
 
-        // 2. Đổi màu các ngôi sao
-        // Tìm div chứa các ngôi sao của đơn hàng này
-        let container = document.querySelector(`.rating-stars[data-id="${maDon}"]`);
-        let stars = container.querySelectorAll('i');
-
-        // Lặp qua 5 ngôi sao
-        stars.forEach((star, index) => {
-            if (index < soSao) {
-                // Nếu vị trí nhỏ hơn số sao chọn -> Màu vàng
-                star.classList.remove('text-secondary');
-                star.classList.add('text-warning');
-            } else {
-                // Ngược lại -> Màu xám
-                star.classList.remove('text-warning');
-                star.classList.add('text-secondary');
+        // 2. Cập nhật màu sắc ngôi sao
+        for (let i = 1; i <= 5; i++) {
+            let star = document.getElementById(`star-${maDon}-${i}`);
+            if (star) {
+                if (i <= soSao) {
+                    star.style.color = "#ffc107"; // Vàng
+                } else {
+                    star.style.color = "#e4e5e9"; // Xám
+                }
             }
-        });
+        }
+
+        // 3. Cập nhật chữ hiển thị
+        const textLabel = document.getElementById(`rating-text-${maDon}`);
+        const textMap = ["Tệ", "Không tốt", "Bình thường", "Tốt", "Tuyệt vời"];
+        if(textLabel) textLabel.innerText = `${textMap[soSao-1]} (${soSao}/5)`;
     }
 </script>
 
 <style>
-    .rating-css div {
-        color: #ffe400;
-        font-size: 30px;
-        font-family: sans-serif;
-        font-weight: 800;
-        text-align: center;
-        text-transform: uppercase;
-        padding: 10px 0;
-    }
-
-    .rating-css input {
-        display: none;a
-    }
-
-        .rating-css input + label {
-            font-size: 40px;
-            text-shadow: 1px 1px 0 #8f8420;
-            cursor: pointer;
-        }
-
-        .rating-css input:checked + label ~ label {
-            color: #b4b4b4;
-        }
-    /* Đổi màu các sao phía sau sao được chọn */
-    .rating-css label:active {
-        transform: scale(0.8);
-        transition: 0.3s ease;
-    }
-    /* Đảo ngược thứ tự hiển thị để CSS checked hoạt động đúng logic (chọn 4 sao thì 1,2,3,4 sáng) */
-    .star-icon {
-        direction: rtl;
-    }
-
     .cursor-pointer {
         cursor: pointer;
-        transition: transform 0.2s;
     }
 
-        .cursor-pointer:hover {
-            transform: scale(1.2);
-        }
-
-    .text-warning {
-        color: #ffc107 !important;
-    }
-
-    .text-secondary {
-        color: #d1d1d1 !important;
+    .star-icon-js:hover {
+        transform: scale(1.2);
     }
 </style>

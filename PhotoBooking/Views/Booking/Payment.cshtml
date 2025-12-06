@@ -1,0 +1,105 @@
+﻿@model PhotoBooking.Models.DonDatLich
+@{
+    ViewData["Title"] = "Thanh toán đơn hàng #" + Model.MaDon;
+
+    // --- CẤU HÌNH TÀI KHOẢN NHẬN TIỀN ---
+    var nganHang = "Vietcombank";          // Ngân hàng Quân Đội (MB, VCB, ACB...)
+    var soTaiKhoan = "9399308546"; // Số tài khoản của bạn (Chủ sàn)
+    var tenChuThe = "BUI DO TAN HUNG";
+
+    // Logic tính tiền cọc (Ví dụ cọc 30% hoặc cọc 100% tùy chính sách)
+    // Nếu trong DB TienDaCoc = 0 thì tính 30% tổng tiền
+    decimal tienCanThanhToan = (Model.TienDaCoc > 0) ? (decimal)Model.TienDaCoc : (decimal)Model.TongTien * 0.3m;
+
+    // Nội dung chuyển khoản: TAHU + Mã đơn
+    var noiDungCK = "TAHU" + Model.MaDon;
+
+    // Tạo link QR tự động từ VietQR API
+    var qrLink = $"https://img.vietqr.io/image/{nganHang}-{soTaiKhoan}-compact2.png?amount={tienCanThanhToan}&addInfo={noiDungCK}&accountName={tenChuThe}";
+}
+
+<div class="container py-5">
+    <div class="row g-5">
+
+        <div class="col-lg-7">
+            <h4 class="fw-bold mb-4">📝 Thông tin đơn đặt lịch</h4>
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between mb-3 border-bottom pb-3">
+                        <span class="text-muted">Mã đơn hàng:</span>
+                        <span class="fw-bold text-primary">#@Model.MaDon</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small">Dịch vụ / Yêu cầu</label>
+                        <h5 class="fw-bold">
+                            @(Model.MaGoiNavigation?.TenGoi ?? "Chụp ảnh theo yêu cầu riêng")
+                        </h5>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="text-muted small">Nhiếp ảnh gia</label>
+                            <div class="fw-bold">@Model.MaNhiepAnhGiaNavigation?.HoVaTen</div>
+                        </div>
+                        <div class="col-6 text-end">
+                            <label class="text-muted small">Ngày chụp</label>
+                            <div class="fw-bold">@Model.NgayChup.ToString("dd/MM/yyyy HH:mm")</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-muted small">Địa điểm</label>
+                        <div class="fw-bold"><i class="fas fa-map-marker-alt text-danger me-1"></i> @Model.DiaChiChup</div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tổng giá trị hợp đồng:</span>
+                            <span class="fw-bold">@Model.TongTien?.ToString("N0") đ</span>
+                        </div>
+                        <hr />
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark">SỐ TIỀN CẦN CỌC (30%):</span>
+                            <span class="fs-4 fw-bold text-danger">@tienCanThanhToan.ToString("N0") đ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-warning shadow text-center">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <i class="fas fa-qrcode me-2"></i>QUÉT MÃ THANH TOÁN
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-3">
+                        Mở App ngân hàng của bạn và quét mã bên dưới.<br>
+                        Hệ thống đã nhập sẵn số tiền và nội dung.
+                    </p>
+
+                    <img src="@qrLink" class="img-fluid mb-4 border rounded p-2 " style="max-width: 280px; font-size: large" alt="QR Code">
+
+                    <div class="alert alert-info small text-start">
+                        <strong><i class="fas fa-info-circle"></i> Lưu ý:</strong><br>
+                        Nội dung chuyển khoản bắt buộc là: <strong class="text-danger">@noiDungCK</strong>
+                    </div>
+
+                    <form asp-action="ConfirmPayment" method="post">
+                        <input type="hidden" name="id" value="@Model.MaDon" />
+                        <button type="submit" class="btn btn-success w-100 py-3 fw-bold shadow-sm"
+                                onclick="return confirm('Bạn chắc chắn đã chuyển khoản thành công?')">
+                            <i class="fas fa-check-circle me-2"></i>CHUYỂN KHOẢN XONG
+                        </button>
+                    </form>
+
+                    <div class="mt-3">
+                        <a href="/" class="text-decoration-none text-muted small">Thanh toán sau (Về trang chủ)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</divếp

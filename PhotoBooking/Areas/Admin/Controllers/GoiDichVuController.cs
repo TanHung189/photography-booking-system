@@ -87,40 +87,63 @@ namespace PhotoBooking.Areas.Admin.Controllers
         // POST: Admin/GoiDichVu/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Admin/GoiDichVu/Create
+        // POST: Admin/GoiDichVu/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // Thêm tham số: string imageUrl (để nhận link dán vào)
-        public async Task<IActionResult> Create(GoiDichVu goiDichVu, IFormFile imageFile, string imageUrl)
+        // 1. SỬA DÒNG NÀY: Thêm dấu ? vào sau string imageUrl và IFormFile imageFile
+        public async Task<IActionResult> Create(GoiDichVu goiDichVu, IFormFile? imageFile, string? imageUrl)
         {
+            // Lấy ID người dùng
             var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction("Login", "Account", new { area = "" });
+
             goiDichVu.MaNhiepAnhGia = int.Parse(userIdStr);
 
-            ModelState.Remove("MaNhiepAnhGiaNavigation");
-            ModelState.Remove("MaDanhMucNavigation");
-
-            // --- LOGIC XỬ LÝ ẢNH LINH HOẠT ---
+            // Xử lý ảnh
             if (imageFile != null && imageFile.Length > 0)
             {
-                // Ưu tiên 1: Nếu người dùng chọn File -> Upload lên Cloudinary
                 goiDichVu.AnhDaiDien = await _photoService.UploadPhotoAsync(imageFile);
             }
             else if (!string.IsNullOrEmpty(imageUrl))
             {
-                // Ưu tiên 2: Nếu không chọn file, nhưng có dán Link -> Dùng Link đó
                 goiDichVu.AnhDaiDien = imageUrl;
             }
             else
             {
-                // (Tùy chọn) Nếu không có cả 2 -> Gán ảnh mặc định hoặc để null
                 goiDichVu.AnhDaiDien = "https://placehold.co/400x300?text=No+Image";
             }
-            // --------------------------------
+
+            // --- QUAN TRỌNG: XÓA HẾT CÁC LỖI VALIDATION THỪA ---
+
+            // 1. Xóa lỗi của tham số imageUrl (Cái bạn đang bị lỗi)
+            ModelState.Remove("imageUrl");
+            ModelState.Remove("imageFile");
+
+            // 2. Xóa lỗi của Model chính
+            ModelState.Remove("AnhDaiDien");
+            ModelState.Remove("MaNhiepAnhGiaNavigation");
+            ModelState.Remove("MaDanhMucNavigation");
+
+            // 3. Xóa lỗi các bảng con (Rất hay bị dính)
+            ModelState.Remove("DonDatLiches");
+            ModelState.Remove("DonDatLichs");
+            ModelState.Remove("DonDatLich");
+            ModelState.Remove("DanhGias");
 
             if (ModelState.IsValid)
             {
                 _context.Add(goiDichVu);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Tạo gói dịch vụ thành công!";
                 return RedirectToAction(nameof(Index));
+            }
+
+            // Debug lỗi ra cửa sổ Output nếu vẫn không lưu được
+            var errors = ModelState.Values.SelectMany(v => v.Errors);
+            foreach (var err in errors)
+            {
+                System.Diagnostics.Debug.WriteLine(">>> LỖI: " + err.ErrorMessage);
             }
 
             ViewData["MaDanhMuc"] = new SelectList(_context.DanhMucs, "MaDanhMuc", "TenDanhMuc", goiDichVu.MaDanhMuc);

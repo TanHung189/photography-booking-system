@@ -2,10 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using PhotoBooking.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims; // Cần thêm dòng này để dùng ClaimTypes
 
 namespace PhotoBooking.Controllers
 {
-    [Authorize]
+    // [Authorize] <-- Tạm thời bỏ ở class, vì Action JobMarket và Details ai cũng xem được
     public class YeuCauController : Controller
     {
         private readonly PhotoBookingContext _context;
@@ -16,12 +17,26 @@ namespace PhotoBooking.Controllers
         }
 
         // ==========================================
-        // 1. DANH SÁCH YÊU CẦU CỦA TÔI (Khách xem lại tin đã đăng)
+        // HÀM PHỤ TRỢ: LẤY ID NGƯỜI DÙNG AN TOÀN
         // ==========================================
+        // Hàm này giúp lấy ID mà không bao giờ bị crash lỗi FormatException
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst("UserId"); // Tìm đúng key "UserId" như bên AccountController
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return userId;
+            }
+            return 0; // Trả về 0 nếu chưa đăng nhập hoặc lỗi
+        }
+
+        // ==========================================
+        // 1. DANH SÁCH YÊU CẦU CỦA TÔI
+        // ==========================================
+        [Authorize]
         public async Task<IActionResult> MyRequests()
         {
-            var userId = int.Parse(User.FindFirst("UserId").Value);
-
+            var userId = GetCurrentUserId(); // Dùng hàm an toàn
             var list = await _context.YeuCaus
                 .Where(y => y.MaKhachHang == userId)
                 .OrderByDescending(y => y.NgayTao)
@@ -31,29 +46,21 @@ namespace PhotoBooking.Controllers
         }
 
         // ==========================================
-        // 2. TẠO YÊU CẦU MỚI (GET)
+        // 2. TẠO YÊU CẦU (GET + POST)
         // ==========================================
-        public IActionResult Create()
-        {
-            return View();
-        }
+        [Authorize]
+        public IActionResult Create() => View();
 
-        // ==========================================
-        // 2. TẠO YÊU CẦU MỚI (POST)
-        // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Create(YeuCau yeuCau)
         {
-            // Tự động lấy ID người đang đăng nhập
-            var userId = int.Parse(User.FindFirst("UserId").Value);
+            var userId = GetCurrentUserId();
             yeuCau.MaKhachHang = userId;
-
-            // Các giá trị mặc định
             yeuCau.NgayTao = DateTime.Now;
-            yeuCau.TrangThai = 0; // 0 = Đang tìm
+            yeuCau.TrangThai = 0;
 
-            // Bỏ qua check khóa ngoại
             ModelState.Remove("MaKhachHangNavigation");
 
             if (ModelState.IsValid)
@@ -63,19 +70,18 @@ namespace PhotoBooking.Controllers
                 TempData["Success"] = "Đăng tin tìm thợ thành công!";
                 return RedirectToAction(nameof(MyRequests));
             }
-
             return View(yeuCau);
         }
 
         // ==========================================
         // 3. XÓA YÊU CẦU
         // ==========================================
+        [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
-            var userId = int.Parse(User.FindFirst("UserId").Value);
+            var userId = GetCurrentUserId();
             var item = await _context.YeuCaus.FindAsync(id);
 
-            // Chỉ được xóa tin của chính mình
             if (item != null && item.MaKhachHang == userId)
             {
                 _context.YeuCaus.Remove(item);
@@ -85,55 +91,51 @@ namespace PhotoBooking.Controllers
             return RedirectToAction(nameof(MyRequests));
         }
 
-        [Authorize]
+        // ==========================================
+        // 4. CHỢ VIỆC LÀM (JOB MARKET)
+        // ==========================================
+        // Bỏ Authorize để khách vãng lai cũng xem được
         public async Task<IActionResult> JobMarket(string searchLocation, string sortOrder)
         {
-            // 1. Query cơ bản (Chỉ lấy tin đang mở)
             var query = _context.YeuCaus
                 .Include(y => y.MaKhachHangNavigation)
                 .Where(y => y.TrangThai == 0)
                 .AsQueryable();
 
-            // 2. Xử lý Tìm kiếm theo Địa điểm (Nếu có nhập)
             if (!string.IsNullOrEmpty(searchLocation))
             {
                 query = query.Where(y => y.DiaChi.Contains(searchLocation) || y.TieuDe.Contains(searchLocation));
-                ViewBag.CurrentFilter = searchLocation; // Lưu lại để hiện lên ô input
+                ViewBag.CurrentFilter = searchLocation;
             }
 
-            // 3. Xử lý Sắp xếp
             switch (sortOrder)
             {
-                case "price_desc": // Giá cao nhất
-                    query = query.OrderByDescending(y => y.NganSach);
-                    break;
-                default: // Mới nhất (Mặc định)
-                    query = query.OrderByDescending(y => y.NgayTao);
-                    break;
+                case "price_desc": query = query.OrderByDescending(y => y.NganSach); break;
+                default: query = query.OrderByDescending(y => y.NgayTao); break;
             }
 
-            var jobs = await query.ToListAsync();
-            return View(jobs);
+            return View(await query.ToListAsync());
         }
 
         // ==========================================
-        // 5. NHIẾP ẢNH GIA GỬI BÁO GIÁ (POST)
+        // 5. NHIẾP ẢNH GIA ỨNG TUYỂN
         // ==========================================
         [HttpPost]
-        [Authorize] // Ai đăng nhập cũng được (nhưng logic dưới sẽ check vai trò)
+        [Authorize]
         public async Task<IActionResult> Apply(int MaYeuCau, decimal GiaBao, string LoiNhan)
         {
-            var userId = int.Parse(User.FindFirst("UserId").Value);
+            var userId = GetCurrentUserId();
 
-            // 1. Kiểm tra xem đã ứng tuyển chưa (Tránh spam)
+            // Nếu user chưa đăng nhập hoặc lỗi ID -> Đá về login
+            if (userId == 0) return RedirectToAction("Login", "Account");
+
             var exists = await _context.UngTuyens.AnyAsync(u => u.MaYeuCau == MaYeuCau && u.MaNhiepAnhGia == userId);
             if (exists)
             {
                 TempData["Error"] = "Bạn đã gửi báo giá cho yêu cầu này rồi!";
-                return RedirectToAction(nameof(JobMarket));
+                return RedirectToAction(nameof(Details), new { id = MaYeuCau }); // Quay lại trang chi tiết thay vì JobMarket
             }
 
-            // 2. Tạo đơn ứng tuyển
             var ungTuyen = new UngTuyen
             {
                 MaYeuCau = MaYeuCau,
@@ -147,64 +149,94 @@ namespace PhotoBooking.Controllers
             _context.Add(ungTuyen);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Đã gửi báo giá thành công! Chờ khách hàng phản hồi.";
-            return RedirectToAction(nameof(JobMarket));
+            TempData["Success"] = "Đã gửi báo giá thành công!";
+            return RedirectToAction(nameof(Details), new { id = MaYeuCau });
         }
 
         // ==========================================
-        // 6. KHÁCH HÀNG XEM CHI TIẾT & CHỌN THỢ
+        // 6. CHI TIẾT YÊU CẦU (ĐÃ SỬA LỖI CRASH)
         // ==========================================
         public async Task<IActionResult> Details(int id)
         {
             var yeuCau = await _context.YeuCaus
-                .Include(y => y.UngTuyens) // Lấy danh sách người ứng tuyển
-                    .ThenInclude(ut => ut.MaNhiepAnhGiaNavigation) // Lấy tên thợ
+                .Include(y => y.UngTuyens)
+                    .ThenInclude(ut => ut.MaNhiepAnhGiaNavigation)
+                .Include(y => y.MaKhachHangNavigation)
                 .FirstOrDefaultAsync(m => m.MaYeuCau == id);
 
             if (yeuCau == null) return NotFound();
+
+            // --- ĐÂY LÀ ĐOẠN FIX LỖI ---
+            // Dùng hàm GetCurrentUserId() an toàn thay vì int.Parse
+            int currentUserId = GetCurrentUserId();
+
+            if (currentUserId > 0)
+            {
+                // Tìm xem user hiện tại (nếu có) đã báo giá chưa
+                var myBid = yeuCau.UngTuyens.FirstOrDefault(ut => ut.MaNhiepAnhGia == currentUserId);
+                ViewBag.HoSoCuaToi = myBid;
+            }
 
             return View(yeuCau);
         }
 
         // ==========================================
-        // 7. KHÁCH HÀNG CHỐT THỢ (POST)
+        // 7. CHẤP NHẬN BÁO GIÁ
         // ==========================================
         [HttpPost]
-        public async Task<IActionResult> AcceptOffer(int id) // id là MaUngTuyen
+        [Authorize]
+        public IActionResult AcceptBid(int idUngTuyen)
         {
-            // 1. Tìm đơn ứng tuyển
-            var ungTuyen = await _context.UngTuyens
-                .Include(u => u.MaYeuCauNavigation) // Lấy thông tin yêu cầu gốc
-                .FirstOrDefaultAsync(u => u.MaUngTuyen == id);
+            var ungTuyen = _context.UngTuyens
+                           .Include(u => u.MaYeuCauNavigation)
+                           .FirstOrDefault(u => u.MaUngTuyen == idUngTuyen);
 
             if (ungTuyen == null) return NotFound();
 
-            // 2. Cập nhật trạng thái
-            ungTuyen.TrangThai = 1; // Được chọn
-            ungTuyen.MaYeuCauNavigation.TrangThai = 1; // Đóng yêu cầu (Đã có thợ)
-
-            // 3. Tự động tạo Đơn Đặt Lịch (DonDatLich) chính thức
-            var donMoi = new DonDatLich
+            if (ungTuyen.MaYeuCauNavigation.TrangThai == 1)
             {
-                MaKhachHang = ungTuyen.MaYeuCauNavigation.MaKhachHang,
-                MaNhiepAnhGia = ungTuyen.MaNhiepAnhGia,
-                MaGoi = null, // Không theo gói
-                NgayChup = ungTuyen.MaYeuCauNavigation.NgayCanChup ?? DateTime.Now,
-                DiaChiChup = ungTuyen.MaYeuCauNavigation.DiaChi,
-                GhiChu = "Đơn hàng tạo từ yêu cầu tìm thợ: " + ungTuyen.MaYeuCauNavigation.TieuDe,
+                TempData["Error"] = "Yêu cầu này đã được chốt!";
+                return RedirectToAction("Details", new { id = ungTuyen.MaYeuCau });
+            }
 
-                TongTien = ungTuyen.GiaBao, // Lấy theo giá thợ báo
-                TienDaCoc = 0,
-                TrangThai = 0, // Chờ duyệt (hoặc có thể set thành 1 luôn nếu muốn)
-                TrangThaiThanhToan = 0,
-                NgayTao = DateTime.Now
-            };
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    ungTuyen.TrangThai = 1; // Được chọn
+                    ungTuyen.MaYeuCauNavigation.TrangThai = 1; // Đóng yêu cầu
 
-            _context.DonDatLiches.Add(donMoi);
-            await _context.SaveChangesAsync();
+                    // Tạo đơn đặt lịch
+                    var donMoi = new DonDatLich
+                    {
+                        MaKhachHang = ungTuyen.MaYeuCauNavigation.MaKhachHang,
+                        MaNhiepAnhGia = ungTuyen.MaNhiepAnhGia,
+                        NgayChup = ungTuyen.MaYeuCauNavigation.NgayCanChup ?? DateTime.Now.AddDays(1),
+                        TongTien = ungTuyen.GiaBao,
+                        TienDaCoc = 0,
+                        DiaChiChup = ungTuyen.MaYeuCauNavigation.DiaChi,
+                        GhiChu = $"Từ yêu cầu: {ungTuyen.MaYeuCauNavigation.TieuDe}. Note: {ungTuyen.LoiNhan}",
+                        TrangThai = 0,
+                        TrangThaiThanhToan = 0,
+                        NgayTao = DateTime.Now
+                    };
 
-            TempData["Success"] = "Đã chốt thợ thành công! Đơn đặt lịch đã được tạo.";
-            return RedirectToAction(nameof(MyRequests));
+                    // LƯU Ý: Tên bảng trong DBContext của bạn là DonDatLichs hay DonDatLiches?
+                    // Hãy kiểm tra kỹ file Context. Ở đây tôi dùng DonDatLichs (chuẩn)
+                    _context.DonDatLiches.Add(donMoi);
+                    _context.SaveChanges();
+
+                    transaction.Commit();
+
+                    // Chuyển sang BookingController (Nếu chưa tạo thì tạo file này nhé)
+                    return RedirectToAction("Payment", "Booking", new { id = donMoi.MaDon });
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    return View("Error");
+                }
+            }
         }
     }
 }

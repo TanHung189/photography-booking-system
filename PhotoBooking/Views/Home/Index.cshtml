@@ -197,97 +197,69 @@
                 <h6 class="text-uppercase text-muted small fw-bold ls-1">Đội ngũ chuyên nghiệp</h6>
                 <h3 class="fw-bold mb-0">Nhiếp ảnh gia</h3>
             </div>
-            <a href="/Photographer" class="text-decoration-none fw-bold text-primary-orange">
-                Xem tất cả <i class="fa-solid fa-arrow-right ms-1"></i>
+            <a href="/Photographer" class="btn btn-outline-dark rounded-pill px-4 fw-bold hover-scale">
+                Xem tất cả <i class="fa-solid fa-arrow-right ms-2"></i>
             </a>
         </div>
 
         <div class="row g-4">
             @foreach (var item in Model.Photographers)
             {
-                <div class="col">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-shadow">
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="card border-0 shadow-sm h-100 overflow-hidden hover-top">
 
-                        <div id="carousel-@item.User.MaNguoiDung" class="carousel slide">
-                            <div class="carousel-inner" style="height: 240px;">
-                                @for (int i = 0; i < item.SlideImages.Count; i++)
-                                {
-                                    <div class="carousel-item h-100 @(i == 0 ? "active" : "")">
-                                        <img src="@item.SlideImages[i]" class="d-block w-100 h-100 object-fit-cover" alt="Portfolio Image">
-                                    </div>
-                                }
-                            </div>
+                        <div class="position-relative">
 
-                            @if (item.SlideImages.Count > 1)
+                            @if (item.SlideImages != null && item.SlideImages.Count > 0)
                             {
-                                <button class="carousel-control-prev" type="button" data-bs-target="#carousel-@item.User.MaNguoiDung" data-bs-slide="prev">
-                                    <span class="carousel-control-prev-icon small-icon" aria-hidden="true"></span>
-                                </button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#carousel-@item.User.MaNguoiDung" data-bs-slide="next">
-                                    <span class="carousel-control-next-icon small-icon" aria-hidden="true"></span>
-                                </button>
+                                <div id="carousel-@item.User.MaNguoiDung" class="carousel slide" data-bs-ride="false">
+                                    <div class="carousel-inner">
+                                        @for (int i = 0; i < item.SlideImages.Count; i++)
+                                        {
+                                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                                <img src="@item.SlideImages[i]" class="d-block w-100 card-img-top"
+                                                     style="height: 250px; object-fit: cover;" alt="Portfolio">
+                                            </div>
+                                        }
+                                    </div>
+
+                                    @if (item.SlideImages.Count > 1)
+                                    {
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-@item.User.MaNguoiDung" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon bg-dark rounded-circle p-2 bg-opacity-50" style="width:30px;height:30px" aria-hidden="true"></span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-@item.User.MaNguoiDung" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon bg-dark rounded-circle p-2 bg-opacity-50" style="width:30px;height:30px" aria-hidden="true"></span>
+                                        </button>
+                                    }
+                                </div>
                             }
+                            else
+                            {
+                                <img src="@(item.User.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + item.User.HoVaTen)"
+                                     class="d-block w-100 card-img-top"
+                                     style="height: 250px; object-fit: cover;" alt="Avatar">
+                            }
+
+                            <div class="position-absolute bottom-0 start-0 m-3">
+                                <img src="@(item.User.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + item.User.HoVaTen)"
+                                     class="rounded-circle border border-2 border-white shadow-sm"
+                                     style="width: 50px; height: 50px; object-fit: cover;">
+                            </div>
                         </div>
 
-                        <div class="card-body p-3 pt-0 position-relative">
-                            <div class="position-absolute top-0 start-0 ms-3 translate-middle-y">
-                                <a asp-controller="Photographer" asp-action="Profile" asp-route-id="@item.User.MaNguoiDung">
-                                    <img src="@(item.User.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + item.User.HoVaTen)"
-                                         class="rounded-circle border border-3 border-white shadow-sm"
-                                         width="70" height="70" style="object-fit: cover; background: white;">
-                                </a>
-                            </div>
+                        <div class="card-body text-start">
+                            <h5 class="fw-bold mb-1 text-dark">@item.User.HoVaTen</h5>
 
-                            <div style="margin-top: 45px;"></div>
+                            
 
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <h5 class="fw-bold mb-0 text-truncate" style="max-width: 200px;">
-                                        <a asp-controller="Photographer" asp-action="Profile" asp-route-id="@item.User.MaNguoiDung" class="text-dark text-decoration-none hover-orange">
-                                            @item.User.HoVaTen
-                                        </a>
-                                    </h5>
-                                    @if (item.User.MaDiaDiemNavigation != null)
-                                    {
-                                        <span class="text-muted small">
-                                            <i class="fa-solid fa-location-dot text-danger me-1"></i>
-                                            @item.User.MaDiaDiemNavigation.TenThanhPho
-                                        </span>
-                                    }
-                                </div>
-
-                                <div class="text-end">
-                                    @if (item.AvgRating > 0)
-                                    {
-                                        <div class="text-warning fw-bold">
-                                            <i class="fa-solid fa-star"></i> @item.AvgRating.ToString("0.0")
-                                        </div>
-                                        <small class="text-muted">(@item.ReviewCount đánh giá)</small>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-light text-dark border">Mới</span>
-                                    }
-                                </div>
-                            </div>
-
-                            <p class="text-muted small line-clamp-2 mb-3">
-                                @(item.User.GioiThieu ?? "Nhiếp ảnh gia chuyên nghiệp, sẵn sàng ghi lại những khoảnh khắc đẹp nhất của bạn.")
+                            <p class="text-muted small mb-3 line-clamp-2">
+                                @(item.User.GioiThieu ?? "Nhiếp ảnh gia chuyên nghiệp...")
                             </p>
 
-                            <div class="d-flex justify-content-between align-items-center border-top pt-2">
-                                <small class="text-muted">
-                                    <i class="fa-solid fa-briefcase me-1"></i> @item.PackageCount gói dịch vụ
-                                </small>
-
-                                @if (item.User.SoNamKinhNghiem > 0)
-                                {
-                                    <span class="badge bg-orange-subtle text-orange">
-                                        @item.User.SoNamKinhNghiem năm kinh nghiệm
-                                    </span>
-                                }
-                            </div>
-
+                            <a href="/Photographer/Profile/@item.User.MaNguoiDung" class="btn btn-outline-dark w-100 rounded-pill fw-bold btn-sm">
+                                Xem hồ sơ & Giá
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -525,7 +497,7 @@
         }
 
     /* Ảnh đại diện: Quan trọng nhất là object-fit để không bị méo */
-    .pg-avatar {
+    .item-avatar {
         width: 100px;
         height: 100px;
         object-fit: cover; /* Cắt ảnh vừa khung tròn, không bị dẹt */
@@ -539,5 +511,25 @@
         color: #ffc107; /* Màu vàng nghệ */
         font-size: 0.85rem;
         margin-bottom: 10px;
+    }
+
+    /* Giới hạn text chỉ hiện 2 dòng rồi ... */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Ẩn nút mũi tên mặc định, chỉ hiện khi di chuột vào (Tùy chọn) */
+    .card:hover .carousel-control-prev,
+    .card:hover .carousel-control-next {
+        opacity: 1;
+    }
+
+    .carousel-control-prev, .carousel-control-next {
+        opacity: 0;
+        transition: opacity 0.3s;
+        width: 15%; /* Giảm vùng click để không che ảnh */
     }
 </style>

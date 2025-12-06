@@ -58,12 +58,19 @@ namespace PhotoBooking.Controllers
             // Chúng ta sẽ lưu những thông tin cần thiết nhất vào Cookie để dùng lại sau này
             var claims = new List<Claim>
 {
-                new Claim(ClaimTypes.Name, user.HoVaTen),
-                new Claim(ClaimTypes.NameIdentifier, user.TenDangNhap),
-                new Claim(ClaimTypes.Role, user.VaiTro),
-                new Claim("UserId", user.MaNguoiDung.ToString()),
-                new Claim("Avatar", user.AnhDaiDien ?? "")
-            };
+    new Claim(ClaimTypes.Name, user.HoVaTen),
+    
+    // --- SỬA QUAN TRỌNG: NameIdentifier nên lưu ID số (hoặc GUID) ---
+    // Điều này giúp User.Identity.Name thì ra tên, nhưng định danh chính lại là ID
+    new Claim(ClaimTypes.NameIdentifier, user.MaNguoiDung.ToString()),
+
+    new Claim(ClaimTypes.Role, user.VaiTro),
+    
+    // Giữ nguyên custom claim này để tương thích code cũ
+    new Claim("UserId", user.MaNguoiDung.ToString()),
+
+    new Claim("Avatar", user.AnhDaiDien ?? "")
+};
 
             // Tạo danh tính (Identity) từ các thông tin trên, xác nhận dùng "Kiểu Cookie"
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
