@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhotoBooking.Models;
 using PhotoBooking.ViewModels;
 
 namespace PhotoBooking.Controllers
 {
+    [Authorize(Roles = "Photographer")]
     public class PhotographerController : Controller
     {
         private readonly PhotoBookingContext _context;
@@ -102,18 +104,54 @@ namespace PhotoBooking.Controllers
             return View(vm);
         }
 
+        // ==========================================
+        // 1. DANH SÁCH CÔNG VIỆC (MY JOBS)
+        // ==========================================
         public async Task<IActionResult> MyJobs()
         {
-            var userId = int.Parse(User.FindFirst("UserId").Value);
+            // Lấy ID thợ đang đăng nhập
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction("Login", "Account");
+            int userId = int.Parse(userIdStr);
 
-            var orders = await _context.DonDatLiches 
-                .Include(d => d.MaKhachHangNavigation) // Lấy thông tin khách
-                .Include(d => d.MaGoiNavigation)       // Lấy thông tin gói (Cái này có thể null)
-                .Where(d => d.MaNhiepAnhGia == userId) // Chỉ lấy đơn của thợ này
+            // Lấy danh sách đơn hàng của thợ này
+            var jobs = await _context.DonDatLiches // Nhớ kiểm tra tên bảng DonDatLichs hay DonDatLiches
+                .Include(d => d.MaKhachHangNavigation) // Lấy thông tin khách (SĐT, Tên)
+                .Include(d => d.MaGoiNavigation)       // Lấy tên gói (nếu có)
+                .Where(d => d.MaNhiepAnhGia == userId)
                 .OrderByDescending(d => d.NgayTao)
                 .ToListAsync();
 
-            return View(orders);
+            return View(jobs);
+        }
+
+        // ==========================================
+        // 2. CẬP NHẬT TRẠNG THÁI ĐƠN (Xử lý Ajax hoặc Post thường)
+        // ==========================================
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus(int id, int status)
+        {
+            var donHang = await _context.DonDatLiches.FindAsync(id);
+            if (donHang == null) return NotFound();
+
+            // Kiểm tra quyền sở hữu (Tránh thợ A sửa đơn thợ B)
+            var userId = int.Parse(User.FindFirst("UserId").Value);
+            if (donHang.MaNhiepAnhGia != userId) return Forbid();
+
+            // Cập nhật trạng thái
+            // Status: 1 (Đã xác nhận/Đã cọc), 2 (Hoàn thành), 3 (Hủy)
+            donHang.TrangThai = status;
+
+            // Nếu xác nhận (1) hoặc Hoàn thành (2) -> Coi như đã thanh toán cọc
+            if (status == 1 || status == 2)
+            {
+                donHang.TrangThaiThanhToan = 1;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Cập nhật trạng thái thành công!";
+            return RedirectToAction(nameof(MyJobs));
         }
     }
 }

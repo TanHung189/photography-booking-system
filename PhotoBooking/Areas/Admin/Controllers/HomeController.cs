@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using PhotoBooking.Models;
 using System.Security.Claims;
+using X.PagedList.Extensions;
 
 namespace PhotoBooking.Web.Areas.Admin.Controllers
 {
@@ -20,51 +22,72 @@ namespace PhotoBooking.Web.Areas.Admin.Controllers
         // ==========================================
         // DASHBOARD: Thống kê + Danh sách đơn
         // ==========================================
-        public IActionResult Index()
+        public IActionResult Index(int? page)
         {
-            // 1. Lấy thông tin người dùng hiện tại
             var userIdStr = User.FindFirst("UserId")?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             int userId = userIdStr != null ? int.Parse(userIdStr) : 0;
 
-            // 2. Chuẩn bị truy vấn
             var query = _context.DonDatLiches
                 .Include(d => d.MaKhachHangNavigation)
                 .Include(d => d.MaGoiNavigation)
+                .Include(d => d.MaNhiepAnhGiaNavigation)
                 .AsQueryable();
 
-            // 3. Phân quyền dữ liệu
             if (userRole == "Photographer")
             {
-                // Nếu là Photographer, chỉ lấy đơn của mình
-                query = query.Where(d => d.MaGoiNavigation.MaNhiepAnhGia == userId);
+                query = query.Where(d => d.MaNhiepAnhGia == userId);
             }
 
-            // 4. Tính toán số liệu thống kê (ViewBag)
-            // Lưu ý: Tính toán trên query đã lọc theo quyền
-            ViewBag.TongDonHang = query.Count();
-            ViewBag.DonChoDuyet = query.Count(d => d.TrangThai == 0);
-            ViewBag.TongDoanhThu = query.Where(d => d.TrangThai == 2).Sum(d => d.TongTien ?? 0);
+            // 1. LẤY TOÀN BỘ DANH SÁCH (Để tính thống kê & Biểu đồ)
+            // Bắt buộc phải lấy hết thì biểu đồ mới đúng được
+            var fullList = query.OrderByDescending(d => d.NgayTao).ToList();
 
-            // 5. Lấy danh sách đơn hàng để hiển thị bảng (Mới nhất lên đầu)
-            var listDonHang = query.OrderByDescending(d => d.NgayTao).ToList();
+            // --- PHẦN THỐNG KÊ (Dùng fullList) ---
+            ViewBag.TongDonHang = fullList.Count;
+            ViewBag.DonChoDuyet = fullList.Count(d => d.TrangThai == 0);
+            ViewBag.TongDoanhThu = fullList.Where(d => d.TrangThai == 2).Sum(d => d.TongTien ?? 0);
 
-            int choDuyet = listDonHang.Count(x => x.TrangThai == 0);
-            int daDuyet = listDonHang.Count(x => x.TrangThai == 1);
-            int hoanThanh = listDonHang.Count(x => x.TrangThai == 2);
-            int daHuy = listDonHang.Count(x => x.TrangThai == 3);
+            if (userRole == "Admin")
+            {
+                ViewBag.TongNguoiDung = _context.NguoiDungs.Count(u => u.VaiTro == "Customer");
+                ViewBag.TongThoAnh = _context.NguoiDungs.Count(u => u.VaiTro == "Photographer");
+            }
 
-            // Gửi dữ liệu sang View bằng ViewBag
-            ViewBag.ChartData = new int[] { choDuyet, daDuyet, hoanThanh, daHuy };
-            // ------------------------------------------
+            // --- PHẦN BIỂU ĐỒ (Dùng fullList) ---
+            int[] pieData = new int[] {
+                fullList.Count(x => x.TrangThai == 0),
+                fullList.Count(x => x.TrangThai == 1),
+                fullList.Count(x => x.TrangThai == 2),
+                fullList.Count(x => x.TrangThai == 3)
+            };
+            ViewBag.PieData = JsonConvert.SerializeObject(pieData);
 
-            // Thống kê thẻ Card (như cũ)
-            ViewBag.TongDonHang = listDonHang.Count;
-            ViewBag.DonChoDuyet = choDuyet;
-            ViewBag.TongDoanhThu = listDonHang.Where(d => d.TrangThai == 2).Sum(d => d.TongTien ?? 0);
+            var currentYear = DateTime.Now.Year;
+            decimal[] revenueData = new decimal[12];
+            var donNamNay = fullList
+                .Where(d => d.TrangThai == 2 && d.NgayTao.HasValue && d.NgayTao.Value.Year == currentYear)
+                .ToList();
 
-            return View(listDonHang ?? new List<DonDatLich>());
+            foreach (var don in donNamNay)
+            {
+                int monthIndex = don.NgayTao.Value.Month - 1;
+                revenueData[monthIndex] += (don.TongTien ?? 0);
+            }
+            ViewBag.RevenueData = JsonConvert.SerializeObject(revenueData);
+
+            // 2. PHÂN TRANG CHO BẢNG (Chỉ cắt data để hiển thị bảng)
+            int pageSize = 10; // Số dòng mỗi trang
+            int pageNumber = (page ?? 1);
+
+            // Chuyển fullList thành PagedList
+            var pagedModel = fullList.ToPagedList(pageNumber, pageSize);
+
+            // Trả về pagedModel thay vì list thường
+            return View(pagedModel);
         }
+
+
 
         // ==========================================
         // Xử lý Duyệt đơn
@@ -93,5 +116,8 @@ namespace PhotoBooking.Web.Areas.Admin.Controllers
             }
             return RedirectToAction("Index");
         }
+
+
+
     }
 }

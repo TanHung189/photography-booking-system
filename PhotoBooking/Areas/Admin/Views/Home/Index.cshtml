@@ -1,26 +1,36 @@
-﻿@model List<PhotoBooking.Models.DonDatLich>
+﻿@model IPagedList<PhotoBooking.Models.DonDatLich>
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
 
 @{
     ViewData["Title"] = "Admin Dashboard";
+    // Tính toán thêm % hoặc số liệu phụ nếu cần (ở view chỉ hiển thị)
 }
 
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">Tổng quan hệ thống</h2>
-        <span class="text-muted">@DateTime.Now.ToString("dd/MM/yyyy")</span>
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Dashboard Quản Trị</h2>
+            <p class="text-muted small mb-0">Tổng quan tình hình kinh doanh</p>
+        </div>
+        <div class="bg-white p-2 rounded shadow-sm border text-muted small fw-bold">
+            <i class="far fa-calendar-alt me-2"></i> @DateTime.Now.ToString("dd/MM/yyyy")
+        </div>
     </div>
 
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-warning">
+            <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-success">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs fw-bold text-warning text-uppercase mb-1">Chờ xử lý</div>
-                            <div class="h3 mb-0 fw-bold text-dark">@ViewBag.DonChoDuyet</div>
+                            <div class="text-xs fw-bold text-success text-uppercase mb-1">Doanh thu (Đã xong)</div>
+                            <div class="h3 mb-0 fw-bold text-dark">
+                                @(ViewBag.TongDoanhThu?.ToString("N0") ?? "0") đ
+                            </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fa-solid fa-clock fa-2x text-gray-300 opacity-25"></i>
+                            <i class="fa-solid fa-sack-dollar fa-2x text-gray-300 opacity-25"></i>
                         </div>
                     </div>
                 </div>
@@ -28,15 +38,15 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-success">
+            <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-warning">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs fw-bold text-success text-uppercase mb-1">Doanh thu tạm tính</div>
-                            <div class="h3 mb-0 fw-bold text-dark">@ViewBag.TongDoanhThu.ToString("N0") đ</div>
+                            <div class="text-xs fw-bold text-warning text-uppercase mb-1">Đơn chờ duyệt</div>
+                            <div class="h3 mb-0 fw-bold text-dark">@ViewBag.DonChoDuyet</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fa-solid fa-sack-dollar fa-2x text-gray-300 opacity-25"></i>
+                            <i class="fa-solid fa-hourglass-half fa-2x text-gray-300 opacity-25"></i>
                         </div>
                     </div>
                 </div>
@@ -58,74 +68,142 @@
                 </div>
             </div>
         </div>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100 py-2 border-start border-4 border-info">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs fw-bold text-info text-uppercase mb-1">Nhiếp ảnh gia</div>
+                                <div class="h3 mb-0 fw-bold text-dark">@ViewBag.TongThoAnh</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fa-solid fa-camera fa-2x text-gray-300 opacity-25"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 
-    <div class="row">
-        <div class="col-lg-4 mb-4">
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-4">
             <div class="card shadow border-0 h-100">
-                <div class="card-header py-3 bg-white d-flex align-items-center justify-content-between">
-                    <h6 class="m-0 fw-bold text-primary"><i class="fa-solid fa-chart-pie me-2"></i>Trạng thái đơn hàng</h6>
+                <div class="card-header py-3 bg-white d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 fw-bold text-primary"><i class="fas fa-chart-line me-2"></i>Biểu đồ doanh thu năm @DateTime.Now.Year</h6>
                 </div>
                 <div class="card-body">
-                    <canvas id="statusChart" style="max-height: 300px;"></canvas>
+                    <div class="chart-area" style="height: 320px;">
+                        <canvas id="myAreaChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="card shadow border-0 mb-4">
-            <div class="card-header py-3 bg-white">
-                <h6 class="m-0 fw-bold text-primary">Danh sách Đơn đặt lịch gần đây</h6>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light text-uppercase small fw-bold">
-                            <tr>
-                                <th class="ps-4">Mã</th>
-                                <th>Khách hàng</th>
-                                <th>Gói dịch vụ</th>
-                                <th>Ngày chụp</th>
-                                <th>Trạng thái</th>
-                                <th class="text-end pe-4">Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model ?? Enumerable.Empty<PhotoBooking.Models.DonDatLich>())
-                            {
-                                <tr>
-                                    <td class="ps-4 fw-bold">#@item.MaDon</td>
-                                    <td>
-                                        <div class="fw-bold">@(item.MaKhachHangNavigation?.HoVaTen ?? "Khách vãng lai")</div>
-                                        <small class="text-muted">@(item.MaKhachHangNavigation?.SoDienThoai ?? "---")</small>
-                                    </td>
-                                    <td>
-                                        @(item.MaGoiNavigation?.TenGoi ?? "Đặt lịch riêng/Đã xóa")
-                                    </td>
-                                    <td>
-                                        <div>@item.NgayChup.ToString("dd/MM/yyyy")</div>
-                                    </td>
-                                    <td>
-                                        @if (item.TrangThai == 0)
-                                        {
-                                            <span class="badge bg-warning text-dark">⏳ Chờ duyệt</span>
-                                        }
-                                        else if (item.TrangThai == 1)
-                                        {
-                                            <span class="badge bg-success">✅ Đã duyệt</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-danger">❌ Đã hủy</span>
-                                        }
-                                    </td>
-                                    <td class="text-end pe-4">
-                                        <a asp-controller="DonDatLich" asp-action="Index" class="btn btn-primary btn-sm">Chi tiết</a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow border-0 h-100">
+                <div class="card-header py-3 bg-white d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 fw-bold text-primary"><i class="fas fa-chart-pie me-2"></i>Tỷ lệ đơn hàng</h6>
                 </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2" style="height: 250px;">
+                        <canvas id="myPieChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        <span class="me-2"><i class="fas fa-circle text-warning"></i> Mới</span>
+                        <span class="me-2"><i class="fas fa-circle text-primary"></i> Đã cọc</span>
+                        <span class="me-2"><i class="fas fa-circle text-success"></i> Xong</span>
+                        <span class="me-2"><i class="fas fa-circle text-danger"></i> Hủy</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow border-0 mb-4">
+        <div class="card-header py-3 bg-white">
+            <h6 class="m-0 fw-bold text-primary"><i class="fas fa-list me-2"></i>Đơn đặt lịch gần đây</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-uppercase small fw-bold">
+                        <tr>
+                            <th class="ps-4">Mã</th>
+                            <th>Khách hàng</th>
+                            <th>Dịch vụ</th>
+                            <th>Ngày chụp</th>
+                            <th>Trạng thái</th>
+                            <th class="text-end pe-4">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model ?? Enumerable.Empty<PhotoBooking.Models.DonDatLich>())
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-primary">#@item.MaDon</td>
+                                <td>
+                                    <div class="fw-bold">@(item.MaKhachHangNavigation?.HoVaTen ?? "Vãng lai")</div>
+                                    <small class="text-muted">@(item.MaKhachHangNavigation?.SoDienThoai ?? "---")</small>
+                                </td>
+                                <td>
+                                    @(item.MaGoiNavigation?.TenGoi ?? "📸 Đặt lịch riêng")
+                                    <div class="small text-muted">@item.TongTien?.ToString("N0") đ</div>
+                                </td>
+                                <td>@item.NgayChup.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    @if (item.TrangThai == 0)
+                                    {
+                                        <span class="badge bg-warning text-dark">⏳ Chờ duyệt</span>
+                                    }
+                                    else if (item.TrangThai == 1)
+                                    {
+
+                                        <span class="badge bg-primary">📅 Đã cọc</span>
+                                    }
+                                    else if (item.TrangThai == 2)
+                                    {
+
+                                        <span class="badge bg-success">✅ Hoàn thành</span>
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge bg-danger">❌ Đã hủy</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    @if (item.TrangThai == 0) // Chỉ hiện nút duyệt/hủy khi đơn mới
+                                    {
+                                        <a asp-action="Approve" asp-route-id="@item.MaDon" class="btn btn-success btn-sm me-1" title="Duyệt">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        <a asp-action="Reject" asp-route-id="@item.MaDon" class="btn btn-danger btn-sm" title="Từ chối"
+                                           onclick="return confirm('Bạn chắc chắn muốn từ chối đơn này?')">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small fst-italic">Đã xử lý</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+                 <div class="d-flex justify-content-center mt-4">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchString = ViewData["CurrentFilter"] }), 
+    new PagedListRenderOptions {
+        LiElementClasses = new string[] { "page-item" },
+        PageClasses = new string[] { "page-link" },
+        UlElementClasses = new string[] { "pagination" }
+    })
+</div>
             </div>
         </div>
     </div>
@@ -134,34 +212,79 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Lấy dữ liệu từ ViewBag (C#) chuyển sang Javascript
-    // Serialize mảng int[] thành chuỗi JSON: [5, 2, 1, 0]
-    var chartData = @Html.Raw(Json.Serialize(ViewBag.ChartData));
+    // 1. NHẬN DỮ LIỆU TỪ CONTROLLER
+    // Dùng Html.Raw để nhận chuỗi JSON nguyên vẹn
+    var pieData = @Html.Raw(ViewBag.PieData ?? "[0,0,0,0]");
+    var revenueData = @Html.Raw(ViewBag.RevenueData ?? "[0,0,0,0,0,0,0,0,0,0,0,0]");
 
-    var ctx = document.getElementById('statusChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'doughnut', // Loại biểu đồ: Tròn khuyết (doughnut) hoặc 'pie' (tròn)
-        data: {
-            labels: ['Chờ duyệt', 'Đã duyệt', 'Hoàn thành', 'Đã hủy'],
-            datasets: [{
-                data: chartData, // Dữ liệu: [Chờ, Duyệt, Xong, Hủy]
-                backgroundColor: [
-                    '#ffc107', // Vàng (Chờ)
-                    '#0d6efd', // Xanh dương (Duyệt)
-                    '#198754', // Xanh lá (Xong)
-                    '#dc3545'  // Đỏ (Hủy)
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom' // Chú thích nằm dưới
+    // 2. CẤU HÌNH BIỂU ĐỒ TRÒN (Status Chart)
+    var ctxPie = document.getElementById("myPieChart");
+    if(ctxPie) {
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ["Mới", "Đã cọc", "Hoàn thành", "Đã hủy"],
+                datasets: [{
+                    data: pieData,
+                    backgroundColor: ['#ffc107', '#4e73df', '#1cc88a', '#e74a3b'],
+                    hoverBackgroundColor: ['#e0a800', '#2e59d9', '#17a673', '#c0392b'],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    cutout: '70%',
+                }
+            },
+        });
+    }
+
+    // 3. CẤU HÌNH BIỂU ĐỒ ĐƯỜNG (Revenue Chart)
+    var ctxArea = document.getElementById("myAreaChart");
+    if(ctxArea) {
+        new Chart(ctxArea, {
+            type: 'line',
+            data: {
+                labels: ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"],
+                datasets: [{
+                    label: "Doanh thu",
+                    lineTension: 0.3,
+                    backgroundColor: "rgba(78, 115, 223, 0.05)",
+                    borderColor: "rgba(78, 115, 223, 1)",
+                    pointRadius: 3,
+                    pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                    pointBorderColor: "rgba(78, 115, 223, 1)",
+                    pointHoverRadius: 3,
+                    pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                    pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    data: revenueData,
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: { padding: { left: 10, right: 25, top: 25, bottom: 0 } },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) { return value.toLocaleString('vi-VN') + ' đ'; }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y.toLocaleString('vi-VN') + ' đ';
+                            }
+                        }
+                    }
                 }
             }
-        }
-    });
+        });
+    }
 </script>

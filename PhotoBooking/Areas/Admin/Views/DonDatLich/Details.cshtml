@@ -1,78 +1,105 @@
 ﻿@model PhotoBooking.Models.DonDatLich
-
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết đơn hàng #" + Model.MaDon;
 }
 
-<h1>Details</h1>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">📄 Chi tiết đơn hàng #@Model.MaDon</h3>
+        <a asp-action="Index" class="btn btn-secondary rounded-pill"><i class="fas fa-arrow-left me-2"></i> Quay lại</a>
+    </div>
 
-<div>
-    <h4>DonDatLich</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayChup)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayChup)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TongTien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TongTien)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TienDaCoc)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TienDaCoc)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GhiChu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GhiChu)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiaChiChup)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiaChiChup)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThaiThanhToan)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThaiThanhToan)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayTao)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayTao)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaGoiNavigation)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaGoiNavigation.MaGoi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaKhachHangNavigation)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaKhachHangNavigation.MaNguoiDung)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaDon">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    Thông tin Dịch vụ
+                </div>
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">@(Model.MaGoiNavigation?.TenGoi ?? "📸 Yêu cầu đặt lịch riêng")</h5>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Thời gian chụp:</label>
+                            <p class="fw-bold">@Model.NgayChup.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Địa điểm:</label>
+                            <p class="fw-bold">@Model.DiaChiChup</p>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-light border">
+                        <strong>Ghi chú từ khách:</strong> @(Model.GhiChu ?? "Không có ghi chú")
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.DanhGium != null)
+            {
+                <div class="card shadow-sm border-0 mb-4 border-start border-4 border-info">
+                    <div class="card-body">
+                        <h6 class="fw-bold text-info">⭐ Đánh giá từ khách hàng</h6>
+                        <div class="text-warning mb-2">
+                            @for (int i = 0; i < Model.DanhGium.SoSao; i++)
+                            {
+                                <i class="fas fa-star"></i>
+                            }
+                        </div>
+                        <p class="mb-0 fst-italic">"@Model.DanhGium.BinhLuan"</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small fw-bold mb-3">Khách hàng</h6>
+                    <div class="d-flex align-items-center">
+                        <img src="@(Model.MaKhachHangNavigation?.AnhDaiDien ?? "https://placehold.co/50")" class="rounded-circle me-3" width="50" height="50">
+                        <div>
+                            <div class="fw-bold">@Model.MaKhachHangNavigation?.HoVaTen</div>
+                            <div class="small text-muted">@Model.MaKhachHangNavigation?.SoDienThoai</div>
+                            <div class="small text-muted">@Model.MaKhachHangNavigation?.Email</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small fw-bold mb-3">Nhiếp ảnh gia</h6>
+                    <div class="d-flex align-items-center">
+                        <img src="@(Model.MaNhiepAnhGiaNavigation?.AnhDaiDien ?? "https://placehold.co/50")" class="rounded-circle me-3" width="50" height="50">
+                        <div>
+                            <div class="fw-bold">@Model.MaNhiepAnhGiaNavigation?.HoVaTen</div>
+                            <div class="small text-muted">@Model.MaNhiepAnhGiaNavigation?.SoDienThoai</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small fw-bold mb-3">Thanh toán</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tổng tiền:</span>
+                        <span class="fw-bold text-danger">@Model.TongTien?.ToString("N0") đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Trạng thái:</span>
+                        @if (Model.TrangThaiThanhToan == 1)
+                        {
+                            <span class="badge bg-success">Đã thanh toán cọc</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">Chưa thanh toán</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

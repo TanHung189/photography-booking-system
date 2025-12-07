@@ -298,5 +298,49 @@ namespace PhotoBooking.Controllers
 
             return RedirectToAction(nameof(MyBookings));
         }
+
+
+        // ==========================================
+        // 1. TRANG LIÊN HỆ (GET)
+        // ==========================================
+        public IActionResult Contact()
+        {
+            return View();
+        }
+
+        // ==========================================
+        // 2. XỬ LÝ GỬI LIÊN HỆ (POST)
+        // ==========================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Contact(ContactViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // 1. Cấu hình nội dung email gửi về cho Admin
+                string subject = $"[LIÊN HỆ MỚI] {model.TieuDe}";
+                string body = $@"
+                    <h3>Bạn nhận được liên hệ mới từ PhotoBooking</h3>
+                    <p><strong>Người gửi:</strong> {model.HoTen}</p>
+                    <p><strong>Email:</strong> {model.Email}</p>
+                    <p><strong>Nội dung:</strong></p>
+                    <p>{model.NoiDung}</p>
+                ";
+
+                // 2. Gửi đến email của Admin (Thay bằng email thật của bạn)
+                await _emailSender.SendEmailAsync("admin_cuaban@gmail.com", subject, body);
+
+                // 3. Thông báo thành công
+                TempData["Success"] = "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.";
+                return RedirectToAction(nameof(Contact));
+            }
+
+            return View(model);
+        }
+
+        public IActionResult HowItWork()
+        {
+            return View();
+        }
     }
 }

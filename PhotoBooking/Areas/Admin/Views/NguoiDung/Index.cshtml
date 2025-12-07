@@ -1,4 +1,6 @@
-﻿@model IEnumerable<PhotoBooking.Models.NguoiDung>
+﻿@using X.PagedList.Mvc.Core
+@using X.PagedList
+@model IPagedList<PhotoBooking.Models.NguoiDung>
 
 @{
     ViewData["Title"] = "Quản lý Người dùng";
@@ -6,23 +8,49 @@
 
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h3 text-gray-800 fw-bold">Danh sách Người dùng</h2>
-        <a asp-action="Create" class="btn btn-primary shadow-sm rounded-pill px-4">
-            <i class="fa-solid fa-user-plus me-2"></i> Thêm thành viên
+        <div>
+            <h2 class="fw-bold text-dark mb-0">👥 Quản lý Tài khoản</h2>
+            <p class="text-muted small mb-0">Tổng số thành viên: @Model.TotalItemCount</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold">
+            <i class="fa-solid fa-user-plus me-2"></i> Thêm mới
         </a>
     </div>
 
     <div class="card shadow mb-4 border-0">
-        <div class="card-header py-3 bg-white">
-            <h6 class="m-0 fw-bold text-primary">Tài khoản hệ thống</h6>
+        <div class="card-header bg-white py-3">
+            <form method="get" class="row g-3 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="searchString" value="@ViewBag.CurrentFilter"
+                               class="form-control border-start-0 bg-light" placeholder="Tìm tên, email, tài khoản..." />
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <select name="userRole" class="form-select bg-light" onchange="this.form.submit()">
+                        <option value="">-- Tất cả vai trò --</option>
+                        <option value="Customer" selected="@(ViewBag.CurrentRole == "Customer")">Khách hàng</option>
+                        <option value="Photographer" selected="@(ViewBag.CurrentRole == "Photographer")">Nhiếp ảnh gia</option>
+                        <option value="Admin" selected="@(ViewBag.CurrentRole == "Admin")">Quản trị viên</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-dark px-4">Lọc</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary ms-2">Reset</a>
+                </div>
+            </form>
         </div>
+
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light text-uppercase small fw-bold text-muted">
                         <tr>
-                            <th class="ps-4 text-center" style="width: 100px;">Avatar</th>
-                            <th>Thông tin cá nhân</th>
+                            <th class="ps-4 text-center" style="width: 80px;">Avatar</th>
+                            <th>Thông tin tài khoản</th>
                             <th>Vai trò</th>
                             <th>Khu vực</th>
                             <th>Ngày tham gia</th>
@@ -34,45 +62,50 @@
                         {
                             <tr>
                                 <td class="ps-4 text-center">
-                                    <img src="@(item.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + item.HoVaTen + "&background=random")"
-                                         class="rounded-circle shadow-sm object-fit-cover"
-                                         width="50" height="50" alt="Avatar">
+                                    <img src="@(item.AnhDaiDien ?? $"https://ui-avatars.com/api/?name={item.HoVaTen}&background=random")"
+                                         class="rounded-circle border shadow-sm" width="45" height="45" style="object-fit: cover;">
                                 </td>
 
                                 <td>
                                     <div class="fw-bold text-dark">@item.HoVaTen</div>
-                                    <div class="small text-muted">@@@item.TenDangNhap</div>
-                                    <div class="small text-muted"><i class="fa-regular fa-envelope me-1"></i> @item.Email</div>
+                                    <div class="small text-muted mb-1">@@@item.TenDangNhap</div> <div class="small d-flex gap-3 text-secondary">
+                                        <span><i class="fa-regular fa-envelope me-1"></i> @item.Email</span>
+                                        @if (!string.IsNullOrEmpty(item.SoDienThoai))
+                                        {
+                                            <span><i class="fa-solid fa-phone me-1"></i> @item.SoDienThoai</span>
+                                        }
+                                    </div>
                                 </td>
 
                                 <td>
                                     @if (item.VaiTro == "Admin")
                                     {
-                                        <span class="badge bg-danger rounded-pill">Quản trị viên</span>
+                                        <span class="badge bg-danger">ADMIN</span>
                                     }
                                     else if (item.VaiTro == "Photographer")
                                     {
-                                        <span class="badge bg-info text-dark rounded-pill">Nhiếp ảnh gia</span>
+
+                                        <span class="badge bg-info text-dark">THỢ ẢNH</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary rounded-pill">Khách hàng</span>
+
+                                        <span class="badge bg-secondary">KHÁCH</span>
                                     }
                                 </td>
 
                                 <td>
-                                    @* Ưu tiên 1: Hiển thị từ cột TinhThanh (Dữ liệu mới từ API) *@
                                     @if (!string.IsNullOrEmpty(item.TinhThanh))
                                     {
-                                        <span><i class="fa-solid fa-location-dot text-danger me-1"></i> @item.TinhThanh</span>
+                                        <span><i class="fas fa-map-marker-alt text-danger me-1"></i> @item.TinhThanh</span>
                                     }
-                                    @* Ưu tiên 2: Nếu không có, thử hiển thị từ bảng DiaDiem cũ *@
                                     else if (item.MaDiaDiemNavigation != null)
                                     {
-                                        <span><i class="fa-solid fa-location-dot text-secondary me-1"></i> @item.MaDiaDiemNavigation.TenThanhPho</span>
+                                        <span><i class="fas fa-map-marker-alt text-secondary me-1"></i> @item.MaDiaDiemNavigation.TenThanhPho</span>
                                     }
                                     else
                                     {
+
                                         <span class="text-muted small">---</span>
                                     }
                                 </td>
@@ -82,13 +115,26 @@
                                 </td>
 
                                 <td class="text-end pe-4">
-                                    <a asp-action="Edit" asp-route-id="@item.MaNguoiDung" class="btn btn-sm btn-warning me-1" title="Sửa">
+                                    <form asp-action="ResetPassword" asp-route-id="@item.MaNguoiDung" method="post" class="d-inline"
+                                          onsubmit="return confirm('Xác nhận đặt lại mật khẩu về 123456 cho tài khoản @item.TenDangNhap?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning me-1" title="Reset Mật khẩu">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                    </form>
+
+                                    <a asp-action="Edit" asp-route-id="@item.MaNguoiDung" class="btn btn-sm btn-outline-primary me-1" title="Sửa thông tin">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
-                                    <a asp-action="Delete" asp-route-id="@item.MaNguoiDung" class="btn btn-sm btn-outline-danger"
-                                       onclick="return confirm('Bạn có chắc muốn xóa tài khoản @item.TenDangNhap không? Dữ liệu liên quan sẽ mất hết!')" title="Xóa">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </a>
+
+                                    @if (item.VaiTro != "Admin")
+                                    {
+                                        <form asp-action="Delete" asp-route-id="@item.MaNguoiDung" method="post" class="d-inline"
+                                              onsubmit="return confirm('CẢNH BÁO: Xóa tài khoản @item.TenDangNhap sẽ xóa toàn bộ đơn hàng và dữ liệu liên quan. Bạn có chắc chắn không?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa tài khoản">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -96,6 +142,26 @@
                 </table>
             </div>
         </div>
+
+        <div class="card-footer bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="small text-muted">
+                    Hiển thị trang @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+                </div>
+                <div>
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page, searchString = ViewBag.CurrentFilter, userRole = ViewBag.CurrentRole }),
+                    new PagedListRenderOptions
+                    {
+                        LiElementClasses = new string[] { "page-item" },
+                        PageClasses = new string[] { "page-link" },
+                        UlElementClasses = new string[] { "pagination pagination-sm mb-0" },
+                        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                        DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                        LinkToPreviousPageFormat = "<i class='fas fa-chevron-left'></i>",
+                        LinkToNextPageFormat = "<i class='fas fa-chevron-right'></i>",
+                    })
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-

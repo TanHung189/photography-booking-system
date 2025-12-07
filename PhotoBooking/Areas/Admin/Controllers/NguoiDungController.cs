@@ -3,16 +3,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PhotoBooking.Models;
-using X.PagedList.Extensions;
-using System;
-using System.Collections.Generic;
+using X.PagedList; // Thư viện phân trang chính
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using X.PagedList.Extensions;
 
 namespace PhotoBooking.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")] // Chỉ Admin mới được vào đây
     public class NguoiDungController : Controller
     {
         private readonly PhotoBookingContext _context;
@@ -22,66 +22,108 @@ namespace PhotoBooking.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Admin/NguoiDung
-        public async Task<IActionResult> Index()
+        // ==========================================
+        // 1. DANH SÁCH + TÌM KIẾM + PHÂN TRANG
+        // ==========================================
+        public IActionResult Index(string searchString, string userRole, int? page)
         {
-            var photoBookingContext = _context.NguoiDungs.Include(n => n.MaDiaDiemNavigation);
-            return View(await photoBookingContext.ToListAsync());
-        }
+            // 1. Khởi tạo truy vấn
+            var users = _context.NguoiDungs
+                .Include(u => u.MaDiaDiemNavigation) // Kèm địa điểm để hiển thị
+                .AsQueryable();
 
-        // GET: Admin/NguoiDung/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
+            // 2. Tìm kiếm (Tên hoặc Email)
+            if (!string.IsNullOrEmpty(searchString))
             {
-                return NotFound();
+                searchString = searchString.Trim(); // Xóa khoảng trắng thừa
+                users = users.Where(u => u.HoVaTen.Contains(searchString)
+                                      || u.Email.Contains(searchString)
+                                      || u.TenDangNhap.Contains(searchString));
+                ViewBag.CurrentFilter = searchString;
             }
 
-            var nguoiDung = await _context.NguoiDungs
-                .Include(n => n.MaDiaDiemNavigation)
-                .FirstOrDefaultAsync(m => m.MaNguoiDung == id);
-            if (nguoiDung == null)
+            // 3. Lọc theo Vai trò
+            if (!string.IsNullOrEmpty(userRole))
             {
-                return NotFound();
+                users = users.Where(u => u.VaiTro == userRole);
+                ViewBag.CurrentRole = userRole;
             }
 
-            return View(nguoiDung);
+            // 4. Sắp xếp: Mới nhất lên đầu
+            users = users.OrderByDescending(u => u.NgayTao);
+
+            // 5. Phân trang
+            int pageSize = 10; // 10 người/trang
+            int pageNumber = (page ?? 1);
+
+            // Lưu ý: Dùng ToPagedList (Sync) để tránh lỗi xung đột DataReader
+            var pagedList = users.ToList().ToPagedList(pageNumber, pageSize);
+
+            return View(pagedList);
         }
 
-        // GET: Admin/NguoiDung/Create
-        // 2. TẠO NGƯỜI DÙNG MỚI (GET)
+        // ==========================================
+        // 2. TẠO MỚI (GET)
+        // ==========================================
         public IActionResult Create()
         {
-            // Tạo danh sách chọn Vai trò
-            var roles = new List<string> { "Admin", "Photographer", "Customer" };
-            ViewBag.RoleList = new SelectList(roles);
-
-            // Tạo danh sách chọn Địa điểm
+            ViewBag.RoleList = new SelectList(new[] { "Admin", "Photographer", "Customer" });
             ViewData["MaDiaDiem"] = new SelectList(_context.DiaDiems, "MaDiaDiem", "TenThanhPho");
-
             return View();
         }
 
-        // POST: Admin/NguoiDung/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // ==========================================
+        // 3. TẠO MỚI (POST)
+        // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MaNguoiDung,TenDangNhap,MatKhau,HoVaTen,Email,SoDienThoai,VaiTro,AnhDaiDien,AnhBia,GioiThieu,MaDiaDiem,NgayTao")] NguoiDung nguoiDung)
+        public async Task<IActionResult> Create(NguoiDung nguoiDung)
         {
+            // Kiểm tra trùng tên đăng nhập
+            if (await _context.NguoiDungs.AnyAsync(u => u.TenDangNhap == nguoiDung.TenDangNhap))
+            {
+                ModelState.AddModelError("TenDangNhap", "Tên đăng nhập này đã tồn tại!");
+            }
+
+            // Kiểm tra trùng Email
+            if (await _context.NguoiDungs.AnyAsync(u => u.Email == nguoiDung.Email))
+            {
+                ModelState.AddModelError("Email", "Email này đã được sử dụng!");
+            }
+
+            // Bỏ qua validate các bảng không cần thiết
+            ModelState.Remove("MaDiaDiemNavigation");
+            ModelState.Remove("DonDatLichMaKhachHangNavigations");
+            ModelState.Remove("DonDatLichMaNhiepAnhGiaNavigations");
+            // ... các navigation khác nếu có
+
             if (ModelState.IsValid)
             {
+                // Mã hóa mật khẩu
                 nguoiDung.MatKhau = BCrypt.Net.BCrypt.HashPassword(nguoiDung.MatKhau);
+
+                // Gán dữ liệu mặc định
+                nguoiDung.NgayTao = System.DateTime.Now;
+                if (string.IsNullOrEmpty(nguoiDung.AnhDaiDien))
+                {
+                    nguoiDung.AnhDaiDien = $"https://ui-avatars.com/api/?name={nguoiDung.HoVaTen}&background=random";
+                }
 
                 _context.Add(nguoiDung);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Thêm người dùng thành công!";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MaDiaDiem"] = new SelectList(_context.DiaDiems, "MaDiaDiem", "MaDiaDiem", nguoiDung.MaDiaDiem);
+
+            // Load lại dropdown nếu lỗi
+            ViewBag.RoleList = new SelectList(new[] { "Admin", "Photographer", "Customer" }, nguoiDung.VaiTro);
+            ViewData["MaDiaDiem"] = new SelectList(_context.DiaDiems, "MaDiaDiem", "TenThanhPho", nguoiDung.MaDiaDiem);
             return View(nguoiDung);
         }
 
-        [HttpGet]
+        // ==========================================
+        // 4. SỬA (GET)
+        // ==========================================
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -89,62 +131,57 @@ namespace PhotoBooking.Areas.Admin.Controllers
             var user = await _context.NguoiDungs.FindAsync(id);
             if (user == null) return NotFound();
 
-            // Tạo danh sách chọn Vai trò
-            var roles = new List<string> { "Admin", "Photographer", "Customer" };
-            ViewBag.RoleList = new SelectList(roles, user.VaiTro);
-
-            // Danh sách địa điểm
+            ViewBag.RoleList = new SelectList(new[] { "Admin", "Photographer", "Customer" }, user.VaiTro);
             ViewData["MaDiaDiem"] = new SelectList(_context.DiaDiems, "MaDiaDiem", "TenThanhPho", user.MaDiaDiem);
-
             return View(user);
         }
 
-        // POST: Admin/NguoiDung/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // ==========================================
+        // 5. SỬA (POST)
+        // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, NguoiDung nguoiDung)
         {
             if (id != nguoiDung.MaNguoiDung) return NotFound();
 
-            // --- KIỂM TRA TRÙNG EMAIL (LOGIC MỚI) ---
-            // Tìm xem có ai KHÁC (id != nguoiDung.MaNguoiDung) mà đang dùng email này không
-            bool isEmailExists = await _context.NguoiDungs.AnyAsync(u => u.Email == nguoiDung.Email && u.MaNguoiDung != id);
-
-            if (isEmailExists)
+            // Kiểm tra trùng Email (trừ chính mình ra)
+            if (await _context.NguoiDungs.AnyAsync(u => u.Email == nguoiDung.Email && u.MaNguoiDung != id))
             {
-                ModelState.AddModelError("Email", "Email này đã được sử dụng bởi người khác!");
+                ModelState.AddModelError("Email", "Email này đã thuộc về người khác!");
             }
-            // -----------------------------------------
 
-            // Bỏ qua validate các bảng liên quan (Giữ nguyên code cũ)
-            ModelState.Remove("MaDiaDiemNavigation");
+            // Bỏ qua validate mật khẩu (vì nếu để trống nghĩa là không đổi)
             ModelState.Remove("MatKhau");
+            ModelState.Remove("MaDiaDiemNavigation");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Lấy dữ liệu cũ từ DB để giữ lại Mật khẩu cũ nếu admin không nhập mới
-                    var userCu = await _context.NguoiDungs.AsNoTracking().FirstOrDefaultAsync(u => u.MaNguoiDung == id);
+                    // Lấy dữ liệu cũ để đối chiếu
+                    var userInDb = await _context.NguoiDungs.AsNoTracking().FirstOrDefaultAsync(u => u.MaNguoiDung == id);
 
-                    // Logic: Nếu ô mật khẩu bỏ trống -> Giữ mật khẩu cũ. Nếu nhập -> Mã hóa mới.
+                    // Logic Mật khẩu:
+                    // - Nếu ô mật khẩu TRỐNG -> Giữ nguyên mật khẩu cũ
+                    // - Nếu có nhập -> Mã hóa mật khẩu mới
                     if (string.IsNullOrEmpty(nguoiDung.MatKhau))
                     {
-                        nguoiDung.MatKhau = userCu.MatKhau;
+                        nguoiDung.MatKhau = userInDb.MatKhau;
                     }
                     else
                     {
                         nguoiDung.MatKhau = BCrypt.Net.BCrypt.HashPassword(nguoiDung.MatKhau);
                     }
 
-                    nguoiDung.MatKhau = string.IsNullOrEmpty(nguoiDung.MatKhau) ? userCu.MatKhau : BCrypt.Net.BCrypt.HashPassword(nguoiDung.MatKhau);
-                    nguoiDung.NgayTao = userCu.NgayTao;
-                    if (string.IsNullOrEmpty(nguoiDung.AnhDaiDien)) nguoiDung.AnhDaiDien = userCu.AnhDaiDien;
+                    // Giữ nguyên các trường không có trong form edit
+                    nguoiDung.NgayTao = userInDb.NgayTao;
+                    nguoiDung.TenDangNhap = userInDb.TenDangNhap; // Không cho sửa tên đăng nhập
+                    if (string.IsNullOrEmpty(nguoiDung.AnhDaiDien)) nguoiDung.AnhDaiDien = userInDb.AnhDaiDien;
 
                     _context.Update(nguoiDung);
                     await _context.SaveChangesAsync();
+                    TempData["Success"] = "Cập nhật thông tin thành công!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -154,50 +191,46 @@ namespace PhotoBooking.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Nạp lại View nếu lỗi
-            var roles = new List<string> { "Admin", "Photographer", "Customer" };
-            ViewBag.RoleList = new SelectList(roles, nguoiDung.VaiTro);
+            ViewBag.RoleList = new SelectList(new[] { "Admin", "Photographer", "Customer" }, nguoiDung.VaiTro);
             ViewData["MaDiaDiem"] = new SelectList(_context.DiaDiems, "MaDiaDiem", "TenThanhPho", nguoiDung.MaDiaDiem);
             return View(nguoiDung);
         }
 
-        // GET: Admin/NguoiDung/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var nguoiDung = await _context.NguoiDungs
-                .Include(n => n.MaDiaDiemNavigation)
-                .FirstOrDefaultAsync(m => m.MaNguoiDung == id);
-            if (nguoiDung == null)
-            {
-                return NotFound();
-            }
-
-            return View(nguoiDung);
-        }
-
-        // POST: Admin/NguoiDung/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // ==========================================
+        // 6. XÓA (POST - Xử lý trực tiếp)
+        // ==========================================
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var nguoiDung = await _context.NguoiDungs.FindAsync(id);
-            if (nguoiDung != null)
+            var user = await _context.NguoiDungs.FindAsync(id);
+            if (user != null)
             {
-                _context.NguoiDungs.Remove(nguoiDung);
+                // Logic thực tế: Nên kiểm tra xem user có đơn hàng không trước khi xóa
+                // Nếu có -> Chỉ khóa tài khoản (Active = false)
+                // Ở đây xóa cứng theo yêu cầu đồ án
+                _context.NguoiDungs.Remove(user);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa tài khoản vĩnh viễn.";
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool NguoiDungExists(int id)
+        // ==========================================
+        // 7. RESET MẬT KHẨU (Action Mới)
+        // ==========================================
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(int id)
         {
-            return _context.NguoiDungs.Any(e => e.MaNguoiDung == id);
+            var user = await _context.NguoiDungs.FindAsync(id);
+            if (user != null)
+            {
+                // Đặt về mật khẩu mặc định "123456"
+                user.MatKhau = BCrypt.Net.BCrypt.HashPassword("123456");
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã đặt lại mật khẩu cho {user.HoVaTen} thành '123456'";
+            }
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -291,6 +291,7 @@
                             </li>
                         }
 
+
                         <li class="nav-item">
                             <a class="nav-link fw-bold" asp-area="" asp-controller="Home" asp-action="Privacy">Liên Hệ</a>
                         </li>
@@ -327,11 +328,28 @@
                                             <i class="fa-regular fa-id-card"></i> Hồ sơ cá nhân
                                         </a>
                                     </li>
+
+                                    @if (User.Identity.IsAuthenticated && User.IsInRole("Photographer") || User.IsInRole("Admin"))
+                                    {
+                                        <li >
+                                            <a class="dropdown-item" asp-area="" asp-controller="Photographer" asp-action="MyJobs">
+                                                <i class="fas fa-briefcase me-2"></i>Quản lý công việc
+                                            </a>
+                                        </li>
+                                    }
+
                                     <li>
                                         <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="MyBookings">
                                             <i class="fa-solid fa-list-check"></i> Lịch sử đơn
                                         </a>
                                     </li>
+
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Home" asp-action="HowItWork">
+                                            <i class="fa-solid fa-link"></i>Quy trình Đặt Lịch
+                                        </a>
+                                    </li>
+
                                     @if (User.IsInRole("Admin") || User.IsInRole("Photographer"))
                                     {
                                         <li><hr class="dropdown-divider"></li>

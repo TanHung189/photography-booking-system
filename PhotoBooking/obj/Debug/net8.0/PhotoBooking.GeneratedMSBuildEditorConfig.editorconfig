@@ -176,6 +176,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Views/Home/HowItWork.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxIb3dJdFdvcmsuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -200,8 +204,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhvdG9ncmFwaGVyXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Views/Photographer/MyJobs.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhvdG9ncmFwaGVyXE15Sm9icy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Views/Photographer/Profile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhvdG9ncmFwaGVyXFByb2ZpbGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Views/Photographer/_JobCardPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhvdG9ncmFwaGVyXF9Kb2JDYXJkUGFydGlhbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [F:/Hoc Ky 7/ASP.Net Core/photography-booking-system/PhotoBooking/Views/Service/Index.cshtml]

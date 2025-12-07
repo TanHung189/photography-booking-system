@@ -1,0 +1,170 @@
+﻿@{
+    ViewData["Title"] = "Quy trình hoạt động";
+}
+
+<div class="bg-primary py-5 text-white mb-5">
+    <div class="container text-center">
+        <h1 class="fw-bold display-5">PhotoBooking hoạt động như thế nào?</h1>
+        <p class="lead opacity-75">Nền tảng kết nối Nhiếp ảnh gia và Khách hàng hàng đầu Việt Nam</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+
+    <ul class="nav nav-pills nav-justified mb-5 shadow-sm rounded-pill bg-light p-1" id="pills-tab" role="tablist" style="max-width: 600px; margin: 0 auto;">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill fw-bold py-3" id="pills-customer-tab" data-bs-toggle="pill" data-bs-target="#pills-customer" type="button">
+                <i class="fas fa-user me-2"></i> Dành cho Khách hàng
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold py-3" id="pills-photographer-tab" data-bs-toggle="pill" data-bs-target="#pills-photographer" type="button">
+                <i class="fas fa-camera me-2"></i> Dành cho Nhiếp ảnh gia
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+
+        <div class="tab-pane fade show active" id="pills-customer">
+            <div class="row g-4 text-center">
+                <div class="col-md-3">
+                    <div class="card h-100 border-0 shadow-sm hover-up">
+                        <div class="card-body p-4">
+                            <div class="step-icon bg-warning text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-search fa-2x"></i>
+                            </div>
+                            <h5 class="fw-bold">1. Tìm kiếm</h5>
+                            <p class="text-muted small">Tìm thợ chụp ảnh theo gói dịch vụ có sẵn hoặc đăng yêu cầu riêng để nhận báo giá.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 border-0 shadow-sm hover-up">
+                        <div class="card-body p-4">
+                            <div class="step-icon bg-info text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-calendar-check fa-2x"></i>
+                            </div>
+                            <h5 class="fw-bold">2. Đặt lịch</h5>
+                            <p class="text-muted small">Xem hồ sơ, đánh giá và chọn nhiếp ảnh gia ưng ý nhất. Tiến hành đặt lịch hẹn.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 border-0 shadow-sm hover-up">
+                        <div class="card-body p-4">
+                            <div class="step-icon bg-primary text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-qrcode fa-2x"></i>
+                            </div>
+                            <h5 class="fw-bold">3. Thanh toán cọc</h5>
+                            <p class="text-muted small">Quét mã QR để đặt cọc giữ lịch. Tiền được đảm bảo an toàn cho đến khi xác nhận.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 border-0 shadow-sm hover-up">
+                        <div class="card-body p-4">
+                            <div class="step-icon bg-success text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-star fa-2x"></i>
+                            </div>
+                            <h5 class="fw-bold">4. Nhận ảnh & Đánh giá</h5>
+                            <p class="text-muted small">Tiến hành chụp ảnh, nhận file bàn giao và đánh giá chất lượng dịch vụ.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="tab-pane fade" id="pills-photographer">
+            <div class="row g-4 text-center">
+                <div class="col-md-3">
+                    <div class="card h-100 border-0 shadow-sm hover-up">
+                        <div class="card-body p-4">
+                            <div class="step-icon bg-dark text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-id-card fa-2x"></i>
+                            </div>
+                            <h5 class="fw-bold">1. Đăng ký & Hồ sơ</h5>
+                            <p class="text-muted small">Tạo tài khoản Nhiếp ảnh gia, cập nhật profile ấn tượng và kinh nghiệm làm việc.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 border-0 shadow-sm hover-up">
+                        <div class="card-body p-4">
+                            <div class="step-icon bg-danger text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-box-open fa-2x"></i>
+                            </div>
+                            <h5 class="fw-bold">2. Tạo Gói / Báo Giá</h5>
+                            <p class="text-muted small">Đăng các gói chụp dịch vụ hoặc chủ động gửi báo giá cho các yêu cầu tìm thợ.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 border-0 shadow-sm hover-up">
+                        <div class="card-body p-4">
+                            <div class="step-icon bg-warning text-dark rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-briefcase fa-2x"></i>
+                            </div>
+                            <h5 class="fw-bold">3. Nhận việc</h5>
+                            <p class="text-muted small">Xác nhận đơn hàng, quản lý lịch chụp chuyên nghiệp ngay trên hệ thống.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 border-0 shadow-sm hover-up">
+                        <div class="card-body p-4">
+                            <div class="step-icon bg-success text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-hand-holding-usd fa-2x"></i>
+                            </div>
+                            <h5 class="fw-bold">4. Tăng thu nhập</h5>
+                            <p class="text-muted small">Nhận thanh toán minh bạch, xây dựng uy tín và mở rộng tệp khách hàng.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+        </div>
+
+        <div>
+            @if (User.IsInRole("Customer"))
+            {
+                <div class="flex text-center mt-5">
+                    <a href="/Account/Register" class="btn btn-dark btn-lg rounded-pill px-5 fw-bold shadow">
+                        Trở thành Đối tác ngay <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                    <a href="/" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow">
+                        Bắt đầu Đặt lịch ngay <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .step-icon {
+        width: 80px;
+        height: 80px;
+        transition: transform 0.3s;
+    }
+
+    .hover-up {
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+        .hover-up:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+        }
+
+            .hover-up:hover .step-icon {
+                transform: scale(1.1) rotate(5deg);
+            }
+
+    .nav-pills .nav-link.active {
+        background-color: #0d6efd; /* Màu xanh chủ đạo */
+    }
+</style>

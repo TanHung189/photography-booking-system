@@ -1,0 +1,66 @@
+﻿@model List<PhotoBooking.Models.DonDatLich>
+
+@{
+    ViewData["Title"] = "Quản lý công việc";
+    // Phân loại danh sách để đổ vào từng Tab
+    var listChoXacNhan = Model.Where(x => x.TrangThai == 0).ToList();
+    var listSapToi = Model.Where(x => x.TrangThai == 1).ToList();
+    var listLichSu = Model.Where(x => x.TrangThai == 2 || x.TrangThai == 3).ToList();
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold"><i class="fas fa-briefcase me-2 text-warning"></i>Quản lý công việc</h3>
+        <div class="text-muted">Tổng: <strong>@Model.Count</strong> đơn hàng</div>
+    </div>
+
+    <ul class="nav nav-pills mb-4 gap-2" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill fw-bold" id="tab-cho-xac-nhan" data-bs-toggle="pill" data-bs-target="#content-cho-xac-nhan">
+                ⏳ Chờ xác nhận <span class="badge bg-white text-dark ms-1">@listChoXacNhan.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold" id="tab-sap-toi" data-bs-toggle="pill" data-bs-target="#content-sap-toi">
+                📅 Lịch chụp sắp tới <span class="badge bg-white text-dark ms-1">@listSapToi.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold" id="tab-lich-su" data-bs-toggle="pill" data-bs-target="#content-lich-su">
+                📜 Lịch sử
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+
+        <div class="tab-pane fade show active" id="content-cho-xac-nhan">
+            @if (listChoXacNhan.Count == 0)
+            {
+                <p class="text-muted fst-italic">Chưa có đơn hàng mới.</p>
+            }
+            @foreach (var item in listChoXacNhan)
+            {
+                @await Html.PartialAsync("_JobCardPartial", item)
+            }
+        </div>
+
+        <div class="tab-pane fade" id="content-sap-toi">
+            @if (listSapToi.Count == 0)
+            {
+                <p class="text-muted fst-italic">Không có lịch chụp nào sắp tới.</p>
+            }
+            @foreach (var item in listSapToi)
+            {
+                @await Html.PartialAsync("_JobCardPartial", item)
+            }
+        </div>
+
+        <div class="tab-pane fade" id="content-lich-su">
+            @foreach (var item in listLichSu)
+            {
+                @await Html.PartialAsync("_JobCardPartial", item)
+            }
+        </div>
+    </div>
+</div>

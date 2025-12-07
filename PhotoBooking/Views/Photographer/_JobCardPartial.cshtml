@@ -1,0 +1,90 @@
+﻿@model PhotoBooking.Models.DonDatLich
+
+<div class="card shadow-sm border-0 mb-3 job-card">
+    <div class="card-body">
+        <div class="row align-items-center">
+
+            <div class="col-md-4 border-end">
+                <h6 class="text-muted small">Mã đơn: #@Model.MaDon</h6>
+                <h5 class="fw-bold text-primary">
+                    @(Model.MaGoiNavigation?.TenGoi ?? "📸 Yêu cầu riêng")
+                </h5>
+                <p class="mb-1"><i class="fas fa-clock me-2"></i>@Model.NgayChup.ToString("dd/MM/yyyy HH:mm")</p>
+                <p class="mb-0 text-danger fw-bold"><i class="fas fa-tag me-2"></i>@Model.TongTien?.ToString("N0") đ</p>
+            </div>
+
+            <div class="col-md-4 border-end">
+                <label class="text-muted small">Khách hàng</label>
+                <div class="d-flex align-items-center mb-2">
+                    <img src="@(Model.MaKhachHangNavigation?.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + Model.MaKhachHangNavigation?.HoVaTen)"
+                         class="rounded-circle me-2" width="40" height="40">
+                    <div>
+                        <div class="fw-bold">@Model.MaKhachHangNavigation?.HoVaTen</div>
+                        @if (Model.TrangThai >= 1)
+                        {
+                            <a href="tel:@Model.MaKhachHangNavigation?.SoDienThoai" class="text-decoration-none small">
+                                <i class="fas fa-phone me-1"></i> @Model.MaKhachHangNavigation?.SoDienThoai
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted small"><i class="fas fa-lock me-1"></i> SĐT ẩn (Chưa cọc)</span>
+                        }
+                    </div>
+                </div>
+                <div class="small"><i class="fas fa-map-marker-alt text-danger me-1"></i> @Model.DiaChiChup</div>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <div class="mb-2">
+                    @if (Model.TrangThaiThanhToan == 1)
+                    {
+                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Đã thanh toán cọc</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark"><i class="fas fa-exclamation-circle"></i> Chưa cọc</span>
+                    }
+                </div>
+
+                <form asp-action="UpdateStatus" method="post" class="d-flex justify-content-center gap-2">
+                    <input type="hidden" name="id" value="@Model.MaDon" />
+
+                    @if (Model.TrangThai == 0) // Mới -> Cần xác nhận
+                    {
+                        <button type="submit" name="status" value="1" class="btn btn-primary btn-sm rounded-pill px-3"
+                                onclick="return confirm('Xác nhận đã nhận tiền cọc và chốt lịch này?')">
+                            <i class="fas fa-check me-1"></i> Xác nhận cọc
+                        </button>
+                        <button type="submit" name="status" value="3" class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                                onclick="return confirm('Hủy đơn hàng này?')">
+                            Hủy
+                        </button>
+                    }
+                    else if (Model.TrangThai == 1) // Đang chờ chụp -> Hoàn thành
+                    {
+                        <button type="submit" name="status" value="2" class="btn btn-success btn-sm rounded-pill px-3"
+                                onclick="return confirm('Xác nhận đã chụp xong và bàn giao ảnh?')">
+                            <i class="fas fa-camera me-1"></i> Hoàn thành
+                        </button>
+                    }
+                    else if (Model.TrangThai == 2)
+                    {
+                        <span class="text-success fw-bold"><i class="fas fa-star text-warning"></i> Đã xong</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Đã hủy</span>
+                    }
+                </form>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.GhiChu))
+        {
+            <div class="alert alert-light mt-3 mb-0 small border">
+                <strong>Ghi chú:</strong> @Model.GhiChu
+            </div>
+        }
+    </div>
+</div>

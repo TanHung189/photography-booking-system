@@ -1,6 +1,100 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
-}
-<h1>@ViewData["Title"]</h1>
+﻿@model PhotoBooking.ViewModels.ContactViewModel
 
-<p>Use this page to detail your site's privacy policy.</p>
+@{
+    ViewData["Title"] = "Liên hệ";
+}
+
+<div class="bg-light py-5">
+    <div class="container text-center">
+        <h1 class="fw-bold">Liên hệ với chúng tôi</h1>
+        <p class="text-muted">Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn 24/7</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-5">
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm mb-4 h-100">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-4">Thông tin liên hệ</h4>
+
+                    <div class="d-flex mb-3">
+                        <div class="me-3 text-primary"><i class="fas fa-map-marker-alt fa-lg"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Địa chỉ</h6>
+                            <p class="text-muted small">Long Xuyên, An Giang </p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex mb-3">
+                        <div class="me-3 text-primary"><i class="fas fa-phone-alt fa-lg"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Hotline</h6>
+                            <p class="text-muted small">039 9308 546 (8:00 - 22:00)</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex mb-4">
+                        <div class="me-3 text-primary"><i class="fas fa-envelope fa-lg"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Email</h6>
+                            <p class="text-muted small">hung189204@gmail.com</p>
+                        </div>
+                    </div>
+
+                    <div class="ratio ratio-4x3 rounded overflow-hidden shadow-sm">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3924.627295380689!2d105.43016631475133!3d10.371661092596956!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x310a72e272b4cb09%3A0x67bb933227415e96!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBBbiBHaWFuZyAtIMSQSFFHIFRQLiBIQ00!5e0!3m2!1svi!2s!4v1626315624775!5m2!1svi!2s"
+                                style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card border-0 shadow h-100">
+                <div class="card-body p-5">
+                    <h4 class="fw-bold mb-4 text-primary">Gửi tin nhắn cho chúng tôi</h4>
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                        </div>
+                    }
+
+                    <form asp-action="Contact" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Họ và tên</label>
+                                <input asp-for="HoTen" class="form-control bg-light" placeholder="Nhập tên của bạn..." />
+                                <span asp-validation-for="HoTen" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Email</label>
+                                <input asp-for="Email" class="form-control bg-light" placeholder="email@example.com" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Tiêu đề</label>
+                                <input asp-for="TieuDe" class="form-control bg-light" placeholder="Bạn cần hỗ trợ vấn đề gì?" />
+                                <span asp-validation-for="TieuDe" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Nội dung</label>
+                                <textarea asp-for="NoiDung" class="form-control bg-light" rows="5" placeholder="Chi tiết nội dung..."></textarea>
+                                <span asp-validation-for="NoiDung" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm">
+                                    <i class="fas fa-paper-plane me-2"></i> GỬI LIÊN HỆ
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
