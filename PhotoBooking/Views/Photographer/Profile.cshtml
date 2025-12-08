@@ -39,10 +39,16 @@
                             @(Model.User.MaDiaDiemNavigation?.TenThanhPho ?? "Việt Nam")
                         </p>
 
+                        <a href="/Chat?userId=@Model.User.MaNguoiDung"
+                           class="btn btn-outline-primary rounded-pill w-100 mt-2 fw-bold py-2 hover-up">
+                            <i class="fas fa-comment-dots me-2"></i> Nhắn tin tư vấn
+                        </a>
+
                         @if (User.Identity.IsAuthenticated)
                         {
+                            <br></br>
                             <button class="btn btn-dark w-100 rounded-pill fw-bold py-2 mb-3 shadow-sm hover-up" data-bs-toggle="modal" data-bs-target="#directBookingModal">
-                                <i class="fa-regular fa-paper-plane me-2"></i> Liên hệ / Đặt lịch riêng
+                                <i class="fa-regular fa-paper-plane me-2"></i>  Đặt lịch riêng
                             </button>
                         }
                         else

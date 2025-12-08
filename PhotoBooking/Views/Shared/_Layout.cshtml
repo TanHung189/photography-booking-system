@@ -6,12 +6,11 @@
     <title>@ViewData["Title"] - TAHU.FOTO</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PhotoBooking.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <style>
         :root {
@@ -23,8 +22,8 @@
             font-family: 'Poppins', sans-serif;
             background-color: #fcfcfc;
             color: var(--primary-dark);
-            display: flex; /* 1. Biến body thành flex container */
-            flex-direction: column; /* 2. Sắp xếp các phần tử theo chiều dọc */
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
         }
 
@@ -44,7 +43,7 @@
             display: flex;
             align-items: baseline;
             text-decoration: none;
-            margin-right: 20px; /* Thêm khoảng cách an toàn bên phải logo */
+            margin-right: 20px;
         }
 
             .brand-tahu .dot {
@@ -67,7 +66,7 @@
             color: var(--primary-dark) !important;
             font-weight: 500;
             font-size: 0.95rem;
-            padding: 10px 18px !important; /* Tăng padding ngang để các link cách nhau đều và thoáng hơn */
+            padding: 10px 18px !important;
             transition: all 0.3s ease;
             position: relative;
         }
@@ -168,31 +167,26 @@
 
         }
 
-        #btn-back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            display: none; /* Mặc định ẩn, chỉ hiện khi cuộn xuống */
-            z-index: 99; /* Đảm bảo nó nổi lên trên các thành phần khác */
-            /* Style cho đẹp */
-            width: 50px;
-            height: 50px;
-            border-radius: 50%; /* Bo tròn hoàn toàn */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: all 0.3s ease-in-out;
-            background-color: var(--primary-orange, #ff5700); /* Dùng màu cam chủ đạo */
-            border: none;
-        }
-
-            #btn-back-to-top:hover {
-                transform: translateY(-5px); /* Hiệu ứng bay lên nhẹ khi di chuột */
-                background-color: #e64a19;
-            }
-
+        /* --- ĐÃ SỬA: CSS CŨ CỦA NÚT BACK TO TOP (ẨN ĐI ĐỂ DÙNG CSS MỚI TRONG HTML) --- */
+        /* #btn-back-to-top {
+                    position: fixed;
+                    bottom: 30px;
+                    right: 30px;
+                    display: none;
+                    z-index: 99;
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 50%;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                    transition: all 0.3s ease-in-out;
+                    background-color: var(--primary-orange, #ff5700);
+                    border: none;
+                }
+                */
 
         /* --- FOOTER STYLE --- */
         .footer-custom {
-            background-color: #1a1a1a; /* Màu xám đen sang trọng */
+            background-color: #1a1a1a;
             color: #b0b0b0;
             font-size: 0.9rem;
         }
@@ -213,8 +207,8 @@
             }
 
                 .footer-custom a:hover {
-                    color: var(--primary-orange); /* Màu cam chủ đạo */
-                    padding-left: 5px; /* Hiệu ứng dịch chuyển nhẹ */
+                    color: var(--primary-orange);
+                    padding-left: 5px;
                 }
 
         .social-links a {
@@ -286,11 +280,10 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-warning fw-bold" asp-controller="YeuCau" asp-action="JobMarket">
-                                 Săn Việc
+                                    Săn Việc
                                 </a>
                             </li>
                         }
-
 
                         <li class="nav-item">
                             <a class="nav-link fw-bold" asp-area="" asp-controller="Home" asp-action="Privacy">Liên Hệ</a>
@@ -306,7 +299,8 @@
                             ? $"https://ui-avatars.com/api/?name={userName}&background=ff5700&color=fff&size=128"
                             : avatarClaim;
 
-                            <li class="nav-item dropdown ms-3">
+
+                            <li class="nav-item dropdown ms-2">
                                 <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="me-2 d-none d-lg-block fw-bold text-dark small">@userName</span>
                                     <img src="@avatarUrl" alt="Avatar"
@@ -331,7 +325,7 @@
 
                                     @if (User.Identity.IsAuthenticated && User.IsInRole("Photographer") || User.IsInRole("Admin"))
                                     {
-                                        <li >
+                                        <li>
                                             <a class="dropdown-item" asp-area="" asp-controller="Photographer" asp-action="MyJobs">
                                                 <i class="fas fa-briefcase me-2"></i>Quản lý công việc
                                             </a>
@@ -346,7 +340,7 @@
 
                                     <li>
                                         <a class="dropdown-item" asp-controller="Home" asp-action="HowItWork">
-                                            <i class="fa-solid fa-link"></i>Quy trình Đặt Lịch
+                                            <i class="fa-solid fa-link"></i> Quy trình Đặt Lịch
                                         </a>
                                     </li>
 
@@ -393,7 +387,6 @@
     <footer class="footer-custom mt-auto pt-5">
         <div class="container">
             <div class="row g-4">
-
                 <div class="col-lg-4 col-md-6">
                     <a class="brand-tahu mb-4 d-block text-white" href="/">
                         TAHU<span class="dot">.</span><span class="sub-text text-white-50">FOTO</span>
@@ -421,7 +414,7 @@
                 <div class="col-lg-2 col-md-6">
                     <h5>Hỗ Trợ</h5>
                     <a href="#">Về Chúng Tôi</a>
-                    <a href="#">Quy Trình Đặt Lịch</a>
+                    <a href="/Home/HowItWork">Quy Trình Đặt Lịch</a>
                     <a href="#">Chính Sách Bảo Mật</a>
                     <a href="#">Điều Khoản Sử Dụng</a>
                     <a href="#">Tuyển Dụng Photographer</a>
@@ -458,38 +451,99 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 
-    <button type="button" class="btn btn-warning btn-floating btn-lg" id="btn-back-to-top">
-        <i class="fas fa-arrow-up text-white"></i>
-    </button>
+    <div class="position-fixed bottom-0 end-0 p-4 d-flex flex-column align-items-end gap-3" style="z-index: 1050;">
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a href="/Chat/Index"
+               class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center position-relative"
+               style="width: 60px; height: 60px; transition: transform 0.3s; border: 2px solid white;"
+               onmouseover="this.style.transform='scale(1.1)'"
+               onmouseout="this.style.transform='scale(1)'"
+               title="Nhắn tin">
+
+                <i class="fas fa-comment-dots fa-xl text-white"></i>
+
+                <span id="floatingBadge"
+                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light shadow-sm"
+                      style="display: none; font-size: 0.7rem;">
+                    0
+                </span>
+            </a>
+        }
+
+        <button type="button" id="btn-back-to-top"
+                class="btn btn-warning text-white rounded-circle shadow d-flex align-items-center justify-content-center"
+                style="width: 50px; height: 50px; display: none; border: none;"
+                title="Lên đầu trang">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+
+    </div>
 
     <script>
-        // Lấy nút từ DOM
+        // --- 1. XỬ LÝ NÚT BACK TO TOP ---
         let mybutton = document.getElementById("btn-back-to-top");
 
-        // Lắng nghe sự kiện cuộn chuột
         window.onscroll = function () {
-            scrollFunction();
-        };
-
-        function scrollFunction() {
-            // Nếu cuộn xuống quá 20px thì hiện nút, ngược lại thì ẩn
             if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
                 mybutton.style.display = "block";
             } else {
                 mybutton.style.display = "none";
             }
-        }
+        };
 
-        // Khi click vào nút thì cuộn mượt lên đầu
-        mybutton.addEventListener("click", backToTop);
+        mybutton.addEventListener("click", function(){
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
 
-        function backToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth" // Quan trọng: Tạo hiệu ứng trượt mượt mà
-            });
+        // --- 2. XỬ LÝ THÔNG BÁO CHAT (SIGNALR) ---
+        @if (User.Identity.IsAuthenticated)
+        {
+                <text>
+                const notiConnection = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
+
+                function updateUnreadBadge() {
+                    fetch('/Chat/GetUnreadCount')
+                        .then(response => response.text())
+                        .then(count => {
+                            const num = parseInt(count);
+                            const menuBadge = document.getElementById("msgBadge");
+                            const floatBadge = document.getElementById("floatingBadge");
+
+                            if (num > 0) {
+                                if(menuBadge) {
+                                    menuBadge.innerText = num;
+                                    menuBadge.style.display = "inline-block";
+                                }
+                                if(floatBadge) {
+                                    floatBadge.innerText = num;
+                                    floatBadge.style.display = "inline-block";
+                                    floatBadge.parentElement.classList.add("animate__animated", "animate__headShake");
+                                }
+                            } else {
+                                if(menuBadge) menuBadge.style.display = "none";
+                                if(floatBadge) floatBadge.style.display = "none";
+                            }
+                        })
+                        .catch(err => console.log("Lỗi lấy badge chat:", err));
+                }
+
+                notiConnection.on("ReceiveMessage", function (senderId, message, time) {
+                    updateUnreadBadge();
+                    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                    audio.play().catch(e => {});
+                });
+
+                notiConnection.start().then(() => {
+                    updateUnreadBadge();
+                }).catch(err => console.error("SignalR Error:", err));
+                </text>
         }
     </script>
 </body>

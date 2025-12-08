@@ -151,6 +151,20 @@ CREATE TABLE UngTuyen (
 );
 GO
 
+CREATE TABLE TinNhan (
+    MaTinNhan INT IDENTITY(1,1) PRIMARY KEY,
+    NguoiGuiId INT NOT NULL,
+    NguoiNhanId INT NOT NULL,
+    NoiDung NVARCHAR(MAX) NOT NULL,
+    ThoiGianGui DATETIME2 DEFAULT GETDATE(),
+    DaXem BIT DEFAULT 0,
+    
+    -- Tạo liên kết khóa ngoại với bảng NguoiDung
+    CONSTRAINT FK_TinNhan_NguoiGui FOREIGN KEY (NguoiGuiId) REFERENCES NguoiDung(MaNguoiDung),
+    CONSTRAINT FK_TinNhan_NguoiNhan FOREIGN KEY (NguoiNhanId) REFERENCES NguoiDung(MaNguoiDung)
+);
+GO
+
 -- Cập nhật dữ liệu mẫu cho có số liệu đẹp
 UPDATE NguoiDung SET SoNamKinhNghiem = 5 WHERE TenDangNhap = 'lee_minh';
 UPDATE NguoiDung SET SoNamKinhNghiem = 3 WHERE TenDangNhap = 'sarah_tran';

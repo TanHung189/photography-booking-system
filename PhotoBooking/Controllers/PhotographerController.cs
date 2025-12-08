@@ -6,7 +6,6 @@ using PhotoBooking.ViewModels;
 
 namespace PhotoBooking.Controllers
 {
-    [Authorize(Roles = "Photographer")]
     public class PhotographerController : Controller
     {
         private readonly PhotoBookingContext _context;

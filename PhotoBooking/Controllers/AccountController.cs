@@ -354,5 +354,11 @@ namespace PhotoBooking.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
+
+        // GET: /Account/AccessDenied
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }

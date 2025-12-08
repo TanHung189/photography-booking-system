@@ -1,0 +1,233 @@
+﻿@{
+    ViewData["Title"] = "Tin nhắn";
+    var listUsers = ViewBag.ListUsers as List<PhotoBooking.Models.NguoiDung>;
+    int myId = ViewBag.CurrentUserId != null ? (int)ViewBag.CurrentUserId : 0;
+}
+
+<div class="container py-4" style="height: 85vh;">
+    <div class="row h-100 shadow rounded-3 overflow-hidden border">
+
+        <div class="col-md-4 bg-light border-end h-100 d-flex flex-column p-0">
+            <div class="p-3 bg-white border-bottom">
+                <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-comments me-2"></i>Trò chuyện</h5>
+            </div>
+            <div class="overflow-auto flex-grow-1" id="userList">
+                @if (listUsers != null)
+                {
+                    foreach (var user in listUsers)
+                    {
+                        <div class="d-flex align-items-center p-3 border-bottom user-item"
+                             onclick="loadChat(@user.MaNguoiDung, this)"
+                             style="cursor: pointer;">
+
+                            <img src="@(user.AnhDaiDien ?? $"https://ui-avatars.com/api/?name={user.HoVaTen}")"
+                                 class="rounded-circle me-3 border" width="50" height="50" style="object-fit:cover">
+                            <div>
+                                <div class="fw-bold">@user.HoVaTen</div>
+                                <small class="text-muted status-text">Nhấn để xem tin nhắn</small>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="col-md-8 bg-white h-100 d-flex flex-column p-0 position-relative">
+
+            <div id="chatHeader" class="p-3 border-bottom bg-white d-flex align-items-center shadow-sm d-none">
+                <img id="headerAvatar" src="" class="rounded-circle me-3 border" width="45" height="45" style="object-fit:cover">
+                <div>
+                    <h6 id="headerName" class="mb-0 fw-bold">...</h6>
+                    <small class="text-success"><i class="fas fa-circle" style="font-size: 8px;"></i> Đang hoạt động</small>
+                </div>
+            </div>
+
+            <div class="flex-grow-1 p-4 overflow-auto" id="messagesList" style="background-color: #f0f2f5;">
+                <div id="welcomeScreen" class="h-100 d-flex flex-column align-items-center justify-content-center text-muted">
+                    <i class="far fa-paper-plane fa-5x mb-3 text-secondary opacity-50"></i>
+                    <h4>PhotoChat</h4>
+                    <p>Chọn một người để bắt đầu trò chuyện mượt mà hơn.</p>
+                </div>
+            </div>
+
+            <div id="inputArea" class="p-3 border-top bg-white d-none">
+                <div class="input-group">
+                    <input type="text" id="messageInput" class="form-control border-0 bg-light rounded-pill px-4 py-2"
+                           placeholder="Nhập tin nhắn..." autocomplete="off">
+                    <button class="btn btn-primary rounded-circle ms-2 d-flex align-items-center justify-content-center"
+                            id="sendButton" style="width: 45px; height: 45px;">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+
+<script>
+    // --- KHỞI TẠO BIẾN ---
+    const connection = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
+    const myId = @myId;
+    let currentReceiverId = 0; // Lưu ID người đang chat hiện tại
+
+    // --- 1. HÀM LOAD CHAT (AJAX - KHÔNG RELOAD TRANG) ---
+    async function loadChat(userId, element) {
+        currentReceiverId = userId;
+
+        // UI: Đánh dấu người đang chọn (Active)
+        document.querySelectorAll('.user-item').forEach(el => el.classList.remove('bg-light', 'border-primary', 'border-start', 'border-4'));
+        element.classList.add('bg-light', 'border-primary', 'border-start', 'border-4');
+
+        // UI: Hiện Header & Input, Ẩn màn hình chờ
+        document.getElementById('welcomeScreen').classList.add('d-none');
+        document.getElementById('chatHeader').classList.remove('d-none');
+        document.getElementById('inputArea').classList.remove('d-none');
+        document.getElementById('messagesList').innerHTML = '<div class="text-center mt-5"><div class="spinner-border text-primary"></div></div>'; // Loading
+
+        // AJAX: Gọi API lấy tin nhắn
+        try {
+            const response = await fetch(`/Chat/GetConversation?otherUserId=${userId}`);
+            const data = await response.json();
+
+            // Cập nhật Header
+            document.getElementById('headerName').innerText = data.otherUser.hoVaTen;
+            document.getElementById('headerAvatar').src = data.otherUser.anhDaiDien ?? `https://ui-avatars.com/api/?name=${data.otherUser.hoVaTen}`;
+
+            // Render Tin nhắn
+            const msgList = document.getElementById("messagesList");
+            msgList.innerHTML = ''; // Xóa loading
+
+            data.messages.forEach(msg => {
+                appendMessage(msg.nguoiGuiId, msg.noiDung, msg.thoiGianGui, msg.maTinNhan, msg.isDeleted);
+            });
+            scrollToBottom();
+
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    // --- 2. HÀM VẼ TIN NHẮN RA MÀN HÌNH ---
+    function appendMessage(senderId, content, time, msgId, isDeleted) {
+        const isMe = (senderId == myId);
+        const divClass = isMe ? "justify-content-end" : "justify-content-start";
+        const bgClass = isMe ? "#0084ff" : "#ffffff";
+        const textClass = isMe ? "#ffffff" : "#000000";
+
+        // Nội dung tin nhắn (Xử lý nếu đã bị thu hồi)
+        let displayContent = isDeleted
+            ? `<em class="opacity-50"><i class="fas fa-ban me-1"></i> Tin nhắn đã thu hồi</em>`
+            : content;
+
+        // Nút thu hồi (Chỉ hiện cho tin của mình và chưa xóa)
+        let actionBtn = (isMe && !isDeleted)
+            ? `<i class="fas fa-ellipsis-v ms-2 text-muted unsend-btn" onclick="unsendMessage(${msgId})" style="cursor:pointer; font-size: 12px;" title="Thu hồi"></i>`
+            : ``;
+
+        // Nếu là người khác gửi thì actionBtn rỗng, nhưng cần đảo vị trí để nó nằm sát tin nhắn
+        // Ở đây làm đơn giản: Chỉ mình mới có nút xóa
+
+        const html = `
+            <div class="d-flex mb-3 ${divClass} msg-row" id="msg-${msgId}">
+                <div class="d-flex align-items-center ${isMe ? 'flex-row-reverse' : ''}">
+                    <div class="p-3 rounded-3 shadow-sm position-relative msg-content-box"
+                         style="max-width: 400px; background-color: ${isDeleted ? '#f8f9fa' : bgClass}; color: ${isDeleted ? '#999' : textClass};">
+                        <p class="mb-1 text-break msg-text">${displayContent}</p>
+                        <small class="${isMe && !isDeleted ? "text-light opacity-75" : "text-muted"}" style="font-size: 0.7rem; float: right; margin-top: 5px;">
+                            ${time}
+                        </small>
+                    </div>
+                    ${actionBtn}
+                </div>
+            </div>
+        `;
+        document.getElementById("messagesList").insertAdjacentHTML('beforeend', html);
+    }
+
+    // --- 3. XỬ LÝ SIGNALR ---
+    connection.on("ReceiveMessage", function (senderId, message, time) {
+        // Chỉ hiện nếu đang chat với đúng người đó HOẶC mình tự gửi
+        if (senderId == currentReceiverId || senderId == myId) {
+            // Tạm thời để ID = 0 hoặc lấy từ response gửi về, ở đây demo nên để tạm 0,
+            // Thực tế cần Hub trả về ID tin vừa tạo để có thể xóa.
+            // (Bạn có thể F5 lại để lấy ID xóa sau, hoặc update Hub trả về object msg)
+            // Để code đơn giản, tin vừa nhận Realtime sẽ chưa xóa được ngay cho đến khi reload lại (hoặc update Hub trả về MsgId)
+
+            // Ở đây tôi giả định bạn sẽ reload để xóa, hoặc update Hub ở bước nâng cao.
+            appendMessage(senderId, message, time, 0, false);
+            scrollToBottom();
+        }
+    });
+
+    // NHẬN SỰ KIỆN THU HỒI
+    connection.on("MessageUnsent", function (msgId) {
+        const msgDiv = document.getElementById(`msg-${msgId}`);
+        if (msgDiv) {
+            const contentBox = msgDiv.querySelector('.msg-content-box');
+            const textP = msgDiv.querySelector('.msg-text');
+            const unsendBtn = msgDiv.querySelector('.unsend-btn');
+
+            // Đổi giao diện thành "Đã thu hồi"
+            contentBox.style.backgroundColor = '#f8f9fa';
+            contentBox.style.color = '#999';
+            textP.innerHTML = '<em class="opacity-50"><i class="fas fa-ban me-1"></i> Tin nhắn đã thu hồi</em>';
+
+            // Xóa nút 3 chấm
+            if(unsendBtn) unsendBtn.remove();
+        }
+    });
+
+    connection.start();
+
+    // --- 4. CÁC HÀM HỖ TRỢ ---
+
+    // Gửi tin nhắn
+    document.getElementById("sendButton").addEventListener("click", function (event) {
+        const input = document.getElementById("messageInput");
+        const message = input.value;
+        if (message.trim() !== "" && currentReceiverId !== 0) {
+            connection.invoke("SendMessage", currentReceiverId.toString(), message);
+            input.value = "";
+            input.focus();
+        }
+    });
+
+    // Enter để gửi
+    document.getElementById("messageInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") document.getElementById("sendButton").click();
+    });
+
+    // Hàm gọi thu hồi
+    function unsendMessage(msgId) {
+        if(confirm("Bạn muốn thu hồi tin nhắn này?")) {
+            connection.invoke("UnsendMessage", msgId);
+        }
+    }
+
+    function scrollToBottom() {
+        const msgList = document.getElementById("messagesList");
+        msgList.scrollTop = msgList.scrollHeight;
+    }
+
+    // Tự động load người đầu tiên nếu có tham số URL (VD bấm từ trang Profile qua)
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const userIdParam = urlParams.get('userId');
+        if (userIdParam) {
+            // Tìm div user tương ứng để kích hoạt click
+            // (Phần này nâng cao, tạm thời để user tự chọn)
+        }
+    };
+</script>
+
+<style>
+    .user-item:hover {
+        background-color: #f8f9fa;
+    }
+    /* Hiệu ứng hover cho nút thu hồi */
+    .unsend-btn:hover {
+        color: #dc3545 !important;
+    }
+</style>

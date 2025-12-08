@@ -35,6 +35,8 @@ public partial class PhotoBookingContext : DbContext
 
     public virtual DbSet<YeuCau> YeuCaus { get; set; }
 
+    public virtual DbSet<TinNhan> TinNhans { get; set; } = null!;
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=WINDOWS-10\\SQLEXPRESS;Database=PhotoBookingTH;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true");
@@ -213,6 +215,23 @@ public partial class PhotoBookingContext : DbContext
             entity.HasOne(d => d.MaKhachHangNavigation).WithMany(p => p.YeuCaus)
                 .HasForeignKey(d => d.MaKhachHang)
                 .HasConstraintName("FK__YeuCau__MaKhachH__72C60C4A");
+        });
+
+        modelBuilder.Entity<TinNhan>(entity =>
+        {
+            entity.HasKey(e => e.MaTinNhan);
+
+            entity.HasOne(d => d.NguoiGui)
+                .WithMany()
+                .HasForeignKey(d => d.NguoiGuiId)
+                .OnDelete(DeleteBehavior.ClientSetNull) // Quan trọng: Tránh lỗi vòng lặp xóa
+                .HasConstraintName("FK_TinNhan_NguoiGui");
+
+            entity.HasOne(d => d.NguoiNhan)
+                .WithMany()
+                .HasForeignKey(d => d.NguoiNhanId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TinNhan_NguoiNhan");
         });
 
         OnModelCreatingPartial(modelBuilder);

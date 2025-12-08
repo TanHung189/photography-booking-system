@@ -80,11 +80,19 @@
             </div>
         </div>
 
+
         @if (!string.IsNullOrEmpty(Model.GhiChu))
         {
             <div class="alert alert-light mt-3 mb-0 small border">
                 <strong>Ghi chú:</strong> @Model.GhiChu
             </div>
+
+
+            
         }
+
+        <a href="/Chat?userId=@Model.MaKhachHang" class="text-decoration-none ms-2" title="Nhắn cho khách">
+            <i class="fas fa-comment-dots fa-lg text-primary"></i>Nhắn cho khách hàng
+        </a>
     </div>
 </div>

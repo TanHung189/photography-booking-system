@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies; // 1. Thư viện xác thực Cookie
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;               // 2. Thư viện kết nối SQL
-using PhotoBooking.Models;                         // 3. Namespace chứa DbContext và Models
-using PhotoBooking.Web.Services;                    // 4. (Mở comment dòng này nếu bạn đã tạo file PhotoService.cs)
 using OfficeOpenXml;
+using PhotoBooking.Models;                         // 3. Namespace chứa DbContext và Models
 using PhotoBooking.Web.Hubs;
+using PhotoBooking.Web.Services;                    // 4. (Mở comment dòng này nếu bạn đã tạo file PhotoService.cs)
 
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -24,7 +25,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.Cookie.Name = "PhotoBookingCookie"; // Tên Cookie
         options.LoginPath = "/Account/Login";       // Đường dẫn trang đăng nhập
-        options.AccessDeniedPath = "/Account/Forbidden"; // Đường dẫn khi không có quyền
+        options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromDays(7);   // Duy trì đăng nhập 7 ngày
     });
 
@@ -40,6 +41,8 @@ builder.Services.AddSession(options =>
 // Nếu bạn chưa tạo file Services/PhotoService.cs thì tạm thời comment dòng dưới lại để không lỗi
 builder.Services.AddScoped<PhotoBooking.Web.Services.PhotoService>();
 builder.Services.AddScoped<PhotoBooking.Services.EmailSender>();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, PhotoBooking.Services.CustomUserIdProvider>();
 
 // 5. Thêm MVC
 builder.Services.AddControllersWithViews();
@@ -67,7 +70,7 @@ app.UseAuthorization();  // 2. Kiểm tra quyền hạn (Bạn được làm gì
 
 app.UseSession(); // Kích hoạt Session
 app.MapHub<PhotoBooking.Web.Hubs.BookingHub>("/bookingHub");
-
+app.MapHub<PhotoBooking.Hubs.ChatHub>("/chathub");
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
@@ -75,5 +78,7 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
 
 app.Run();
