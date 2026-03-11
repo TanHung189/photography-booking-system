@@ -158,12 +158,15 @@ CREATE TABLE TinNhan (
     NoiDung NVARCHAR(MAX) NOT NULL,
     ThoiGianGui DATETIME2 DEFAULT GETDATE(),
     DaXem BIT DEFAULT 0,
+	IsDeleted BIT NOT NULL DEFAULT 0;
     
     -- Tạo liên kết khóa ngoại với bảng NguoiDung
     CONSTRAINT FK_TinNhan_NguoiGui FOREIGN KEY (NguoiGuiId) REFERENCES NguoiDung(MaNguoiDung),
     CONSTRAINT FK_TinNhan_NguoiNhan FOREIGN KEY (NguoiNhanId) REFERENCES NguoiDung(MaNguoiDung)
 );
 GO
+
+
 
 -- Cập nhật dữ liệu mẫu cho có số liệu đẹp
 UPDATE NguoiDung SET SoNamKinhNghiem = 5 WHERE TenDangNhap = 'lee_minh';
@@ -490,7 +493,7 @@ PRINT N'ĐÃ XÓA TOÀN BỘ DỮ LIỆU MẪU THÀNH CÔNG!';
 PRINT N'Cơ sở dữ liệu PhotoBookingTH đã trốn rỗng.';
 GO*/
 
--- Kiểm tra lại (Tất cả sẽ trả về 0 dòng)
+
 SELECT * FROM DonDatLich;
 Select * from DanhGia;
 SELECT * FROM NguoiDung;

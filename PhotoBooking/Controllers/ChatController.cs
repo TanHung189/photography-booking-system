@@ -57,7 +57,6 @@ namespace PhotoBooking.Controllers
             return View(new List<TinNhan>());
         }
 
-        // Thêm hàm này vào ChatController
         [HttpGet]
         public async Task<IActionResult> GetConversation(int otherUserId)
         {
@@ -65,7 +64,7 @@ namespace PhotoBooking.Controllers
             if (string.IsNullOrEmpty(currentUserIdStr)) return Unauthorized();
             int currentUserId = int.Parse(currentUserIdStr);
 
-            // Lấy tin nhắn
+            // 1. Lấy tin nhắn (Sắp xếp cũ nhất -> mới nhất)
             var messages = await _context.TinNhans
                 .Where(m => (m.NguoiGuiId == currentUserId && m.NguoiNhanId == otherUserId)
                          || (m.NguoiGuiId == otherUserId && m.NguoiNhanId == currentUserId))
@@ -74,16 +73,32 @@ namespace PhotoBooking.Controllers
                     m.MaTinNhan,
                     m.NguoiGuiId,
                     m.NoiDung,
-                    ThoiGianGui = m.ThoiGianGui.ToString("HH:mm"),
-                    m.IsDeleted // Trả về trạng thái xóa
+                    ThoiGianGui = m.ThoiGianGui.ToString("HH:mm"), // Format giờ phút
+                    m.IsDeleted // Trạng thái đã thu hồi
                 })
                 .ToListAsync();
 
-            // Lấy info người kia để hiển thị lên Header
+            // 2. Lấy thông tin người kia (Để cập nhật Header Chat)
             var otherUser = await _context.NguoiDungs
                 .Where(u => u.MaNguoiDung == otherUserId)
-                .Select(u => new { u.MaNguoiDung, u.HoVaTen, u.AnhDaiDien })
+                .Select(u => new {
+                    u.MaNguoiDung,
+                    u.HoVaTen,
+                    u.AnhDaiDien
+                })
                 .FirstOrDefaultAsync();
+
+            var unreadMsgs = await _context.TinNhans
+    .Where(m => m.NguoiGuiId == otherUserId
+             && m.NguoiNhanId == currentUserId
+             && m.DaXem == false) // <--- SỬA THÀNH NHƯ VẦY
+    .ToListAsync();
+
+            if (unreadMsgs.Any())
+            {
+                foreach (var item in unreadMsgs) item.DaXem = true;
+                await _context.SaveChangesAsync();
+            }
 
             return Json(new { messages, otherUser });
         }

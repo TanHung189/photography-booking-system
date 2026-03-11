@@ -1,0 +1,106 @@
+﻿@{
+    ViewData["Title"] = "Đặt lịch chụp ảnh";
+}
+
+<div class="position-relative bg-dark text-white text-center py-5"
+     style="background-image: url('https://images.unsplash.com/photo-1554048612-387768052bf7?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center;">
+    <div class="position-absolute top-0 start-0 w-100 h-100 bg-black opacity-50"></div>
+    <div class="container position-relative z-index-1 py-5">
+        <h1 class="display-4 fw-bold animate__animated animate__fadeInDown">Bắt đầu hành trình của bạn</h1>
+        <p class="lead animate__animated animate__fadeInUp">Chọn phương thức đặt lịch phù hợp nhất với nhu cầu của bạn</p>
+    </div>
+</div>
+
+<div class="container py-5 mt-n5 position-relative" style="z-index: 2;">
+    <div class="row g-4 justify-content-center">
+
+        <div class="col-md-5 col-lg-4">
+            <div class="card h-100 border-0 shadow-lg hover-up text-center">
+                <div class="card-body p-5">
+                    <div class="icon-box bg-primary-subtle text-primary rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-box-open fa-2x"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Chọn Gói Có Sẵn</h3>
+                    <p class="text-muted mb-4">
+                        Dành cho bạn muốn tiết kiệm thời gian. Chọn các gói chụp (Cưới, Kỷ yếu,...) đã được thiết kế sẵn với giá niêm yết.
+                    </p>
+                    <a href="/Service/Index" class="btn btn-primary rounded-pill px-4 py-2 fw-bold w-100">
+                        Xem các gói chụp <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 col-lg-4">
+            <div class="card h-100 border-0 shadow-lg hover-up text-center">
+                <div class="card-body p-5">
+                    <div class="icon-box bg-warning-subtle text-warning rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-bullhorn fa-2x"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Đăng Yêu Cầu</h3>
+                    <p class="text-muted mb-4">
+                        Bạn có ý tưởng riêng? Hãy đăng yêu cầu tìm thợ. Các nhiếp ảnh gia sẽ chủ động báo giá cho bạn.
+                    </p>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a href="/YeuCau/MyRequests" class="btn btn-warning text-white rounded-pill px-4 py-2 fw-bold w-100">
+                            Tạo yêu cầu mới <i class="fas fa-plus-circle ms-2"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="/Account/Login" class="btn btn-outline-warning rounded-pill px-4 py-2 fw-bold w-100">
+                            Đăng nhập để tạo <i class="fas fa-sign-in-alt ms-2"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mt-5 pt-4 text-center">
+        <div class="col-12">
+            <h4 class="fw-bold text-muted mb-4 text-uppercase ls-2">Quy trình đơn giản</h4>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3">
+                <i class="fas fa-search fa-2x text-secondary mb-3"></i>
+                <h6 class="fw-bold">1. Tìm kiếm</h6>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3">
+                <i class="fas fa-calendar-check fa-2x text-secondary mb-3"></i>
+                <h6 class="fw-bold">2. Đặt lịch</h6>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3">
+                <i class="fas fa-credit-card fa-2x text-secondary mb-3"></i>
+                <h6 class="fw-bold">3. Thanh toán</h6>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3">
+                <i class="fas fa-camera-retro fa-2x text-secondary mb-3"></i>
+                <h6 class="fw-bold">4. Chụp ảnh</h6>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-up {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .hover-up:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+        }
+
+    .ls-2 {
+        letter-spacing: 2px;
+    }
+</style>

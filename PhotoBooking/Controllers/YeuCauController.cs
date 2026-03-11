@@ -49,11 +49,12 @@ namespace PhotoBooking.Controllers
         // 2. TẠO YÊU CẦU (GET + POST)
         // ==========================================
         [Authorize]
+        [Authorize(Roles = "Customer")]
         public IActionResult Create() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Create(YeuCau yeuCau)
         {
             var userId = GetCurrentUserId();
@@ -77,6 +78,7 @@ namespace PhotoBooking.Controllers
         // 3. XÓA YÊU CẦU
         // ==========================================
         [Authorize]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Delete(int id)
         {
             var userId = GetCurrentUserId();
@@ -95,6 +97,7 @@ namespace PhotoBooking.Controllers
         // 4. CHỢ VIỆC LÀM (JOB MARKET)
         // ==========================================
         // Bỏ Authorize để khách vãng lai cũng xem được
+        [Authorize(Roles = "Photographer,Admin")]
         public async Task<IActionResult> JobMarket(string searchLocation, string sortOrder)
         {
             var query = _context.YeuCaus
