@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhotoBooking.Models;
+using PhotoBooking.Services;
 using PhotoBooking.ViewModels; // Nhớ using cái này
 using System;
 using System.Linq;
@@ -14,10 +15,11 @@ namespace PhotoBooking.Controllers
     public class BookingController : Controller
     {
         private readonly PhotoBookingContext _context;
-
-        public BookingController(PhotoBookingContext context)
+        private readonly BlockchainService _blockchainService;
+        public BookingController(PhotoBookingContext context, BlockchainService blockchainService)
         {
             _context = context;
+            _blockchainService = blockchainService;
         }
 
         public IActionResult Index()
@@ -55,46 +57,59 @@ namespace PhotoBooking.Controllers
 
         // POST: Xử lý lưu đơn đặt lịch
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(BookingViewModel model)
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create(BookingViewModel model)
+{
+    if (ModelState.IsValid)
+    {
+        var userIdStr = User.FindFirst("UserId")?.Value;
+        if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction("Login", "Account");
+        int userId = int.Parse(userIdStr);
+
+        var goiGoc = await _context.GoiDichVus.FindAsync(model.MaGoi);
+        if (goiGoc == null) return NotFound();
+
+        // --- BẮT ĐẦU LOGIC BLOCKCHAIN ---
+        string smartContractAddress = "";
+        try 
         {
-            if (ModelState.IsValid)
-            {
-                // Lấy ID người dùng hiện tại
-                var userIdStr = User.FindFirst("UserId")?.Value;
-                if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction("Login", "Account");
-                int userId = int.Parse(userIdStr);
-
-                // Lấy thông tin gói để xác định thợ
-                var goiGoc = await _context.GoiDichVus.FindAsync(model.MaGoi);
-                if (goiGoc == null) return NotFound();
-
-                // 1. Tạo đơn hàng mới
-                var donHang = new DonDatLich
-                {
-                    MaGoi = model.MaGoi,
-                    MaKhachHang = userId,
-                    MaNhiepAnhGia = goiGoc.MaNhiepAnhGia, // Lấy ID thợ từ gói
-                    NgayChup = model.NgayChup,
-                    DiaChiChup = model.DiaChiChup,
-                    GhiChu = model.GhiChu,
-                    TongTien = model.GiaTien,
-                    TienDaCoc = 0, // Mới đặt chưa cọc
-                    TrangThai = 0, // 0: Chờ duyệt
-                    TrangThaiThanhToan = 0, // 0: Chưa thanh toán
-                    NgayTao = DateTime.Now
-                };
-
-                _context.DonDatLiches.Add(donHang);
-                await _context.SaveChangesAsync();
-
-                // 2. LOGIC THÔNG MINH: Đặt xong chuyển thẳng sang trang Thanh Toán
-                return RedirectToAction("Payment", new { id = donHang.MaDon });
-            }
-
-            // Nếu form lỗi thì hiện lại để sửa
+            // Tự động gọi Service để đúc một Két sắt mới trên Ganache cho đơn hàng này
+            smartContractAddress = await _blockchainService.DeployContractAsync();
+        }
+        catch (Exception ex)
+        {
+            // Nếu lỗi Blockchain, bạn có thể báo lỗi hoặc gán tạm địa chỉ rỗng
+            ModelState.AddModelError("", "Không thể khởi tạo hợp đồng Blockchain: " + ex.Message);
             return View(model);
         }
+        // --- KẾT THÚC LOGIC BLOCKCHAIN ---
+
+        var donHang = new DonDatLich
+        {
+            MaGoi = model.MaGoi,
+            MaKhachHang = userId,
+            MaNhiepAnhGia = goiGoc.MaNhiepAnhGia,
+            NgayChup = model.NgayChup,
+            DiaChiChup = model.DiaChiChup,
+            GhiChu = model.GhiChu,
+            TongTien = model.GiaTien,
+            TienDaCoc = 0,
+            TrangThai = 0,
+            TrangThaiThanhToan = 0,
+            NgayTao = DateTime.Now,
+            
+            // LƯU Ý: Bạn nên thêm một cột "ContractAddress" vào bảng DonDatLich trong Database 
+            // để lưu cái địa chỉ này lại nhé!
+            // GhiChu = "Blockchain Address: " + smartContractAddress // Tạm thời lưu vào ghi chú nếu chưa có cột riêng
+        };
+
+        _context.DonDatLiches.Add(donHang);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Payment", new { id = donHang.MaDon });
+    }
+    return View(model);
+}
 
         public IActionResult BookingSuccess()
         {

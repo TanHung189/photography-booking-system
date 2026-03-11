@@ -43,7 +43,7 @@ builder.Services.AddScoped<PhotoBooking.Web.Services.PhotoService>();
 builder.Services.AddScoped<PhotoBooking.Services.EmailSender>();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserIdProvider, PhotoBooking.Services.CustomUserIdProvider>();
-
+builder.Services.AddScoped<PhotoBooking.Services.BlockchainService>();
 // 5. Thêm MVC
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
