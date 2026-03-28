@@ -1,8 +1,11 @@
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using Nethereum.Hex.HexTypes;
+using Nethereum.RPC.Eth.DTOs;
+using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace PhotoBooking.Services 
 {
@@ -17,31 +20,57 @@ namespace PhotoBooking.Services
             _privateKey = configuration["BlockchainConfig:PhotographerPrivateKey"];
         }
 
-        public async Task<string> DeployContractAsync()
+       public async Task<string> DeployContractAsync()
         {
-            var account = new Account(_privateKey);
-            var web3 = new Web3(account, _rpcUrl);
+            try 
+            {
+           
+                var account = new Account(_privateKey);
+                var web3 = new Web3(account, _rpcUrl);
 
-            // 3. Đọc nội dung 2 file ABI và BIN
-            // LƯU Ý: Sửa lại đường dẫn này cho khớp với vị trí thư mục "bin" mà bạn vừa tìm thấy
-            // Ví dụ nếu nó nằm ở ngoài cùng: "bin/PhotoEscrow.abi"
-            // Nếu nó nằm trong SmartContracts: "SmartContracts/bin/PhotoEscrow.abi"
-            string abi = await File.ReadAllTextAsync("bin/PhotoEscrow.abi");
-            string bytecode = await File.ReadAllTextAsync("bin/PhotoEscrow.bin");
+    
+                string abiPath = Path.Combine(Directory.GetCurrentDirectory(), "bin", "PhotoEscrow.abi");
+                string binPath = Path.Combine(Directory.GetCurrentDirectory(), "bin", "PhotoEscrow.bin");
 
-            // 4. Gửi lệnh tạo Hợp đồng lên Ganache
-            var transactionHash = await web3.Eth.DeployContract.SendRequestAsync(
-                abi, 
-                bytecode, 
-                account.Address, // Người trả phí Gas (chủ ví)
-                new HexBigInteger(4000000), // Giới hạn Gas
-                account.Address  // Tham số truyền vào Constructor (địa chỉ ví thợ ảnh)
-            );
+                if (!File.Exists(abiPath) || !File.Exists(binPath))
+                {
+                    throw new Exception("Không tìm thấy file ABI hoặc BIN tại thư mục bin/. Hãy kiểm tra lại đường dẫn.");
+                }
 
-            // 5. Chờ Ganache xác nhận và lấy Địa chỉ Hợp đồng mới (0x...)
-            var receipt = await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash);
-            
-            return receipt.ContractAddress;
+                string abi = await File.ReadAllTextAsync(abiPath);
+                string bytecode = await File.ReadAllTextAsync(binPath);
+
+                var transactionHash = await web3.Eth.DeployContract.SendRequestAsync(
+                    abi, 
+                    bytecode, 
+                    account.Address, 
+                    new HexBigInteger(4000000), 
+                    account.Address  
+                );
+
+
+                TransactionReceipt receipt = null;
+                int retryCount = 0;
+                while (receipt == null && retryCount < 10) // Thử lại tối đa 10 lần (10 giây)
+                {
+                    await Task.Delay(1000); // Đợi 1 giây mỗi lần thử
+                    receipt = await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash);
+                    retryCount++;
+                }
+
+                if (receipt == null || string.IsNullOrEmpty(receipt.ContractAddress))
+                {
+                    throw new Exception("Giao dịch đã gửi nhưng không nhận được biên lai hoặc địa chỉ hợp đồng.");
+                }
+
+                return receipt.ContractAddress;
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi để dễ dàng kiểm tra trong cửa sổ Output
+                System.Diagnostics.Debug.WriteLine("BLOCKCHAIN ERROR: " + ex.Message);
+                throw; 
+            }
         }
     }
 }

@@ -75,6 +75,10 @@ public async Task<IActionResult> Create(BookingViewModel model)
         {
             // Tự động gọi Service để đúc một Két sắt mới trên Ganache cho đơn hàng này
             smartContractAddress = await _blockchainService.DeployContractAsync();
+            System.Diagnostics.Debug.WriteLine("=== ADDRESS LAY DUOC: " + smartContractAddress);
+            if (string.IsNullOrEmpty(smartContractAddress)) {
+                throw new Exception("Hàm Deploy trả về rỗng. Kiểm tra lại Ganache và Private Key!");
+            }
         }
         catch (Exception ex)
         {
@@ -97,10 +101,7 @@ public async Task<IActionResult> Create(BookingViewModel model)
             TrangThai = 0,
             TrangThaiThanhToan = 0,
             NgayTao = DateTime.Now,
-            
-            // LƯU Ý: Bạn nên thêm một cột "ContractAddress" vào bảng DonDatLich trong Database 
-            // để lưu cái địa chỉ này lại nhé!
-            // GhiChu = "Blockchain Address: " + smartContractAddress // Tạm thời lưu vào ghi chú nếu chưa có cột riêng
+            DiaChiHopDong = smartContractAddress
         };
 
         _context.DonDatLiches.Add(donHang);

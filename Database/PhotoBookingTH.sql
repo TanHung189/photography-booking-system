@@ -81,10 +81,12 @@ CREATE TABLE DonDatLich (
     NgayTao DATETIME2 DEFAULT GETDATE(),
     MaKhachHang INT NOT NULL, 
     MaGoi INT NOT NULL, 
+	DonDatLich Nvarchar(100) Null,
     FOREIGN KEY (MaGoi) REFERENCES GoiDichVu(MaGoi),
     FOREIGN KEY (MaKhachHang) REFERENCES NguoiDung(MaNguoiDung)
 );
 GO
+
 
 
 CREATE TABLE DanhGia (
