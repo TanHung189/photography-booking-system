@@ -13,34 +13,67 @@ else
 {
     @foreach (var item in Model)
     {
-        <div class="card booking-card shadow-sm border-0 mb-3 rounded-4 overflow-hidden">
+        <div class="card booking-card shadow-sm border-0 mb-4 rounded-4 overflow-hidden @(item.TrangThai == 1 && item.TrangThaiThanhToan == 0 ? "border-start border-warning border-5" : "")">
             <div class="card-body p-0">
-                <div class="d-flex flex-column flex-md-row">
-                    <div class="p-3">
+                
+                @if (item.TrangThai == 1 && item.TrangThaiThanhToan == 0)
+                {
+                    <div class="bg-danger-subtle p-2 px-3 d-flex align-items-center border-bottom border-danger border-opacity-25">
+                        <i class="fas fa-bullhorn text-danger me-2 heartbeat-animation"></i>
+                        <span class="small fw-bold text-danger">
+                            Nhiếp ảnh gia @(item.MaNhiepAnhGiaNavigation?.HoVaTen) đã đồng ý! Hãy đặt cọc ngay để giữ chỗ.
+                        </span>
+                    </div>
+                }
+                else if (item.TrangThai == 0)
+                {
+                    <div class="bg-light p-2 px-3 d-flex align-items-center border-bottom">
+                        <i class="fas fa-clock text-muted me-2"></i>
+                        <span class="small text-muted">
+                            Đang đợi @(item.MaNhiepAnhGiaNavigation?.HoVaTen) kiểm tra lịch và phản hồi...
+                        </span>
+                    </div>
+                }
+                else if (item.TrangThai == 2 || item.TrangThaiThanhToan == 1)
+                {
+                    <div class="bg-success-subtle p-2 px-3 d-flex align-items-center border-bottom border-success border-opacity-25">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span class="small fw-bold text-success">
+                            Lịch chụp đã chốt! Nhiếp ảnh gia sẽ liên hệ bạn trước ngày chụp.
+                        </span>
+                    </div>
+                }
+
+                <div class="d-flex flex-column flex-md-row p-3">
+                    <div class="me-md-3 mb-3 mb-md-0">
                         <img src="@(item.MaGoiNavigation?.AnhDaiDien ?? item.MaNhiepAnhGiaNavigation?.AnhDaiDien ?? "https://ui-avatars.com/api/?name=Service&background=random")"
                              class="img-service shadow-sm rounded-3"
                              style="width: 150px; height: 120px; object-fit: cover;"
                              alt="Service Image">
                     </div>
 
-                    <div class="p-3 flex-grow-1">
+                    <div class="flex-grow-1">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                @if (item.TrangThai == 3) // Đã hủy
+                                @if (item.TrangThai == 4) 
                                 {
                                     <span class="badge bg-secondary mb-2"><i class="fas fa-ban me-1"></i> Đã hủy</span>
                                 }
-                                else if (item.TrangThaiThanhToan == 1 && item.TrangThai != 2) // Đã cọc
+                                else if (item.TrangThai == 0) 
                                 {
-                                    <span class="badge bg-primary mb-2"><i class="fas fa-calendar-check me-1"></i> Đã xác nhận (Đã cọc)</span>
+                                    <span class="badge bg-info text-dark mb-2"><i class="fas fa-hourglass-start me-1"></i> Chờ xác nhận</span>
                                 }
-                                else if (item.TrangThai == 2) // Hoàn thành
+                                else if (item.TrangThai == 1 && item.TrangThaiThanhToan == 0) 
+                                {
+                                    <span class="badge bg-danger mb-2 animation-pulse"><i class="fas fa-exclamation-triangle me-1"></i> Yêu cầu đặt cọc</span>
+                                }
+                                else if (item.TrangThai == 2 || item.TrangThaiThanhToan == 1) 
+                                {
+                                    <span class="badge bg-primary mb-2"><i class="fas fa-calendar-check me-1"></i> Sắp tới (Đã cọc)</span>
+                                }
+                                else if (item.TrangThai == 3) 
                                 {
                                     <span class="badge bg-success mb-2"><i class="fas fa-check-circle me-1"></i> Hoàn thành</span>
-                                }
-                                else // Mới tạo
-                                {
-                                    <span class="badge bg-warning text-dark mb-2"><i class="fas fa-hourglass-half me-1"></i> Chờ thanh toán</span>
                                 }
 
                                 <h5 class="fw-bold mb-1">@(item.MaGoiNavigation?.TenGoi ?? "📸 Chụp ảnh theo yêu cầu riêng")</h5>
@@ -56,6 +89,7 @@ else
                             </div>
                             <div class="text-end">
                                 <div class="fs-5 fw-bold text-danger">@item.TongTien?.ToString("N0") đ</div>
+                                <div class="small text-muted">Cọc 30%: @((item.TongTien * 0.3m)?.ToString("N0")) đ</div>
                             </div>
                         </div>
 
@@ -63,27 +97,32 @@ else
 
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">Mã đơn: <span class="fw-bold text-dark">#@item.MaDon</span></small>
-                            <div>
+                            <div class="d-flex gap-2">
 
-                                @if (item.MaNhiepAnhGiaNavigation != null)
+                                <a href="/Chat?userId=@item.MaNhiepAnhGia" class="btn btn-sm btn-light text-primary border rounded-pill px-3">
+                                    <i class="fas fa-comment"></i> Chat
+                                </a>
+
+                                @if (item.TrangThai == 1 && item.TrangThaiThanhToan == 0)
                                 {
-                                    <a href="/Chat?userId=@item.MaNhiepAnhGia" class="btn btn-sm btn-light text-primary border">
-                                        <i class="fas fa-comment"></i> Chat
+                                    <a asp-controller="Booking" asp-action="Payment" asp-route-id="@item.MaDon"
+                                       class="btn btn-warning btn-sm rounded-pill px-4 fw-bold shadow-sm animation-pulse">
+                                        <i class="fab fa-ethereum me-1"></i> ĐẶT CỌC NGAY
                                     </a>
                                 }
 
-                                @if (item.TrangThai == 2)
+                                @if (item.TrangThai == 3)
                                 {
                                     @if (item.DanhGium == null)
                                     {
-                                        <button class="btn btn-warning btn-sm rounded-pill px-3 me-2 fw-bold"
+                                        <button class="btn btn-warning btn-sm rounded-pill px-3 fw-bold"
                                                 data-bs-toggle="modal" data-bs-target="#reviewModal-@item.MaDon">
                                             <i class="fa-regular fa-star me-1"></i> Đánh giá ngay
                                         </button>
                                     }
                                     else
                                     {
-                                        <button class="btn btn-secondary btn-sm rounded-pill px-3 me-2" disabled>
+                                        <button class="btn btn-secondary btn-sm rounded-pill px-3" disabled>
                                             <i class="fas fa-check me-1"></i> Đã đánh giá
                                         </button>
                                     }
@@ -110,13 +149,9 @@ else
 
                     <form asp-controller="Review" asp-action="SubmitReview" method="post">
                         <div class="modal-body text-center p-4">
-
                             <input type="hidden" name="MaDon" value="@item.MaDon" />
-
                             <input type="hidden" name="SoSao" id="rating-input-@item.MaDon" value="5" />
-
                             <p class="mb-3 fw-bold text-secondary">Bạn cảm thấy dịch vụ thế nào?</p>
-
                             <div class="mb-3 d-flex justify-content-center gap-2">
                                 @for (int i = 1; i <= 5; i++)
                                 {
@@ -126,12 +161,9 @@ else
                                        onclick="updateRating(@item.MaDon, @i)"></i>
                                 }
                             </div>
-
                             <div class="fw-bold text-warning mb-3" id="rating-text-@item.MaDon">Tuyệt vời (5/5)</div>
-
                             <textarea name="BinhLuan" class="form-control bg-light" rows="3" placeholder="Chia sẻ cảm nhận của bạn về thợ chụp..."></textarea>
                         </div>
-
                         <div class="modal-footer border-0 pt-0 pb-4 justify-content-center">
                             <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
                             <button type="submit" class="btn btn-dark rounded-pill px-5 fw-bold shadow">Gửi đánh giá</button>
@@ -145,36 +177,16 @@ else
 
 <script>
     function updateRating(maDon, soSao) {
-        // 1. Cập nhật giá trị vào ô input ẩn (để gửi về server)
-        // Lưu ý: ID này phải khớp với input ở trên
         const inputField = document.getElementById(`rating-input-${maDon}`);
         if(inputField) inputField.value = soSao;
-
-        // 2. Cập nhật màu sắc ngôi sao
         for (let i = 1; i <= 5; i++) {
             let star = document.getElementById(`star-${maDon}-${i}`);
             if (star) {
-                if (i <= soSao) {
-                    star.style.color = "#ffc107"; // Vàng
-                } else {
-                    star.style.color = "#e4e5e9"; // Xám
-                }
+                star.style.color = (i <= soSao) ? "#ffc107" : "#e4e5e9";
             }
         }
-
-        // 3. Cập nhật chữ hiển thị
         const textLabel = document.getElementById(`rating-text-${maDon}`);
         const textMap = ["Tệ", "Không tốt", "Bình thường", "Tốt", "Tuyệt vời"];
         if(textLabel) textLabel.innerText = `${textMap[soSao-1]} (${soSao}/5)`;
     }
 </script>
-
-<style>
-    .cursor-pointer {
-        cursor: pointer;
-    }
-
-    .star-icon-js:hover {
-        transform: scale(1.2);
-    }
-</style>

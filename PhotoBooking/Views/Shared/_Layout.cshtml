@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+@inject PhotoBooking.Models.PhotoBookingContext _context
+
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -153,36 +156,19 @@
             animation-name: fadeIn;
         }
         @@keyframes fadeIn {
-            from
-
-        {
-            opacity: 0;
-            transform: translateY(-10px);
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        /* 🔥 CSS MỚI: HIỆU ỨNG NHỊP ĐẬP CHO CHUÔNG THÔNG BÁO */
+        @@keyframes pulse-danger {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
         }
-
+        .animation-pulse {
+            animation: pulse-danger 2s infinite;
         }
-
-        /* --- ĐÃ SỬA: CSS CŨ CỦA NÚT BACK TO TOP (ẨN ĐI ĐỂ DÙNG CSS MỚI TRONG HTML) --- */
-        /* #btn-back-to-top {
-                    position: fixed;
-                    bottom: 30px;
-                    right: 30px;
-                    display: none;
-                    z-index: 99;
-                    width: 50px;
-                    height: 50px;
-                    border-radius: 50%;
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-                    transition: all 0.3s ease-in-out;
-                    background-color: var(--primary-orange, #ff5700);
-                    border: none;
-                }
-                */
 
         /* --- FOOTER STYLE --- */
         .footer-custom {
@@ -274,6 +260,26 @@
                             <li class="nav-item">
                                 <a class="nav-link fw-bold" asp-controller="YeuCau" asp-action="MyRequests">Yêu Cầu</a>
                             </li>
+
+                            var userIdStr = User.FindFirst("UserId")?.Value;
+                            int soDonChoCoc = 0;
+                            if (!string.IsNullOrEmpty(userIdStr))
+                            {
+                                int uid = int.Parse(userIdStr);
+                                soDonChoCoc = _context.DonDatLiches.Count(d => d.MaKhachHang == uid && d.TrangThai == 1 && d.TrangThaiThanhToan == 0);
+                            }
+
+                            <li class="nav-item ms-2">
+                                <a class="nav-link fw-bold" asp-controller="Home" asp-action="MyBookings">
+                                    Lịch Chụp
+                                    @if (soDonChoCoc > 0)
+                                    {
+                                        <span class="badge bg-danger rounded-pill position-absolute animation-pulse" style="top: 2px; right: -5px; font-size: 0.65rem;">
+                                            @soDonChoCoc
+                                        </span>
+                                    }
+                                </a>
+                            </li>
                         }
 
                         @if (User.Identity.IsAuthenticated && (User.IsInRole("Photographer") || User.IsInRole("Admin")))
@@ -299,14 +305,31 @@
                             ? $"https://ui-avatars.com/api/?name={userName}&background=ff5700&color=fff&size=128"
                             : avatarClaim;
 
+                            var userIdStr = User.FindFirst("UserId")?.Value;
+                            int soDonChoCocDropdown = 0;
+                            if (!string.IsNullOrEmpty(userIdStr) && !User.IsInRole("Photographer") && !User.IsInRole("Admin"))
+                            {
+                                int uid = int.Parse(userIdStr);
+                                soDonChoCocDropdown = _context.DonDatLiches.Count(d => d.MaKhachHang == uid && d.TrangThai == 1 && d.TrangThaiThanhToan == 0);
+                            }
+
 
                             <li class="nav-item dropdown ms-2">
                                 <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="me-2 d-none d-lg-block fw-bold text-dark small">@userName</span>
-                                    <img src="@avatarUrl" alt="Avatar"
-                                         class="rounded-circle shadow-sm"
-                                         width="40" height="40"
-                                         style="object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                                    <div class="position-relative">
+                                        <img src="@avatarUrl" alt="Avatar"
+                                             class="rounded-circle shadow-sm"
+                                             width="40" height="40"
+                                             style="object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                                        
+                                        @if (soDonChoCocDropdown > 0)
+                                        {
+                                            <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle animation-pulse">
+                                                <span class="visually-hidden">New alerts</span>
+                                            </span>
+                                        }
+                                    </div>
                                 </a>
 
                                 <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu animated fadeIn" aria-labelledby="userDropdown">
@@ -325,16 +348,30 @@
 
                                     @if (User.Identity.IsAuthenticated && User.IsInRole("Photographer") || User.IsInRole("Admin"))
                                     {
-                                        <li>
-                                            <a class="dropdown-item" asp-area="" asp-controller="Photographer" asp-action="MyJobs">
-                                                <i class="fas fa-briefcase me-2"></i>Quản lý công việc
+                                        var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+                                        // Đếm số đơn hàng mới (Trạng thái = 0)
+                                        var soDonMoi = _context.DonDatLiches.Count(d => d.MaNhiepAnhGia == userId && d.TrangThai == 0);
+
+                                        <li class="nav-item ms-2">
+                                            <a class="nav-link fw-bold text-primary" asp-controller="Photographer" asp-action="MyJobs">
+                                                <i class="fas fa-briefcase me-1"></i> Quản lý công việc
+                                                @if (soDonMoi > 0)
+                                                {
+                                                    <span class="badge bg-danger rounded-pill animation-pulse">
+                                                        @soDonMoi mới
+                                                    </span>
+                                                }
                                             </a>
                                         </li>
                                     }
 
                                     <li>
-                                        <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="MyBookings">
-                                            <i class="fa-solid fa-list-check"></i> Lịch sử đơn
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" asp-area="" asp-controller="Home" asp-action="MyBookings">
+                                            <span><i class="fa-solid fa-list-check"></i> Lịch sử đơn</span>
+                                            @if (soDonChoCocDropdown > 0)
+                                            {
+                                                <span class="badge bg-danger rounded-pill animation-pulse">@soDonChoCocDropdown</span>
+                                            }
                                         </a>
                                     </li>
 
@@ -451,13 +488,11 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 
     <div class="position-fixed bottom-0 end-0 p-4 d-flex flex-column align-items-end gap-3" style="z-index: 1050;">
-
         @if (User.Identity.IsAuthenticated)
         {
             <a href="/Chat/Index"

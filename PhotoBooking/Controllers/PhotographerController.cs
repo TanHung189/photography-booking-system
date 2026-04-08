@@ -152,5 +152,49 @@ namespace PhotoBooking.Controllers
             TempData["Success"] = "Cập nhật trạng thái thành công!";
             return RedirectToAction(nameof(MyJobs));
         }
+
+
+        // xác nhận đơn đặt lịch của khách
+        [HttpPost]
+        public async Task<IActionResult> ApproveBooking(int id)
+        {
+            var donHang = await _context.DonDatLiches.FindAsync(id);
+            if (donHang == null) return NotFound();
+
+            // Bảo mật: Kiểm tra xem có đúng đơn của thợ này không
+            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+            if (donHang.MaNhiepAnhGia != userId) return Forbid();
+
+            // Nếu đơn đang ở trạng thái 0 (Chờ duyệt)
+            if (donHang.TrangThai == 0)
+            {
+                donHang.TrangThai = 1; // Chuyển sang: Đã duyệt, chờ khách cọc
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã chấp nhận lịch! Khách hàng giờ có thể thanh toán cọc qua MetaMask.";
+            }
+
+            return RedirectToAction(nameof(MyJobs));
+        }
+
+        // 2. Hàm: Thợ ảnh TỪ CHỐI lịch chụp
+        [HttpPost]
+        public async Task<IActionResult> RejectBooking(int id)
+        {
+            var donHang = await _context.DonDatLiches.FindAsync(id);
+            if (donHang == null) return NotFound();
+
+            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+            if (donHang.MaNhiepAnhGia != userId) return Forbid();
+
+            if (donHang.TrangThai == 0)
+            {
+                donHang.TrangThai = 4; // Chuyển sang: Đã hủy (Từ chối)
+                donHang.GhiChu += "\n[Thợ ảnh từ chối vì trùng lịch hoặc lý do khác]";
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã từ chối yêu cầu đặt lịch.";
+            }
+
+            return RedirectToAction(nameof(MyJobs));
+        }
     }
 }

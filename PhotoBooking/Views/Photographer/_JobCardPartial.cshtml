@@ -1,98 +1,131 @@
 ﻿@model PhotoBooking.Models.DonDatLich
 
-<div class="card shadow-sm border-0 mb-3 job-card">
-    <div class="card-body">
-        <div class="row align-items-center">
+<div class="card shadow-sm border-0 mb-4 job-card rounded-4 overflow-hidden @(Model.TrangThai == 0 ? "border-start border-primary border-5 bg-light" : "")">
+    <div class="card-body p-4">
+        
+        @if (Model.TrangThai == 0)
+        {
+            <div class="alert alert-primary d-flex align-items-center py-2 mb-3 border-0 shadow-sm">
+                <i class="fas fa-star me-2 heartbeat-animation text-warning"></i>
+                <div class="small">
+                    <strong class="text-uppercase">Yêu cầu mới:</strong> Khách hàng <strong>@Model.MaKhachHangNavigation?.HoVaTen</strong> đang đợi bạn xác nhận lịch chụp này.
+                </div>
+            </div>
+        }
+        else if (Model.TrangThai == 1 && Model.TrangThaiThanhToan == 0)
+        {
+            <div class="alert alert-warning d-flex align-items-center py-2 mb-3 border-0 shadow-sm">
+                <i class="fas fa-hourglass-half me-2 text-dark"></i>
+                <div class="small text-dark">
+                    <strong>Đã duyệt:</strong> Đang đợi khách hàng thanh toán cọc qua Blockchain để chốt lịch.
+                </div>
+            </div>
+        }
+        else if (Model.TrangThai == 2 || Model.TrangThaiThanhToan == 1)
+        {
+            <div class="alert alert-success d-flex align-items-center py-2 mb-3 border-0 shadow-sm">
+                <i class="fas fa-check-double me-2"></i>
+                <div class="small">
+                    <strong>Đã cọc:</strong> Tiền đã được khóa trong Smart Contract. Bạn có thể yên tâm đi chụp!
+                </div>
+            </div>
+        }
 
+        <div class="row align-items-center">
             <div class="col-md-4 border-end">
-                <h6 class="text-muted small">Mã đơn: #@Model.MaDon</h6>
-                <h5 class="fw-bold text-primary">
+                <h6 class="text-muted small mb-1">Mã đơn: #@Model.MaDon</h6>
+                <h5 class="fw-bold text-primary mb-2">
                     @(Model.MaGoiNavigation?.TenGoi ?? "📸 Yêu cầu riêng")
                 </h5>
-                <p class="mb-1"><i class="fas fa-clock me-2"></i>@Model.NgayChup.ToString("dd/MM/yyyy HH:mm")</p>
+                <p class="mb-1 small"><i class="fas fa-clock me-2 text-secondary"></i>@Model.NgayChup.ToString("dd/MM/yyyy HH:mm")</p>
                 <p class="mb-0 text-danger fw-bold"><i class="fas fa-tag me-2"></i>@Model.TongTien?.ToString("N0") đ</p>
             </div>
 
             <div class="col-md-4 border-end">
-                <label class="text-muted small">Khách hàng</label>
+                <label class="text-muted small d-block mb-1">Thông tin khách hàng</label>
                 <div class="d-flex align-items-center mb-2">
                     <img src="@(Model.MaKhachHangNavigation?.AnhDaiDien ?? "https://ui-avatars.com/api/?name=" + Model.MaKhachHangNavigation?.HoVaTen)"
-                         class="rounded-circle me-2" width="40" height="40">
+                         class="rounded-circle me-2 border" width="45" height="45" style="object-fit: cover;">
                     <div>
-                        <div class="fw-bold">@Model.MaKhachHangNavigation?.HoVaTen</div>
-                        @if (Model.TrangThai >= 1)
+                        <div class="fw-bold text-dark">@Model.MaKhachHangNavigation?.HoVaTen</div>
+                        
+                        @if (Model.TrangThai >= 2 || Model.TrangThaiThanhToan == 1)
                         {
-                            <a href="tel:@Model.MaKhachHangNavigation?.SoDienThoai" class="text-decoration-none small">
+                            <a href="tel:@Model.MaKhachHangNavigation?.SoDienThoai" class="text-decoration-none small fw-bold">
                                 <i class="fas fa-phone me-1"></i> @Model.MaKhachHangNavigation?.SoDienThoai
                             </a>
                         }
                         else
                         {
-                            <span class="text-muted small"><i class="fas fa-lock me-1"></i> SĐT ẩn (Chưa cọc)</span>
+                            <span class="text-muted small"><i class="fas fa-lock me-1"></i> SĐT ẩn (Chờ cọc)</span>
                         }
                     </div>
                 </div>
-                <div class="small"><i class="fas fa-map-marker-alt text-danger me-1"></i> @Model.DiaChiChup</div>
+                <div class="small text-muted"><i class="fas fa-map-marker-alt text-danger me-1"></i> @Model.DiaChiChup</div>
             </div>
 
             <div class="col-md-4 text-center">
-                <div class="mb-2">
-                    @if (Model.TrangThaiThanhToan == 1)
+                <div class="mb-3">
+                    @if (Model.TrangThaiThanhToan == 1 || Model.TrangThai >= 2)
                     {
-                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Đã thanh toán cọc</span>
+                        <span class="badge bg-success px-3 py-2 rounded-pill"><i class="fas fa-shield-alt me-1"></i> Blockchain đã giữ cọc</span>
                     }
                     else
                     {
-                        <span class="badge bg-warning text-dark"><i class="fas fa-exclamation-circle"></i> Chưa cọc</span>
+                        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill"><i class="fas fa-info-circle me-1"></i> Chưa nhận tiền</span>
                     }
                 </div>
 
-                <form asp-action="UpdateStatus" method="post" class="d-flex justify-content-center gap-2">
-                    <input type="hidden" name="id" value="@Model.MaDon" />
+                <div class="d-flex justify-content-center gap-2">
+                    @if (Model.TrangThai == 0) 
+                    {
+                        <form asp-controller="Photographer" asp-action="ApproveBooking" asp-route-id="@Model.MaDon" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm" onclick="return confirm('Bạn đồng ý nhận lịch chụp này?')">
+                                <i class="fas fa-check me-1"></i> CHẤP NHẬN
+                            </button>
+                        </form>
 
-                    @if (Model.TrangThai == 0) // Mới -> Cần xác nhận
-                    {
-                        <button type="submit" name="status" value="1" class="btn btn-primary btn-sm rounded-pill px-3"
-                                onclick="return confirm('Xác nhận đã nhận tiền cọc và chốt lịch này?')">
-                            <i class="fas fa-check me-1"></i> Xác nhận cọc
-                        </button>
-                        <button type="submit" name="status" value="3" class="btn btn-outline-danger btn-sm rounded-pill px-3"
-                                onclick="return confirm('Hủy đơn hàng này?')">
-                            Hủy
-                        </button>
+                        <form asp-controller="Photographer" asp-action="RejectBooking" asp-route-id="@Model.MaDon" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="return confirm('Bạn có chắc chắn muốn từ chối?')">
+                                Từ chối
+                            </button>
+                        </form>
                     }
-                    else if (Model.TrangThai == 1) // Đang chờ chụp -> Hoàn thành
+                    else if (Model.TrangThai == 1) 
                     {
-                        <button type="submit" name="status" value="2" class="btn btn-success btn-sm rounded-pill px-3"
-                                onclick="return confirm('Xác nhận đã chụp xong và bàn giao ảnh?')">
-                            <i class="fas fa-camera me-1"></i> Hoàn thành
-                        </button>
+                        <span class="badge bg-warning text-dark p-2 border border-warning rounded-pill animation-pulse">
+                            <i class="fas fa-spinner fa-spin me-1"></i> Đang chờ khách cọc
+                        </span>
                     }
-                    else if (Model.TrangThai == 2)
+                    else if (Model.TrangThai == 2) 
                     {
-                        <span class="text-success fw-bold"><i class="fas fa-star text-warning"></i> Đã xong</span>
+                        <span class="badge bg-info text-dark p-2 rounded-pill shadow-sm">
+                            <i class="fas fa-camera me-1"></i> Chờ ngày đi chụp
+                        </span>
                     }
-                    else
+                    else if (Model.TrangThai == 3) 
                     {
-                        <span class="text-muted">Đã hủy</span>
+                        <span class="text-success fw-bold"><i class="fas fa-check-double me-1"></i> Giao dịch hoàn tất</span>
                     }
-                </form>
+                    else if (Model.TrangThai == 4) 
+                    {
+                        <span class="text-muted"><i class="fas fa-ban me-1"></i> Đã hủy</span>
+                    }
+                </div>
             </div>
         </div>
 
-
         @if (!string.IsNullOrEmpty(Model.GhiChu))
         {
-            <div class="alert alert-light mt-3 mb-0 small border">
-                <strong>Ghi chú:</strong> @Model.GhiChu
+            <div class="bg-white p-2 mt-3 rounded-3 small border-start border-3 border-primary shadow-xs">
+                <strong class="text-primary"><i class="fas fa-comment-alt me-1"></i> Ghi chú:</strong> @Model.GhiChu
             </div>
-
-
-            
         }
 
-        <a href="/Chat?userId=@Model.MaKhachHang" class="text-decoration-none ms-2" title="Nhắn cho khách">
-            <i class="fas fa-comment-dots fa-lg text-primary"></i>Nhắn cho khách hàng
-        </a>
+        <div class="text-end mt-3 pt-2 border-top">
+            <a href="/Chat?userId=@Model.MaKhachHang" class="text-decoration-none small fw-bold" title="Nhắn cho khách">
+                <i class="fas fa-comments fa-lg text-primary me-1"></i> Nhắn tin trao đổi với khách
+            </a>
+        </div>
     </div>
 </div>

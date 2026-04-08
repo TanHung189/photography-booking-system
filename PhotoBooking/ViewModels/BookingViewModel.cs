@@ -13,6 +13,9 @@ namespace PhotoBooking.ViewModels
         public string? AnhBia { get; set; }
         public string? TenNhiepAnhGia { get; set; }
 
+        // 🔥 THÊM DÒNG NÀY VÀO: Bắt buộc phải có để biết lịch của thợ nào
+        public int MaNhiepAnhGia { get; set; }
+
         // Thông tin khách nhập (Form)
         [Required(ErrorMessage = "Vui lòng chọn ngày chụp")]
         public DateTime NgayChup { get; set; } = DateTime.Now.AddDays(1); // Mặc định là ngày mai

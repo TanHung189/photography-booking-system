@@ -4,9 +4,11 @@
     ViewData["Title"] = "Đặt lịch chụp";
 }
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_blue.css">
+
 <div class="container py-5">
     <div class="row g-5">
-
         <div class="col-md-5 col-lg-4 order-md-last">
             <h4 class="d-flex justify-content-between align-items-center mb-3">
                 <span class="text-primary fw-bold">Gói dịch vụ</span>
@@ -34,17 +36,18 @@
             <form asp-controller="Booking" asp-action="Create" method="post" id="bookingForm">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="MaGoi" />
-                    <input type="hidden" asp-for="TenGoi" />
-                    <input type="hidden" asp-for="GiaTien" />
-                    <input type="hidden" asp-for="GiaCoc" />
-                    <input type="hidden" asp-for="AnhBia" />
-                    <input type="hidden" asp-for="TenNhiepAnhGia" />
+                <input type="hidden" asp-for="TenGoi" />
+                <input type="hidden" asp-for="GiaTien" />
+                <input type="hidden" asp-for="GiaCoc" />
+                <input type="hidden" asp-for="AnhBia" />
+                <input type="hidden" asp-for="TenNhiepAnhGia" />
+                
+                <input type="hidden" id="MaNhiepAnhGia" asp-for="MaNhiepAnhGia" />
 
                 <div class="row g-3">
-
                     <div class="col-12">
                         <label class="form-label fw-bold">Ngày & Giờ chụp mong muốn</label>
-                        <input asp-for="NgayChup" class="form-control py-3" type="datetime-local" />
+                        <input asp-for="NgayChup" id="NgayChupInput" class="form-control py-3 bg-white" type="text" placeholder="Bấm vào để chọn ngày giờ..." readonly />
                         <span asp-validation-for="NgayChup" class="text-danger small"></span>
                     </div>
 
@@ -62,11 +65,44 @@
                     <hr class="my-4">
 
                     <button type="submit" class="btn btn-primary btn-lg rounded-pill w-100 fw-bold">
-    XÁC NHẬN ĐẶT LỊCH
-</button>
-                    <p class="text-center mt-3 text-muted small">Bạn sẽ được chuyển đến trang thanh toán cọc sau bước này.</p>
+                        <i class="fas fa-paper-plane me-2"></i> GỬI YÊU CẦU ĐẶT LỊCH
+                    </button>
+                    <div class="alert alert-info mt-3 text-center small">
+                        <i class="fas fa-info-circle"></i> Nhiếp ảnh gia sẽ kiểm tra và duyệt lịch của bạn. Bạn chỉ cần đặt cọc an toàn qua Blockchain <strong>SAU KHI</strong> lịch được chấp nhận.
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Lấy ID của thợ ảnh
+        const thoId = document.getElementById("MaNhiepAnhGia").value;
+
+        // Gọi C# để hỏi xem ông thợ này bận ngày nào
+        fetch(`/Booking/GetBusyDates?thoId=${thoId}`)
+            .then(response => response.json())
+            .then(busyDatesArray => {
+                console.log("Các ngày thợ đang bận:", busyDatesArray); // In ra F12 để kiểm tra
+
+                flatpickr("#NgayChupInput", {
+                    locale: "vn",
+                    enableTime: true,
+                    time_24hr: true,
+                    dateFormat: "Y-m-d H:i",
+                    minDate: "today", // Không cho chọn ngày trong quá khứ
+                    disable: busyDatesArray, // 🔥 BÔI XÁM CÁC NGÀY CÓ TRONG MẢNG NÀY
+                });
+            })
+            .catch(err => {
+                console.error("Không lấy được lịch:", err);
+                // Vẫn hiện lịch bình thường nếu mạng lỗi
+                flatpickr("#NgayChupInput", { enableTime: true, minDate: "today", locale: "vn" });
+            });
+    });
+</script>

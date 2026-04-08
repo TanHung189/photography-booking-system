@@ -55,9 +55,10 @@ namespace PhotoBooking.Controllers
                 GiaTien = goi.GiaTien,
                 GiaCoc = goi.GiaCoc ?? 0,
                 AnhBia = goi.AnhDaiDien,
-                TenNhiepAnhGia = goi.MaNhiepAnhGiaNavigation?.HoVaTen ?? "Nhiếp ảnh gia"
+                TenNhiepAnhGia = goi.MaNhiepAnhGiaNavigation?.HoVaTen ?? "Nhiếp ảnh gia",
+                MaNhiepAnhGia = goi.MaNhiepAnhGia
             };
-
+            
             return View(viewModel);
         }
 
@@ -210,6 +211,7 @@ namespace PhotoBooking.Controllers
 
             if (donHang == null) return NotFound();
 
+            // Kiểm tra quyền sở hữu (Chỉ chủ đơn hoặc Admin mới được xem)
             var userIdStr = User.FindFirst("UserId")?.Value;
             int userId = userIdStr != null ? int.Parse(userIdStr) : 0;
 
@@ -218,15 +220,23 @@ namespace PhotoBooking.Controllers
                 return Forbid();
             }
 
-            if (donHang.TrangThaiThanhToan > 0)
+            // 🔥 TRẠM GÁC 1: Nếu thợ chưa duyệt (Trạng thái = 0) -> Đá văng ra ngay!
+            if (donHang.TrangThai == 0)
             {
+                TempData["Error"] = "Lỗi: Nhiếp ảnh gia chưa duyệt đơn này, bạn chưa thể thanh toán cọc!";
+                return RedirectToAction("MyBookings", "Home");
+            }
+
+            // Nếu đã thanh toán rồi (Trạng thái >= 2 hoặc TrangThaiThanhToan = 1) -> Cũng đá văng ra
+            if (donHang.TrangThaiThanhToan > 0 || donHang.TrangThai >= 2)
+            {
+                TempData["Info"] = "Đơn hàng này đã được thanh toán rồi.";
                 return RedirectToAction("MyBookings", "Home");
             }
 
             return View(donHang);
         }
-
-        // Xác nhận đã chuyển khoản
+                // Xác nhận đã chuyển khoản
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmPayment(int id)
@@ -236,7 +246,7 @@ namespace PhotoBooking.Controllers
 
             donHang.TrangThaiThanhToan = 1; // 1 = Đã cọc
             donHang.TrangThai = 1;          // 1 = Đã xác nhận
-
+            donHang.TienDaCoc = donHang.TongTien * 0.3m;
             _context.Update(donHang);
             await _context.SaveChangesAsync();
 
@@ -249,7 +259,6 @@ namespace PhotoBooking.Controllers
         [HttpGet]
         public async Task<IActionResult> ConfirmBlockchainPayment(int id)
         {
-            // Tìm đơn hàng trong DB
             var donHang = await _context.DonDatLiches.FindAsync(id);
             
             if (donHang == null) 
@@ -257,21 +266,29 @@ namespace PhotoBooking.Controllers
                 return NotFound("Không tìm thấy đơn hàng.");
             }
 
-            // Cập nhật trạng thái sang "Đã đặt cọc"
-            donHang.TrangThaiThanhToan = 1; // 1 = Đã cọc
-            donHang.TrangThai = 1;          // 1 = Đã xác nhận/Đã cọc
-            
-            // Bạn có thể lưu thêm Hash giao dịch vào Ghi chú nếu muốn (Tùy chọn)
-            donHang.GhiChu += $" [Paid via Blockchain at {DateTime.Now:HH:mm dd/MM}]";
+            // 🔥 TRẠM GÁC 2: Chặn đứng mọi nỗ lực thanh toán khi chưa được duyệt
+            if (donHang.TrangThai == 0)
+            {
+                return BadRequest("Gian lận: Đơn hàng chưa được thợ ảnh duyệt nên không thể ghi nhận cọc.");
+            }
 
-            _context.Update(donHang);
-            await _context.SaveChangesAsync();
+            // Nếu đơn hàng hợp lệ (Trạng thái = 1) thì tiến hành cập nhật
+            if (donHang.TrangThaiThanhToan == 0)
+            {
+                donHang.TrangThaiThanhToan = 1; // 1 = Đã cọc
+                donHang.TrangThai = 2;          // 2 = Đã cọc / Đợi đi chụp
+                donHang.TienDaCoc = donHang.TongTien * 0.3m;
+
+                donHang.GhiChu += $" \n[Paid via Blockchain at {DateTime.Now:HH:mm dd/MM}]";
+
+                _context.Update(donHang);
+                await _context.SaveChangesAsync();
+            }
 
             TempData["Success"] = "🎉 Tuyệt vời! Hệ thống đã ghi nhận khoản đặt cọc qua Blockchain.";
-
-            // Chuyển hướng người dùng về trang danh sách đơn hàng của họ
-            return RedirectToAction("MyBookings", "Home");
+            return RedirectToAction("BookingSuccess", new { id = donHang.MaDon });
         }
+
 
         [HttpGet]
         public async Task<IActionResult> BookingSuccess(int id)
@@ -288,6 +305,31 @@ namespace PhotoBooking.Controllers
 
             // Truyền dữ liệu đơn hàng ra màn hình Thành công
             return View(donHang);
+        }
+
+        // Check lịch ngày bận của thợ chụp
+        [HttpGet]
+        [AllowAnonymous] // Cho phép khách chưa đăng nhập cũng xem được lịch trống
+        public IActionResult GetBusyDates(int thoId)
+        {
+            try
+            {
+                // Bước A: Lấy danh sách kiểu DateTime từ SQL lên RAM trước (Tránh lỗi EF Core)
+                var listNgayRaw = _context.DonDatLiches
+                    .Where(d => d.MaNhiepAnhGia == thoId && d.TrangThai != 4) // Bỏ các đơn Đã Hủy
+                    .Select(d => d.NgayChup)
+                    .ToList(); 
+
+                // Bước B: Ép sang kiểu chữ format "yyyy-MM-dd" để Flatpickr hiểu
+                var busyDates = listNgayRaw.Select(d => d.ToString("yyyy-MM-dd")).ToList();
+
+                return Json(busyDates);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("LỖI LẤY LỊCH BẬN: " + ex.Message);
+                return Json(new List<string>()); // Nếu lỗi thì trả về mảng rỗng để web không chết
+            }
         }
     }
 }

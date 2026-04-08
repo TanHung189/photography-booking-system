@@ -1,4 +1,4 @@
-﻿USE master;
+﻿USE PhotoBookingTH;
 GO
 
 IF EXISTS (SELECT * FROM sys.databases WHERE name = 'PhotoBookingTH')
