@@ -5,6 +5,7 @@ using OfficeOpenXml;
 using PhotoBooking.Models;                         // 3. Namespace chứa DbContext và Models
 using PhotoBooking.Web.Hubs;
 using PhotoBooking.Web.Services;                    // 4. (Mở comment dòng này nếu bạn đã tạo file PhotoService.cs)
+using PhotoBooking.Services;
 
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -41,9 +42,10 @@ builder.Services.AddSession(options =>
 // Nếu bạn chưa tạo file Services/PhotoService.cs thì tạm thời comment dòng dưới lại để không lỗi
 builder.Services.AddScoped<PhotoBooking.Web.Services.PhotoService>();
 builder.Services.AddScoped<PhotoBooking.Services.EmailSender>();
+builder.Services.AddScoped<PhotoBooking.Services.BlockchainService>();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserIdProvider, PhotoBooking.Services.CustomUserIdProvider>();
-builder.Services.AddScoped<PhotoBooking.Services.BlockchainService>();
+
 // 5. Thêm MVC
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();

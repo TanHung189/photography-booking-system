@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -115,6 +115,7 @@ public partial class PhotoBookingContext : DbContext
             entity.Property(e => e.NgayTao).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.TienDaCoc).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TongTien).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.DiaChiHopDong).HasMaxLength(100);
 
             entity.HasOne(d => d.MaGoiNavigation).WithMany(p => p.DonDatLiches)
                 .HasForeignKey(d => d.MaGoi)
@@ -174,6 +175,7 @@ public partial class PhotoBookingContext : DbContext
             entity.Property(e => e.TenDangNhap).HasMaxLength(50);
             entity.Property(e => e.TinhThanh).HasMaxLength(100);
             entity.Property(e => e.VaiTro).HasMaxLength(20);
+            entity.Property(e => e.DiaChiVi).HasMaxLength(100);
 
             entity.HasOne(d => d.MaDiaDiemNavigation).WithMany(p => p.NguoiDungs)
                 .HasForeignKey(d => d.MaDiaDiem)

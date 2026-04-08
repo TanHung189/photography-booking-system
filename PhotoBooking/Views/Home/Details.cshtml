@@ -1,4 +1,4 @@
-﻿@model PhotoBooking.Models.GoiDichVu
+@model PhotoBooking.Models.GoiDichVu
 
 @{
     ViewData["Title"] = "Chi tiết gói chụp: " + Model.TenGoi;
@@ -63,9 +63,9 @@
 
                 @if (User.Identity != null && User.Identity.IsAuthenticated)
                 {
-                    <button type="button" class="btn btn-danger btn-lg rounded-pill fw-bold px-5" data-bs-toggle="modal" data-bs-target="#bookingModal">
-                        <i class="fa-regular fa-calendar-check me-2"></i> Đặt lịch ngay
-                    </button>
+                    <a asp-controller="Booking" asp-action="Create" asp-route-packageId="@Model.MaGoi" class="btn btn-danger btn-lg rounded-pill fw-bold px-5">
+                        <i class="fa-regular fa-calendar-check me-2"></i> Đặt lịch ngay (Dùng Smart Contract)
+                    </a>
                 }
                 else
                 {

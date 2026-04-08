@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "4bMf6zEbEpY=",
+  "dgSpecHash": "RMBL8V/Ys5g=",
   "success": true,
-  "projectFilePath": "F:\\Hoc Ky 7\\ASP.Net Core\\DTH225658_BuiDoTanHung_QuanLyDatLichChupAnh\\Source Code\\PhotoBooking\\PhotoBooking.csproj",
+  "projectFilePath": "D:\\Source Code\\PhotoBooking\\PhotoBooking.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Administrator\\.nuget\\packages\\adraffy.ensnormalize\\0.3.1\\adraffy.ensnormalize.0.3.1.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",

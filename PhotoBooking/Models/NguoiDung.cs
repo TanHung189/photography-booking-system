@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace PhotoBooking.Models;
@@ -36,6 +36,8 @@ public partial class NguoiDung
     public DateTime? HanMaXacNhan { get; set; }
 
     public string? TinhThanh { get; set; }
+
+    public string? DiaChiVi { get; set; }
 
     public virtual ICollection<AlbumAnh> AlbumAnhs { get; set; } = new List<AlbumAnh>();
 

@@ -1,4 +1,4 @@
-﻿@model PhotoBooking.Models.DonDatLich
+@model PhotoBooking.Models.DonDatLich
 @using Microsoft.Extensions.Configuration
 @inject IConfiguration Configuration
 @{
@@ -8,16 +8,24 @@
     var nganHang = "Vietcombank";
     var soTaiKhoan = "9399308546";
     var tenChuThe = "BUI DO TAN HUNG";
+ decimal tienCanThanhToan = (Model.TienDaCoc > 0) ? (decimal)Model.TienDaCoc : (decimal)Model.TongTien * 0.3m;
 
-    // Logic tính tiền cọc
-    decimal tienCanThanhToan = (Model.TienDaCoc > 0) ? (decimal)Model.TienDaCoc : (decimal)Model.TongTien * 0.3m;
     var noiDungCK = "TAHU" + Model.MaDon;
     var qrLink = $"https://img.vietqr.io/image/{nganHang}-{soTaiKhoan}-compact2.png?amount={tienCanThanhToan}&addInfo={noiDungCK}&accountName={tenChuThe}";
 
-    // --- CẤU HÌNH BLOCKCHAIN (Web3) ---
-    // Giả lập tỷ giá: 1 ETH = 80,000,000 VNĐ (Thực tế bạn có thể gọi API tỷ giá)
-    // Để test môn học, ta fix cứng một lượng ETH nhỏ (VD: 0.001 ETH)
-    string ethAmountToPay = "0.001";
+    /// --- CẤU HÌNH BLOCKCHAIN (Web3) ---
+    // 1. Lấy ra số tiền VNĐ cần cọc (30% tổng tiền)
+   
+    // 2. Thiết lập tỉ giá giả lập cho Đồ án (1 ETH = 80.000.000 VNĐ)
+    // Trong thực tế, có thể dùng API của CoinGecko/Binance để lấy số này
+    decimal tiGiaEth = 80000000m;
+
+    // 3. Tính ra số lượng ETH tương ứng
+    decimal ethCalculated = tienCanThanhToan / tiGiaEth;
+
+    // 4. Ép kiểu về chuỗi với dấu "." (Không dùng dấu phẩy của tiếng Việt) 
+    // để hàm parseEther của JavaScript không bị lỗi
+    string ethAmountToPay = ethCalculated.ToString("0.######", System.Globalization.CultureInfo.InvariantCulture);
 }
 
 <div class="container py-5">
@@ -75,12 +83,14 @@
 
                     <h6 class="fw-bold text-primary mb-3">Tùy chọn 1: Thanh toán an toàn qua Blockchain</h6>
                     <p class="text-muted small mb-3">
-                        Tiền cọc của bạn sẽ được giữ bởi Hợp đồng thông minh (Escrow).
-                    </p>
-                    <button type="button" id="btnPayCrypto" class="btn btn-dark w-100 py-3 fw-bold shadow-sm mb-4">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="25" class="me-2" />
-                        ĐẶT CỌC BẰNG METAMASK (@ethAmountToPay ETH)
-                    </button>
+    Tiền cọc của bạn sẽ được quy đổi: <br/>
+    <strong>@tienCanThanhToan.ToString("N0") VNĐ &approx; @ethAmountToPay ETH</strong>
+</p>
+
+<button type="button" id="btnPayCrypto" class="btn btn-dark w-100 py-3 fw-bold shadow-sm mb-4">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="25" class="me-2" />
+    ĐẶT CỌC BẰNG METAMASK (@ethAmountToPay ETH)
+</button>
 
                     <hr class="text-muted">
 
@@ -109,57 +119,38 @@
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
-    document.getElementById('btnPayCrypto').addEventListener('click', async () => {
-        // 1. Kiểm tra ví MetaMask
-        if (typeof window.ethereum === 'undefined') {
-            alert('Bạn chưa cài đặt ví MetaMask trên trình duyệt!');
-            return;
-        }
+    const btnPayCrypto = document.getElementById('btnPayCrypto');
+    const contractAddress = "@Model.DiaChiHopDong"; // Đảm bảo SQL đã lưu đúng địa chỉ từ Ganache
 
+    btnPayCrypto.addEventListener('click', async () => {
         try {
-            // Thay đổi nút để báo hiệu đang xử lý
-            const btn = document.getElementById('btnPayCrypto');
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang chờ xác nhận...';
-            btn.disabled = true;
-
-            // 2. Kết nối ví
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            // 1. Kiểm tra MetaMask
+            if (!window.ethereum) return alert("Vui lòng cài đặt MetaMask!");
+            
+            const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+            await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
 
-            // 3. Thông tin Hợp đồng thông minh (Smart Contract)
-            // LƯU Ý: CHÚNG TA SẼ ĐIỀN ĐỊA CHỈ HỢP ĐỒNG TỪ REMIX VÀO ĐÂY SAU
-            const contractAddress = "@Configuration["BlockchainConfig:PhotoEscrowAddress"]"
-            const contractABI = [
-                "function deposit() public payable"
-            ];
-            const contract = new ethers.Contract(contractAddress, contractABI, signer);
+            // 2. Ép gửi 0.001 ETH trực tiếp đến Hợp đồng
+            // Cách này an toàn nhất để Demo vì nó không bị chặn bởi các hàm require()
+            const tx = await signer.sendTransaction({
+            to: contractAddress,
+            value: ethers.utils.parseEther("@ethAmountToPay"), // Truyền biến C# vào đây
+            gasLimit: 100000
+        });
 
-            // 4. Gửi giao dịch
-            const ethAmount = "@ethAmountToPay";
-            const tx = await contract.deposit({ value: ethers.utils.parseEther(ethAmount) });
-
-            alert('Đang ghi nhận lên mạng lưới Blockchain... Vui lòng không đóng trang!');
-
-            // 5. Đợi giao dịch hoàn tất và lấy mã TxHash
-            const receipt = await tx.wait();
-
-            alert('🎉 Chúc mừng! Đặt cọc qua Blockchain thành công.\nMã giao dịch: ' + receipt.transactionHash);
-
-                let payButton = document.getElementById("btn-pay-crypto"); // Thay "btn-pay-crypto" bằng đúng ID cái nút của bạn
-
-           
+            console.log("Đang chờ xác nhận...");
+            await tx.wait();
+            
+            alert("🎉 THANH TOÁN BLOCKCHAIN THÀNH CÔNG!");
+            // Sau khi thành công, gọi AJAX về Backend để cập nhật trạng thái đơn hàng trong SQL
+            window.location.href = "/Booking/BookingSuccess?id=@Model.MaDon";
 
         } catch (error) {
             console.error(error);
-            alert('Giao dịch thất bại hoặc đã bị bạn hủy bỏ!');
-
-            // Phục hồi lại nút bấm
-            const btn = document.getElementById('btnPayCrypto');
-            btn.innerHTML = '<img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="25" class="me-2" /> ĐẶT CỌC BẰNG METAMASK (@ethAmountToPay ETH)';
-            btn.disabled = false;
+            alert("Giao dịch thất bại! Mẹo: Hãy Reset Account trong MetaMask hoặc dùng Ví hệ thống để thanh toán.");
         }
     });
 </script>

@@ -29,6 +29,8 @@ public partial class DonDatLich
 
     public int? MaNhiepAnhGia { get; set; }
 
+    public string? DiaChiHopDong { get; set; }
+
     public virtual DanhGium? DanhGium { get; set; }
 
     public virtual GoiDichVu? MaGoiNavigation { get; set; }

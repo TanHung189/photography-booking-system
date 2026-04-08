@@ -11620,11 +11620,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\Hoc Ky 7\\ASP.Net Core\\DTH225658_BuiDoTanHung_QuanLyDatLichChupAnh\\Source Code\\PhotoBooking\\PhotoBooking.csproj",
+      "projectUniqueName": "D:\\Source Code\\PhotoBooking\\PhotoBooking.csproj",
       "projectName": "PhotoBooking",
-      "projectPath": "F:\\Hoc Ky 7\\ASP.Net Core\\DTH225658_BuiDoTanHung_QuanLyDatLichChupAnh\\Source Code\\PhotoBooking\\PhotoBooking.csproj",
+      "projectPath": "D:\\Source Code\\PhotoBooking\\PhotoBooking.csproj",
       "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-      "outputPath": "F:\\Hoc Ky 7\\ASP.Net Core\\DTH225658_BuiDoTanHung_QuanLyDatLichChupAnh\\Source Code\\PhotoBooking\\obj\\",
+      "outputPath": "D:\\Source Code\\PhotoBooking\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

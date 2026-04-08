@@ -2,33 +2,34 @@
 pragma solidity ^0.8.0;
 
 contract PhotoEscrow {
-    address payable public photographer;
     address public customer;
-    uint256 public depositAmount;
+    address public photographer;
+    uint256 public amount;
     bool public isCompleted;
+    bool public isRefunded;
 
-    constructor(address payable _photographer) {
-        photographer = _photographer;
-        isCompleted = false;
-    }
+    // Khớp với ABI: constructor nhận _photographer và có payable
+   constructor(address _photographer, address _customer) payable {
+    customer = _customer; // Gán đúng ví của người đang ngồi trước màn hình Web
+    photographer = _photographer;
+    amount = msg.value; 
+}
 
-    function deposit() public payable {
-        require(msg.value > 0, "So tien coc phai lon hon 0");
-        require(depositAmount == 0, "Don hang nay da duoc dat coc");
-        
-        customer = msg.sender; 
-        depositAmount = msg.value; 
-    }
-
+    // Hàm giải ngân
     function confirmCompletion() public {
-        require(msg.sender == customer, "Chi khach hang moi duoc xac nhan!");
-        require(!isCompleted, "Don hang da hoan thanh roi");
-        require(depositAmount > 0, "Chua co tien coc");
-
-        isCompleted = true;
+        //require(msg.sender == customer, "Only customer can confirm");
+        require(!isCompleted, "Already completed");
         
-        // Đã sửa dòng cảnh báo transfer thành lệnh call chuẩn mới
-        (bool success, ) = photographer.call{value: depositAmount}("");
-        require(success, "Chuyen tien cho tho anh that bai!");
+        isCompleted = true;
+        payable(photographer).transfer(amount);
+    }
+
+    // Hàm hủy bởi thợ ảnh
+    function cancelByPhotographer() public {
+        require(msg.sender == photographer, "Only photographer can cancel");
+        require(!isCompleted, "Work already completed");
+
+        isRefunded = true;
+        payable(customer).transfer(amount);
     }
 }

@@ -81,10 +81,12 @@ CREATE TABLE DonDatLich (
     NgayTao DATETIME2 DEFAULT GETDATE(),
     MaKhachHang INT NOT NULL, 
     MaGoi INT NOT NULL, 
+	DiaChiHopDong Nvarchar(100) Null,
     FOREIGN KEY (MaGoi) REFERENCES GoiDichVu(MaGoi),
     FOREIGN KEY (MaKhachHang) REFERENCES NguoiDung(MaNguoiDung)
 );
 GO
+
 
 
 CREATE TABLE DanhGia (
@@ -494,10 +496,13 @@ PRINT N'Cơ sở dữ liệu PhotoBookingTH đã trốn rỗng.';
 GO*/
 
 
+
 SELECT * FROM DonDatLich;
 Select * from DanhGia;
 SELECT * FROM NguoiDung;
 select * from GoiDichVu;
 Select * from YeuCau;
 select * from DanhMuc;
+
+
 
