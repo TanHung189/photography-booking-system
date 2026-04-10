@@ -1,0 +1,111 @@
+@model PhotoBooking.Models.DonDatLich
+@{
+    Layout = null; // Ẩn layout header/footer đi để trang nhìn giống tờ A4
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chứng nhận Hợp đồng Smart Contract #@Model.MaDon</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .certificate-container { 
+            max-width: 800px; margin: 40px auto; background: #fff; padding: 50px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); position: relative;
+            border-top: 10px solid #2f3542;
+        }
+        .watermark {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            opacity: 0.03; width: 60%; pointer-events: none; z-index: 0;
+        }
+        .cert-header { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px; position: relative; z-index: 1; }
+        .hash-box { background: #f8f9fa; padding: 15px; border-radius: 8px; font-family: monospace; word-break: break-all; border: 1px solid #e9ecef; }
+        .signature-box { margin-top: 50px; text-align: center; }
+        @@media print {
+            body { background: #fff; }
+            .certificate-container { box-shadow: none; margin: 0; padding: 20px; }
+            .btn-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="text-center mt-3 btn-print">
+        <button onclick="window.print()" class="btn btn-dark px-4 py-2 fw-bold rounded-pill shadow">
+            <i class="fas fa-print me-2"></i> IN HOẶC LƯU PDF
+        </button>
+    </div>
+
+    <div class="certificate-container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg" class="watermark">
+        
+        <div class="cert-header">
+            <h2 class="fw-bold text-uppercase" style="letter-spacing: 2px;">CHỨNG NHẬN GIAO DỊCH BLOCKCHAIN</h2>
+            <p class="text-muted mb-0">Hợp đồng thông minh lưu trữ ảnh & thanh toán (Smart Escrow Contract)</p>
+        </div>
+
+        <div class="row mb-4 position-relative z-1">
+            <div class="col-sm-6">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Thông tin Khách hàng (Bên A)</h6>
+                <p class="mb-1"><strong>Tên:</strong> @Model.MaKhachHangNavigation?.HoVaTen</p>
+                <p class="mb-1"><strong>SĐT:</strong> @Model.MaKhachHangNavigation?.SoDienThoai</p>
+            </div>
+            <div class="col-sm-6 text-sm-end mt-4 mt-sm-0">
+                <h6 class="text-muted small text-uppercase fw-bold mb-3">Nhiếp ảnh gia (Bên B)</h6>
+                <p class="mb-1"><strong>Tên:</strong> @Model.MaNhiepAnhGiaNavigation?.HoVaTen</p>
+                <p class="mb-1"><strong>Dịch vụ:</strong> @(Model.MaGoiNavigation?.TenGoi ?? "Yêu cầu riêng")</p>
+            </div>
+        </div>
+
+        <div class="mb-4 position-relative z-1">
+            <h6 class="text-muted small text-uppercase fw-bold mb-2">Chi tiết Hợp đồng</h6>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="bg-light w-25">Mã đơn hệ thống</td>
+                        <td class="fw-bold">#@Model.MaDon</td>
+                    </tr>
+                    <tr>
+                        <td class="bg-light">Tổng giá trị</td>
+                        <td class="fw-bold text-danger">@Model.TongTien?.ToString("N0") VNĐ</td>
+                    </tr>
+                    <tr>
+                        <td class="bg-light">Thời gian hoàn tất</td>
+                        <td>@DateTime.Now.ToString("HH:mm:ss - dd/MM/yyyy")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mb-4 position-relative z-1">
+            <h6 class="text-muted small text-uppercase fw-bold mb-2"><i class="fas fa-link text-warning me-1"></i> Bản ghi trên Mạng lưới Blockchain</h6>
+            <div class="hash-box mb-2">
+                <span class="text-muted small d-block">Địa chỉ Smart Contract:</span>
+                <strong>@Model.DiaChiHopDong</strong>
+            </div>
+            <div class="hash-box">
+                <span class="text-muted small d-block">Transaction Hash (Lệnh giải ngân):</span>
+                <strong class="text-success">@Model.TxHash_GiaiNgan</strong>
+            </div>
+            <p class="small text-muted mt-2 mt-2 fst-italic">
+                * Mã Transaction Hash là duy nhất và không thể thay đổi. Quý khách có thể tra cứu mã này trên các nền tảng Explorer (ví dụ: Etherscan) để xác thực tính hợp lệ của giao dịch.
+            </p>
+        </div>
+
+        <div class="row signature-box position-relative z-1">
+            <div class="col-6">
+                <p class="fw-bold mb-5">ĐẠI DIỆN HỆ THỐNG</p>
+                <div class="d-inline-block border border-2 border-danger text-danger fw-bold px-3 py-2" style="transform: rotate(-5deg); letter-spacing: 1px;">
+                    VERIFIED BY SMART CONTRACT
+                </div>
+            </div>
+            <div class="col-6">
+                <p class="fw-bold mb-1">TRẠNG THÁI</p>
+                <h4 class="text-success fw-bold mt-4"><i class="fas fa-check-circle me-1"></i> ĐÃ HOÀN TẤT</h4>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

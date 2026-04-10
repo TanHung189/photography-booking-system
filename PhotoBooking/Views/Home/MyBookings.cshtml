@@ -2,6 +2,13 @@
 
 @{
     ViewData["Title"] = "Quản lý lịch đặt";
+
+    // --- TÍNH TOÁN CÁC CON SỐ THÔNG BÁO ---
+    var countChoThoDuyet = Model.Count(x => x.TrangThai == 0);
+    var countCanCoc = Model.Count(x => x.TrangThai == 1 && x.TrangThaiThanhToan == 0);
+    var countSapToi = Model.Count(x => x.TrangThai == 2 || (x.TrangThai == 1 && x.TrangThaiThanhToan == 1));
+    var countCanGiaiNgan = Model.Count(x => x.TrangThai == 3 && x.TrangThaiThanhToan == 1); // Cần hành động
+    var countHoanThanh = Model.Count(x => x.TrangThai == 3); // Tổng hoàn thành
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,17 +20,24 @@
 
                 <h3 class="fw-bold mb-4 text-dark">Quản lý lịch đặt</h3>
 
-                @{
-                    var soDonCanCoc = Model.Count(d => d.TrangThai == 1 && d.TrangThaiThanhToan == 0);
-                }
-
-                @if (soDonCanCoc > 0)
+                @if (countCanCoc > 0)
                 {
                     <div class="alert alert-warning border-warning shadow-sm mb-4 d-flex align-items-center bg-white" role="alert">
-                        <i class="fas fa-exclamation-circle fa-2x text-danger me-3 animation-pulse"></i>
+                        <i class="fas fa-exclamation-circle fa-2x text-danger me-3 animation-pulse-danger"></i>
                         <div>
-                            <h5 class="alert-heading fw-bold text-danger mb-1">Tin vui! Bạn có @soDonCanCoc lịch chụp đã được duyệt!</h5>
-                            <p class="mb-0 text-dark">Vui lòng chuyển sang Tab <strong>"Chờ thanh toán cọc"</strong> bên dưới và tiến hành thanh toán cọc hoặc thanh toán để giữ chỗ nhé.</p>
+                            <h5 class="alert-heading fw-bold text-danger mb-1">Tin vui! Bạn có @countCanCoc lịch chụp đã được duyệt!</h5>
+                            <p class="mb-0 text-dark">Vui lòng chuyển sang Tab <strong>"Chờ thanh toán cọc"</strong> bên dưới và tiến hành thanh toán cọc để giữ chỗ nhé.</p>
+                        </div>
+                    </div>
+                }
+                
+                @if (countCanGiaiNgan > 0)
+                {
+                    <div class="alert alert-success border-success shadow-sm mb-4 d-flex align-items-center bg-white" role="alert">
+                        <i class="fas fa-gift fa-2x text-success me-3 animation-pulse-success"></i>
+                        <div>
+                            <h5 class="alert-heading fw-bold text-success mb-1">Bộ ảnh của bạn đã sẵn sàng!</h5>
+                            <p class="mb-0 text-dark">Chuyển sang Tab <strong>"Hoàn thành"</strong> để Tải ảnh về và Xác nhận giải ngân cho nhiếp ảnh gia nhé.</p>
                         </div>
                     </div>
                 }
@@ -33,24 +47,52 @@
                         <button class="nav-link active rounded-pill fw-bold" data-bs-toggle="tab" data-bs-target="#tab-all">Tất cả</button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link rounded-pill fw-bold" data-bs-toggle="tab" data-bs-target="#tab-pending">Chờ thợ duyệt</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link rounded-pill fw-bold position-relative" data-bs-toggle="tab" data-bs-target="#tab-payment">
-                            Chờ thanh toán cọc
-                            @if (soDonCanCoc > 0)
-                            {
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light animation-pulse" style="font-size: 0.65rem;">
-                                    @soDonCanCoc
+                        <button class="nav-link rounded-pill fw-bold position-relative" data-bs-toggle="tab" data-bs-target="#tab-pending">
+                            Chờ thợ duyệt
+                            @if (countChoThoDuyet > 0) {
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary border border-light" style="font-size: 0.65rem;">
+                                    @countChoThoDuyet
                                 </span>
                             }
                         </button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link rounded-pill fw-bold" data-bs-toggle="tab" data-bs-target="#tab-confirmed">Sắp tới</button>
+                        <button class="nav-link rounded-pill fw-bold position-relative" data-bs-toggle="tab" data-bs-target="#tab-payment">
+                            Chờ thanh toán cọc
+                            @if (countCanCoc > 0)
+                            {
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light animation-pulse-danger" style="font-size: 0.65rem;">
+                                    @countCanCoc
+                                </span>
+                            }
+                        </button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link rounded-pill fw-bold" data-bs-toggle="tab" data-bs-target="#tab-finished">Hoàn thành</button>
+                        <button class="nav-link rounded-pill fw-bold position-relative" data-bs-toggle="tab" data-bs-target="#tab-confirmed">
+                            Sắp tới
+                            @if (countSapToi > 0) {
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary border border-light" style="font-size: 0.65rem;">
+                                    @countSapToi
+                                </span>
+                            }
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link rounded-pill fw-bold position-relative" data-bs-toggle="tab" data-bs-target="#tab-finished">
+                            Hoàn thành
+                            @if (countCanGiaiNgan > 0)
+                            {
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success border border-light animation-pulse-success" style="font-size: 0.65rem;">
+                                    @countCanGiaiNgan
+                                </span>
+                            } 
+                            else if (countHoanThanh > 0)
+                            {
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-light text-dark border" style="font-size: 0.65rem;">
+                                    @countHoanThanh
+                                </span>
+                            }
+                        </button>
                     </li>
                     <li class="nav-item">
                         <button class="nav-link rounded-pill fw-bold" data-bs-toggle="tab" data-bs-target="#tab-cancelled">Đã hủy</button>
@@ -58,49 +100,41 @@
                 </ul>
 
                 <div class="tab-content">
-
-                <div class="tab-pane fade show active" id="tab-all">
-                    @await Html.PartialAsync("_BookingListPartial", Model)
+                    <div class="tab-pane fade show active" id="tab-all">
+                        @await Html.PartialAsync("_BookingListPartial", Model)
+                    </div>
+                    <div class="tab-pane fade" id="tab-pending">
+                        @await Html.PartialAsync("_BookingListPartial", Model.Where(x => x.TrangThai == 0).ToList())
+                    </div>
+                    <div class="tab-pane fade" id="tab-payment">
+                        @await Html.PartialAsync("_BookingListPartial", Model.Where(x => x.TrangThai == 1 && x.TrangThaiThanhToan == 0).ToList())
+                    </div>
+                    <div class="tab-pane fade" id="tab-confirmed">
+                        @await Html.PartialAsync("_BookingListPartial", Model.Where(x => x.TrangThai == 2 || (x.TrangThai == 1 && x.TrangThaiThanhToan == 1)).ToList())
+                    </div>
+                    <div class="tab-pane fade" id="tab-finished">
+                        @await Html.PartialAsync("_BookingListPartial", Model.Where(x => x.TrangThai == 3).ToList())
+                    </div>
+                    <div class="tab-pane fade" id="tab-cancelled">
+                        @await Html.PartialAsync("_BookingListPartial", Model.Where(x => x.TrangThai == 4).ToList())
+                    </div>
                 </div>
-
-                <div class="tab-pane fade" id="tab-pending">
-                    @await Html.PartialAsync("_BookingListPartial", Model.Where(x => x.TrangThai == 0).ToList())
-                </div>
-
-                <div class="tab-pane fade" id="tab-payment">
-                    @await Html.PartialAsync("_BookingListPartial", Model.Where(x => x.TrangThai == 1 && x.TrangThaiThanhToan == 0).ToList())
-                </div>
-
-                <div class="tab-pane fade" id="tab-confirmed">
-                    @await Html.PartialAsync("_BookingListPartial", Model.Where(x => x.TrangThai == 2 || (x.TrangThai == 1 && x.TrangThaiThanhToan == 1)).ToList())
-                </div>
-
-                <div class="tab-pane fade" id="tab-finished">
-                    @await Html.PartialAsync("_BookingListPartial", Model.Where(x => x.TrangThai == 3).ToList())
-                </div>
-
-                <div class="tab-pane fade" id="tab-cancelled">
-                    @await Html.PartialAsync("_BookingListPartial", Model.Where(x => x.TrangThai == 4).ToList())
-                </div>
-
-            </div>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         function updateRating(maDon, soSao) {
             var inputElement = document.getElementById("rating-input-" + maDon);
-            if (inputElement) {
-                inputElement.value = soSao;
-            }
+            if (inputElement) inputElement.value = soSao;
             for (var i = 1; i <= 5; i++) {
                 var star = document.getElementById("star-" + maDon + "-" + i);
-                if (star) {
-                    star.style.color = (i <= soSao) ? "#ffc107" : "#e4e5e9";
-                }
+                if (star) star.style.color = (i <= soSao) ? "#ffc107" : "#e4e5e9";
             }
             var textElement = document.getElementById("rating-text-" + maDon);
             if (textElement) {
@@ -108,59 +142,72 @@
                 textElement.innerText = texts[soSao - 1] + " (" + soSao + "/5)";
             }
         }
+
+        async function releaseFunds(maDon, contractAddress) {
+            if (!contractAddress || contractAddress === "") {
+                return Swal.fire('Lỗi', 'Không tìm thấy địa chỉ hợp đồng!', 'error');
+            }
+            if (!window.ethereum) return Swal.fire('Lỗi', 'Vui lòng cài đặt MetaMask', 'error');
+
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                const abi = ["function confirmCompletion() public"]; 
+                const contract = new ethers.Contract(contractAddress, abi, signer);
+
+                Swal.fire({ title: 'Đang mở khóa tiền...', text: 'Vui lòng xác nhận trên MetaMask', didOpen: () => Swal.showLoading() });
+                const tx = await contract.confirmCompletion();
+                
+                Swal.fire({ title: 'Đang xử lý', text: 'Chờ Blockchain xác nhận...', didOpen: () => Swal.showLoading() });
+                const receipt = await tx.wait();
+
+                const response = await fetch(`/Booking/CompleteEscrow?maDon=${maDon}&txHash=${receipt.transactionHash}`, { method: 'POST' });
+                
+                if(response.ok) {
+                    Swal.fire('Thành công!', 'Giao dịch hoàn tất.', 'success').then(() => window.location.reload());
+                }
+            } catch (error) {
+                console.error("Lỗi chi tiết:", error);
+                if (error.message.includes("is not a function")) {
+                    Swal.fire('Lỗi Code', 'JavaScript không tìm thấy hàm confirmCompletion. Vui lòng kiểm tra lại chính tả!', 'error');
+                } else {
+                    Swal.fire('Thất bại', 'Giao dịch bị từ chối hoặc lỗi mạng.', 'error');
+                }
+            }
+        }
     </script>
 }
 
 <style>
-    /* CSS Tùy chỉnh cho Tab */
-    .nav-pills .nav-link {
-        color: #555;
-        transition: 0.3s;
-    }
-
-        .nav-pills .nav-link.active {
-            background-color: #ff4757;
-            color: white;
-            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4);
-        }
+    /* Nút Nav Pills */
+    .nav-pills .nav-link { color: #555; transition: 0.3s; overflow: visible !important; }
+    .nav-pills .nav-link.active { background-color: #ff4757; color: white; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4); }
 
     /* CSS cho Card đơn hàng */
-    .booking-card {
-        transition: transform 0.2s ease;
-        border: 1px solid #eee;
-    }
-
-        .booking-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
-
-    .img-service {
-        width: 120px;
-        height: 120px;
-        object-fit: cover;
-        border-radius: 10px;
-    }
-
-    .cursor-pointer {
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-        .cursor-pointer:hover {
-            transform: scale(1.2);
-        }
-
+    .booking-card { transition: transform 0.2s ease; border: 1px solid #eee; }
+    .booking-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+    .img-service { width: 120px; height: 120px; object-fit: cover; border-radius: 10px; }
+    .cursor-pointer { cursor: pointer; transition: 0.2s; }
+    .cursor-pointer:hover { transform: scale(1.2); }
     .text-warning { color: #ffc107 !important; }
     .text-secondary { color: #e4e5e9 !important; }
 
-    /* Hiệu ứng nhịp đập cho thông báo và nút */
-    @@keyframes pulse-danger {
+    /* --- HIỆU ỨNG NHỊP ĐẬP (PULSE) ĐA MÀU SẮC --- */
+    
+    /* Màu Đỏ (Cảnh báo cần Cọc tiền) */
+    @@keyframes pulse-red {
         0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
         70% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
         100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
     }
-    .animation-pulse {
-        animation: pulse-danger 2s infinite;
+    .animation-pulse-danger { animation: pulse-red 2s infinite; }
+
+    /* Màu Xanh (Tin vui: Có ảnh / Cần giải ngân) */
+    @@keyframes pulse-green {
+        0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
+        70% { box-shadow: 0 0 0 6px rgba(25, 135, 84, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
     }
+    .animation-pulse-success { animation: pulse-green 2s infinite; }
 </style>

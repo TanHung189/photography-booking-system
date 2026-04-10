@@ -4,30 +4,29 @@
 @{
     ViewData["Title"] = "Quản lý công việc";
     
-    // 1. Phân loại và SẮP XẾP danh sách
-    // Chờ xác nhận: Mới nhất lên đầu
+    // --- TÍNH TOÁN CÁC CON SỐ THÔNG BÁO CHO THỢ ẢNH ---
+    var countYeuCauMoi = Model.Count(x => x.TrangThai == 0); // Có người đặt lịch mới, cần duyệt
+    var countCanBanGiao = Model.Count(x => x.TrangThai == 2 && string.IsNullOrEmpty(x.LinkSanPham)); // Đã cọc, chờ thợ đi chụp & giao ảnh
+    
+    // --- PHÂN LOẠI VÀ SẮP XẾP DANH SÁCH ---
     var listChoXacNhan = Model.Where(x => x.TrangThai == 0).OrderByDescending(x => x.NgayChup).ToList();
-    
-    // Sắp tới: Gần nhất lên đầu (Ưu tiên số 1 của bạn)
-    var listSapToi = Model.Where(x => x.TrangThai == 1).OrderBy(x => x.NgayChup).ToList();
-    
-    // Lịch sử: Mới hoàn thành/hủy lên đầu
-    var listLichSu = Model.Where(x => x.TrangThai == 2 || x.TrangThai == 3).OrderByDescending(x => x.NgayChup).ToList();
+    var listSapToi = Model.Where(x => x.TrangThai == 1 || x.TrangThai == 2).OrderBy(x => x.NgayChup).ToList();
+    var listLichSu = Model.Where(x => x.TrangThai == 3 || x.TrangThai == 4).OrderByDescending(x => x.NgayChup).ToList();
 
+    // Dữ liệu cho FullCalendar
     var calendarEvents = Model.Where(x => x.TrangThai == 1 || x.TrangThai == 2) 
-    .Select(x => new {
-        id = x.MaDon,
-        title = x.MaGoiNavigation?.TenGoi ?? "Lịch chụp riêng",
-        start = x.NgayChup.ToString("yyyy-MM-ddTHH:mm:ss"),
-        // Thêm các thông tin mở rộng (extendedProps)
-        customer = x.MaKhachHangNavigation?.HoVaTen ?? "Khách hàng vãng lai",
-        location = x.DiaChiChup ?? "Chưa cập nhật",
-        total = x.TongTien?.ToString("N0") + " đ",
-        note = x.GhiChu ?? "Không có ghi chú",
-        customerId = x.MaKhachHang, // Dùng để nhấn nút Chat
-        backgroundColor = (x.TrangThai == 2) ? "#28a745" : "#ffc107", // Xanh nếu đã hoàn thành, vàng nếu sắp tới
-        borderColor = (x.TrangThai == 2) ? "#1e7e34" : "#e0a800"
-    }).ToList();
+        .Select(x => new {
+            id = x.MaDon,
+            title = x.MaGoiNavigation?.TenGoi ?? "Lịch chụp riêng",
+            start = x.NgayChup.ToString("yyyy-MM-ddTHH:mm:ss"),
+            customer = x.MaKhachHangNavigation?.HoVaTen ?? "Khách hàng vãng lai",
+            location = x.DiaChiChup ?? "Chưa cập nhật",
+            total = x.TongTien?.ToString("N0") + " đ",
+            note = x.GhiChu ?? "Không có ghi chú",
+            customerId = x.MaKhachHang,
+            backgroundColor = (x.TrangThai == 2) ? "#28a745" : "#ffc107", // Xanh: đã cọc sẵn sàng. Vàng: chờ cọc.
+            borderColor = (x.TrangThai == 2) ? "#1e7e34" : "#e0a800"
+        }).ToList();
 }
 
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
@@ -38,10 +37,18 @@
     /* Custom UI */
     .stat-card { transition: transform 0.2s; border-radius: 15px; border: none; }
     .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-    .nav-pills .nav-link { border-radius: 50px; padding: 10px 20px; font-weight: 600; color: #495057; }
+    .nav-pills .nav-link { border-radius: 50px; padding: 10px 20px; font-weight: 600; color: #495057; overflow: visible !important;}
     .nav-pills .nav-link.active { background-color: #ffc107; color: #000; box-shadow: 0 4px 10px rgba(255, 193, 7, 0.4); }
     #calendar { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
     .fc-event { cursor: pointer; border-radius: 5px; padding: 2px 5px; font-size: 0.85em; }
+
+    /* Hiệu ứng nhịp đập */
+    @@keyframes pulse-danger {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+        70% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+    .animation-pulse-danger { animation: pulse-danger 2s infinite; }
 </style>
 
 <div class="container py-4">
@@ -56,17 +63,39 @@
         </div>
     </div>
 
+    @if (countYeuCauMoi > 0)
+    {
+        <div class="alert alert-danger border-danger shadow-sm mb-4 d-flex align-items-center bg-white rounded-3" role="alert">
+            <i class="fas fa-bell fa-2x text-danger me-3 animation-pulse-danger"></i>
+            <div>
+                <h5 class="alert-heading fw-bold text-danger mb-1">Bạn có @countYeuCauMoi yêu cầu đặt lịch mới!</h5>
+                <p class="mb-0 text-dark">Hãy chuyển sang Tab <strong>"Chờ duyệt"</strong> để kiểm tra lịch và phản hồi khách hàng ngay nhé.</p>
+            </div>
+        </div>
+    }
 
     <div id="listViewContainer">
         <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#content-sap-toi">
-                    📅 Lịch sắp tới <span class="badge bg-danger rounded-pill ms-1">@listSapToi.Count</span>
+                <button class="nav-link active position-relative" data-bs-toggle="pill" data-bs-target="#content-sap-toi">
+                    📅 Lịch sắp tới
+                    @if (countCanBanGiao > 0)
+                    {
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary border border-light" style="font-size: 0.65rem;">
+                            @countCanBanGiao
+                        </span>
+                    }
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-cho-xac-nhan">
-                    ⏳ Chờ duyệt <span class="badge bg-secondary rounded-pill ms-1">@listChoXacNhan.Count</span>
+                <button class="nav-link position-relative" data-bs-toggle="pill" data-bs-target="#content-cho-xac-nhan">
+                    ⏳ Chờ duyệt 
+                    @if (countYeuCauMoi > 0)
+                    {
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light animation-pulse-danger" style="font-size: 0.65rem;">
+                            @countYeuCauMoi
+                        </span>
+                    }
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -126,53 +155,53 @@
     </div>
 
     <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header bg-warning text-dark border-0">
-                <h5 class="modal-title fw-bold"><i class="fas fa-info-circle me-2"></i>Chi tiết lịch chụp</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div class="text-center mb-4">
-                    <h4 id="modalTitle" class="fw-bold text-primary mb-1"></h4>
-                    <span id="modalOrderId" class="badge bg-light text-dark border"></span>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-warning text-dark border-0">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-info-circle me-2"></i>Chi tiết lịch chụp</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                
-                <div class="row g-3">
-                    <div class="col-6">
-                        <label class="small text-muted d-block">Khách hàng</label>
-                        <strong id="modalCustomer" class="text-dark"></strong>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <h4 id="modalTitle" class="fw-bold text-primary mb-1"></h4>
+                        <span id="modalOrderId" class="badge bg-light text-dark border"></span>
                     </div>
-                    <div class="col-6">
-                        <label class="small text-muted d-block">Tổng tiền</label>
-                        <strong id="modalTotal" class="text-danger"></strong>
-                    </div>
-                    <div class="col-12">
-                        <label class="small text-muted d-block">Thời gian chụp</label>
-                        <div class="p-2 bg-light rounded">
-                            <i class="far fa-calendar-alt me-2 text-primary"></i>
-                            <strong id="modalTime"></strong>
+                    
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="small text-muted d-block">Khách hàng</label>
+                            <strong id="modalCustomer" class="text-dark"></strong>
+                        </div>
+                        <div class="col-6">
+                            <label class="small text-muted d-block">Tổng tiền</label>
+                            <strong id="modalTotal" class="text-danger"></strong>
+                        </div>
+                        <div class="col-12">
+                            <label class="small text-muted d-block">Thời gian chụp</label>
+                            <div class="p-2 bg-light rounded">
+                                <i class="far fa-calendar-alt me-2 text-primary"></i>
+                                <strong id="modalTime"></strong>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="small text-muted d-block">Địa điểm</label>
+                            <strong id="modalLocation"></strong>
+                        </div>
+                        <div class="col-12">
+                            <label class="small text-muted d-block">Ghi chú từ khách</label>
+                            <p id="modalNote" class="small fst-italic text-secondary mb-0"></p>
                         </div>
                     </div>
-                    <div class="col-12">
-                        <label class="small text-muted d-block">Địa điểm</label>
-                        <strong id="modalLocation"></strong>
-                    </div>
-                    <div class="col-12">
-                        <label class="small text-muted d-block">Ghi chú từ khách</label>
-                        <p id="modalNote" class="small fst-italic text-secondary mb-0"></p>
-                    </div>
                 </div>
-            </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
-                <a id="modalChatBtn" href="#" class="btn btn-primary rounded-pill px-4">
-                    <i class="fas fa-comment-dots me-1"></i> Nhắn tin cho khách
-                </a>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                    <a id="modalChatBtn" href="#" class="btn btn-primary rounded-pill px-4">
+                        <i class="fas fa-comment-dots me-1"></i> Nhắn tin cho khách
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 </div>
 
@@ -185,7 +214,7 @@
         } else {
             document.getElementById('listViewContainer').style.display = 'none';
             document.getElementById('calendarViewContainer').style.display = 'block';
-            calendar.render(); // Render lại lịch khi hiển thị để tránh lỗi size
+            calendar.render(); 
         }
     }
 
@@ -194,26 +223,23 @@
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
         
-        // Nhận dữ liệu từ C# Razor
         var eventsData = @Html.Raw(JsonSerializer.Serialize(calendarEvents));
 
         calendar = new FullCalendar.Calendar(calendarEl, {
-            locale: 'vi', // Tiếng Việt
+            locale: 'vi',
             initialView: 'dayGridMonth',
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,listWeek' // Cho phép xem theo tháng, tuần, hoặc danh sách
+                right: 'dayGridMonth,timeGridWeek,listWeek' 
             },
             events: eventsData,
             eventClick: function(info) {
-                // 1. Lấy dữ liệu từ extendedProps mà mình đã định nghĩa ở C#
                 const props = info.event.extendedProps;
                 const eventId = info.event.id;
                 const title = info.event.title;
                 const time = info.event.start.toLocaleString('vi-VN');
 
-                // 2. Đổ dữ liệu vào giao diện Modal
                 document.getElementById('modalTitle').innerText = title;
                 document.getElementById('modalOrderId').innerText = '#' + eventId;
                 document.getElementById('modalCustomer').innerText = props.customer;
@@ -222,10 +248,8 @@
                 document.getElementById('modalLocation').innerText = props.location;
                 document.getElementById('modalNote').innerText = props.note;
                 
-                // Cập nhật link nút chat
                 document.getElementById('modalChatBtn').href = '/Chat?userId=' + props.customerId;
 
-                // 3. Hiển thị Modal
                 var myModal = new bootstrap.Modal(document.getElementById('jobDetailModal'));
                 myModal.show();
             }

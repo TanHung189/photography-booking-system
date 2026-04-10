@@ -331,5 +331,35 @@ namespace PhotoBooking.Controllers
                 return Json(new List<string>()); // Nếu lỗi thì trả về mảng rỗng để web không chết
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CompleteEscrow(int maDon, string txHash)
+        {
+            var donHang = await _context.DonDatLiches.FindAsync(maDon);
+            if (donHang != null)
+            {
+                donHang.TrangThaiThanhToan = 2; // 2 = Đã thanh toán nốt/Đã giải ngân
+                donHang.TxHash_GiaiNgan = txHash; // Lưu lại vết Blockchain để in chứng nhận
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        public async Task<IActionResult> ContractCertificate(int id)
+        {
+            var donHang = await _context.DonDatLiches
+                .Include(d => d.MaKhachHangNavigation)
+                .Include(d => d.MaNhiepAnhGiaNavigation)
+                .Include(d => d.MaGoiNavigation)
+                .FirstOrDefaultAsync(m => m.MaDon == id);
+
+            if (donHang == null || string.IsNullOrEmpty(donHang.TxHash_GiaiNgan))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(donHang); 
+        }
     }
 }

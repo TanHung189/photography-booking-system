@@ -76,7 +76,7 @@ else
                                 {
                                     <span class="badge bg-danger mb-2 animation-pulse"><i class="fas fa-exclamation-triangle me-1"></i> Yêu cầu đặt cọc</span>
                                 }
-                                else if (item.TrangThai == 2 || item.TrangThaiThanhToan == 1) 
+                                else if (item.TrangThai == 2 || (item.TrangThai == 1 && item.TrangThaiThanhToan == 1)) 
                                 {
                                     <span class="badge bg-primary mb-2"><i class="fas fa-calendar-check me-1"></i> Sắp tới (Đã cọc)</span>
                                 }
@@ -101,6 +101,43 @@ else
                                 <div class="small text-muted">Cọc 30%: @((item.TongTien * 0.3m)?.ToString("N0")) đ</div>
                             </div>
                         </div>
+
+                        @if (item.TrangThai == 3)
+                        {
+                            <div class="mt-3 p-3 border rounded-3 @(item.TrangThaiThanhToan == 2 ? "bg-light" : "bg-success bg-opacity-10")">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <div>
+                                        <h6 class="fw-bold @(item.TrangThaiThanhToan == 2 ? "text-dark" : "text-success") mb-1">
+                                            <i class="fas @(item.TrangThaiThanhToan == 2 ? "fa-check-circle text-success" : "fa-gift") me-2"></i>
+                                            @(item.TrangThaiThanhToan == 2 ? "GIAO DỊCH HOÀN TẤT" : "BỘ ẢNH ĐÃ SẴN SÀNG!")
+                                        </h6>
+                                        <small class="text-muted">Bàn giao lúc: @(item.NgayBanGiao?.ToString("dd/MM/yyyy HH:mm") ?? "Mới đây")</small>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2">
+                                        @if (!string.IsNullOrEmpty(item.LinkSanPham))
+                                        {
+                                            <a href="@item.LinkSanPham" target="_blank" class="btn btn-outline-success fw-bold px-3 rounded-pill shadow-sm">
+                                                <i class="fas fa-cloud-download-alt me-1"></i> XEM ẢNH
+                                            </a>
+                                        }
+
+                                        @if (item.TrangThaiThanhToan == 1) // Đã cọc, chờ giải ngân
+                                        {
+                                            <button type="button" onclick="releaseFunds(@item.MaDon, '@item.DiaChiHopDong')" class="btn btn-success fw-bold px-4 rounded-pill shadow-sm animation-pulse">
+                                                <i class="fab fa-ethereum me-1"></i> XÁC NHẬN & GIẢI NGÂN
+                                            </button>
+                                        }
+                                        else if (item.TrangThaiThanhToan == 2) // Đã giải ngân xong
+                                        {
+                                            <a asp-controller="Booking" asp-action="ContractCertificate" asp-route-id="@item.MaDon" target="_blank" class="btn btn-dark fw-bold px-3 rounded-pill shadow-sm">
+                                                <i class="fas fa-file-contract me-1"></i> MINH CHỨNG BLOCKCHAIN
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
 
                         <hr class="my-3 text-muted opacity-25">
 
@@ -140,21 +177,6 @@ else
                                             <i class="fas fa-check me-1"></i> Đã đánh giá
                                         </button>
                                     }
-                                }
-
-                                @if (item.TrangThai == 3 && !string.IsNullOrEmpty(item.LinkSanPham))
-                                {
-                                    <div class="mt-3 p-3 border rounded-4 bg-success bg-opacity-10">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="fw-bold text-success mb-1"><i class="fas fa-gift me-2"></i>BỘ ẢNH ĐÃ SẴN SÀNG!</h6>
-                                                <small class="text-muted">Bàn giao ngày: @item.NgayBanGiao?.ToString("dd/MM/yyyy HH:mm")</small>
-                                            </div>
-                                            <a href="@item.LinkSanPham" target="_blank" class="btn btn-success rounded-pill fw-bold shadow-sm px-4">
-                                                <i class="fas fa-download me-2"></i> TẢI NGAY
-                                            </a>
-                                        </div>
-                                    </div>
                                 }
 
                             </div>
@@ -197,12 +219,14 @@ else
                 </div>
             </div>
         </div>
-
-        
     }
 }
 
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+    // Logic Đánh Giá
     function updateRating(maDon, soSao) {
         const inputField = document.getElementById(`rating-input-${maDon}`);
         if(inputField) inputField.value = soSao;
@@ -216,5 +240,65 @@ else
         const textMap = ["Tệ", "Không tốt", "Bình thường", "Tốt", "Tuyệt vời"];
         if(textLabel) textLabel.innerText = `${textMap[soSao-1]} (${soSao}/5)`;
     }
-</script>
 
+    // Logic Giải Ngân Blockchain (Web3)
+    async function releaseFunds(maDon, contractAddress) {
+        if (!contractAddress || contractAddress === '') {
+            return Swal.fire('Lỗi', 'Không tìm thấy địa chỉ Smart Contract cho đơn hàng này.', 'error');
+        }
+
+        if (!window.ethereum) {
+            return Swal.fire('Lỗi', 'Vui lòng cài đặt ví MetaMask trên trình duyệt!', 'error');
+        }
+
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+
+            // Thay đổi "confirmDelivery" thành tên hàm giải ngân thật trong file .sol của bạn
+            const abi = ["function confirmDelivery() public"]; 
+            const contract = new ethers.Contract(contractAddress, abi, signer);
+
+            Swal.fire({ 
+                title: 'Đang mở khóa tiền...', 
+                text: 'Vui lòng xác nhận giao dịch trên cửa sổ MetaMask.', 
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading() 
+            });
+
+            // Gọi hàm lên Blockchain
+            const tx = await contract.confirmDelivery();
+            
+            Swal.fire({ 
+                title: 'Đang xử lý...', 
+                text: 'Hệ thống đang chờ mạng lưới Blockchain xác nhận. Vui lòng không đóng trang.', 
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading() 
+            });
+
+            const receipt = await tx.wait();
+
+            // Gửi TxHash về Backend C# để lưu
+            const response = await fetch(`/Booking/CompleteEscrow?maDon=${maDon}&txHash=${receipt.transactionHash}`, { 
+                method: 'POST' 
+            });
+            
+            if(response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Tiền đã được chuyển cho nhiếp ảnh gia. Hợp đồng hoàn tất.',
+                    confirmButtonText: 'Tuyệt vời'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire('Lỗi Server', 'Đã giải ngân nhưng lỗi cập nhật máy chủ.', 'warning');
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Thất bại', 'Bạn đã hủy giao dịch hoặc có lỗi kết nối xảy ra.', 'error');
+        }
+    }
+</script>

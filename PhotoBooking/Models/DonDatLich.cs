@@ -35,6 +35,8 @@ public partial class DonDatLich
     public DateTime? NgayBanGiao { get; set; }
     public string? MatKhauLink { get; set; }
 
+    public string? TxHash_GiaiNgan { get; set; }
+
     public virtual DanhGium? DanhGium { get; set; }
 
     public virtual GoiDichVu? MaGoiNavigation { get; set; }
