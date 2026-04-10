@@ -1,78 +1,222 @@
 @model PhotoBooking.ViewModels.BookingViewModel
 
 @{
-    ViewData["Title"] = "Đặt lịch chụp";
+    ViewData["Title"] = "Đặt lịch chụp: " + Model.TenGoi;
 }
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_blue.css">
+<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css"> <style>
+    :root {
+        --bb-primary: #ff4757;
+        --bb-dark: #2f3542;
+        --bb-bg: #f4f6f9;
+    }
+
+    body { background-color: var(--bb-bg); }
+
+    /* Sticky Sidebar */
+    .summary-sidebar {
+        position: sticky;
+        top: 100px;
+    }
+
+    /* Card Styling */
+    .premium-card {
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 12px 36px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.02);
+        overflow: hidden;
+    }
+
+    /* Input với Icon bên trong */
+    .input-icon-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon-wrapper i {
+        position: absolute;
+        left: 20px;
+        color: #a4b0be;
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+    }
+
+    .input-icon-wrapper .form-control {
+        padding-left: 50px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        border-radius: 16px;
+        border: 1.5px solid #dfe4ea;
+        background-color: #fcfcfc;
+        transition: all 0.3s ease;
+        font-size: 1.05rem;
+    }
+
+    .input-icon-wrapper .form-control:focus {
+        background-color: #ffffff;
+        border-color: var(--bb-primary);
+        box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1);
+    }
+
+    .input-icon-wrapper .form-control:focus + i,
+    .input-icon-wrapper .form-control:not(:placeholder-shown) + i {
+        color: var(--bb-primary); /* Đổi màu icon khi có dữ liệu hoặc focus */
+    }
+
+    /* Nút Submit */
+    .btn-gradient-primary {
+        background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(255, 71, 87, 0.4);
+        color: white;
+    }
+
+    /* Hóa đơn đứt nét */
+    .receipt-divider {
+        border-top: 2px dashed #dfe4ea;
+        margin: 20px 0;
+    }
+</style>
 
 <div class="container py-5">
+    
+    <div class="mb-5 text-center">
+        <h2 class="fw-bold text-dark mb-2">Hoàn tất đặt lịch</h2>
+        <p class="text-muted">Chỉ mất 1 phút để gửi yêu cầu đến nhiếp ảnh gia của bạn.</p>
+    </div>
+
     <div class="row g-5">
-        <div class="col-md-5 col-lg-4 order-md-last">
-            <h4 class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-primary fw-bold">Gói dịch vụ</span>
-            </h4>
-            <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-                <img src="@Model.AnhBia" class="card-img-top" alt="@Model.TenGoi" style="height: 200px; object-fit: cover;">
-                <div class="card-body bg-light">
-                    <h5 class="card-title fw-bold">@Model.TenGoi</h5>
-                    <p class="text-muted small mb-2"><i class="fas fa-camera me-1"></i> @Model.TenNhiepAnhGia</p>
-                    <hr>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Giá trọn gói:</span>
-                        <strong class="text-dark">@Model.GiaTien.ToString("#,##0") đ</strong>
+        
+        <div class="col-lg-7 order-2 order-lg-1">
+            <div class="premium-card p-4 p-md-5">
+                <h4 class="mb-4 fw-bold">Thông tin buổi chụp</h4>
+                
+                <form asp-controller="Booking" asp-action="Create" method="post" id="bookingForm">
+                    @Html.AntiForgeryToken()
+                    
+                    <input type="hidden" asp-for="MaGoi" />
+                    <input type="hidden" asp-for="TenGoi" />
+                    <input type="hidden" asp-for="GiaTien" />
+                    <input type="hidden" asp-for="GiaCoc" />
+                    <input type="hidden" asp-for="AnhBia" />
+                    <input type="hidden" asp-for="TenNhiepAnhGia" />
+                    <input type="hidden" id="MaNhiepAnhGia" asp-for="MaNhiepAnhGia" />
+
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-dark">Ngày & Giờ chụp <span class="text-danger">*</span></label>
+                            <div class="input-icon-wrapper">
+                                <input asp-for="NgayChup" id="NgayChupInput" class="form-control" type="text" placeholder="Bấm để chọn thời gian..." readonly style="cursor: pointer;" />
+                                <i class="fa-regular fa-calendar-check"></i>
+                            </div>
+                            <span asp-validation-for="NgayChup" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-dark">Địa điểm chụp <span class="text-danger">*</span></label>
+                            <div class="input-icon-wrapper">
+                                <input asp-for="DiaChiChup" class="form-control" placeholder="Nhập địa chỉ, tên quán cafe, công viên..." />
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </div>
+                            <span asp-validation-for="DiaChiChup" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-dark">Ghi chú yêu cầu (Tùy chọn)</label>
+                            <div class="input-icon-wrapper">
+                                <textarea asp-for="GhiChu" class="form-control" rows="4" placeholder="VD: Mình muốn chụp tone màu vintage, cần thuê thêm makeup..."></textarea>
+                                <i class="fa-regular fa-comment-dots" style="top: 25px;"></i>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-5">
+                            <button type="submit" class="btn btn-gradient-primary w-100">
+                                GỬI YÊU CẦU ĐẶT LỊCH <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between text-danger">
-                        <span>Cần đặt cọc:</span>
-                        <strong>@Model.GiaCoc.ToString("#,##0") đ</strong>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5 order-1 order-lg-2">
+            <div class="summary-sidebar">
+                <div class="premium-card">
+                    <div style="position: relative;">
+                        <img src="@Model.AnhBia" class="w-100" alt="@Model.TenGoi" style="height: 220px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-3" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                            <span class="badge bg-white text-dark mb-1">Gói dịch vụ</span>
+                            <h5 class="text-white fw-bold mb-0">@Model.TenGoi</h5>
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <img src="https://ui-avatars.com/api/?name=@Model.TenNhiepAnhGia&background=random" class="rounded-circle border me-3" width="45" height="45">
+                            <div>
+                                <small class="text-muted d-block">Nhiếp ảnh gia</small>
+                                <strong class="text-dark">@Model.TenNhiepAnhGia</strong>
+                            </div>
+                        </div>
+
+                        <div class="bg-light rounded-4 p-3 mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Giá niêm yết</span>
+                                <strong class="text-dark">@Model.GiaTien.ToString("#,##0") đ</strong>
+                            </div>
+                            <div class="receipt-divider"></div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="d-block fw-bold text-dark">Tiền cọc (30%)</span>
+                                    <small class="text-muted">Chỉ thanh toán khi đã duyệt</small>
+                                </div>
+                                <h4 class="text-danger fw-bold mb-0">@Model.GiaCoc.ToString("#,##0") đ</h4>
+                            </div>
+                        </div>
+
+                        <div class="border-top pt-4">
+                            <h6 class="fw-bold text-dark mb-3">Quy trình đặt lịch an toàn</h6>
+                            <div class="d-flex mb-3">
+                                <i class="fa-solid fa-1 text-primary me-3 mt-1 opacity-75"></i>
+                                <div>
+                                    <span class="d-block fw-bold small">Gửi yêu cầu</span>
+                                    <span class="small text-muted">Thợ ảnh sẽ kiểm tra lịch của họ.</span>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-3">
+                                <i class="fa-solid fa-2 text-primary me-3 mt-1 opacity-75"></i>
+                                <div>
+                                    <span class="d-block fw-bold small">Chờ phê duyệt</span>
+                                    <span class="small text-muted">Bạn sẽ nhận được thông báo khi được duyệt.</span>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <i class="fa-solid fa-3 text-primary me-3 mt-1 opacity-75"></i>
+                                <div>
+                                    <span class="d-block fw-bold small">Thanh toán cọc</span>
+                                    <span class="small text-muted">Giữ chỗ an toàn qua Smart Contract.</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-7 col-lg-8">
-            <h4 class="mb-3 fw-bold">Thông tin đặt lịch</h4>
-            <form asp-controller="Booking" asp-action="Create" method="post" id="bookingForm">
-                @Html.AntiForgeryToken()
-                <input type="hidden" asp-for="MaGoi" />
-                <input type="hidden" asp-for="TenGoi" />
-                <input type="hidden" asp-for="GiaTien" />
-                <input type="hidden" asp-for="GiaCoc" />
-                <input type="hidden" asp-for="AnhBia" />
-                <input type="hidden" asp-for="TenNhiepAnhGia" />
-                
-                <input type="hidden" id="MaNhiepAnhGia" asp-for="MaNhiepAnhGia" />
-
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label class="form-label fw-bold">Ngày & Giờ chụp mong muốn</label>
-                        <input asp-for="NgayChup" id="NgayChupInput" class="form-control py-3 bg-white" type="text" placeholder="Bấm vào để chọn ngày giờ..." readonly />
-                        <span asp-validation-for="NgayChup" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label fw-bold">Địa điểm chụp</label>
-                        <input asp-for="DiaChiChup" class="form-control py-3" placeholder="Ví dụ: Công viên Cầu Giấy, Hà Nội..." />
-                        <span asp-validation-for="DiaChiChup" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label fw-bold">Ghi chú cho nhiếp ảnh gia</label>
-                        <textarea asp-for="GhiChu" class="form-control" rows="4" placeholder="Bạn có yêu cầu đặc biệt gì về trang phục hay concept không?"></textarea>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <button type="submit" class="btn btn-primary btn-lg rounded-pill w-100 fw-bold">
-                        <i class="fas fa-paper-plane me-2"></i> GỬI YÊU CẦU ĐẶT LỊCH
-                    </button>
-                    <div class="alert alert-info mt-3 text-center small">
-                        <i class="fas fa-info-circle"></i> Nhiếp ảnh gia sẽ kiểm tra và duyệt lịch của bạn. Bạn chỉ cần đặt cọc an toàn qua Blockchain <strong>SAU KHI</strong> lịch được chấp nhận.
-                    </div>
-                </div>
-            </form>
-        </div>
     </div>
 </div>
 
@@ -81,27 +225,46 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Lấy ID của thợ ảnh
-        const thoId = document.getElementById("MaNhiepAnhGia").value;
+        const inputTho = document.getElementById("MaNhiepAnhGia");
+        const dateInput = document.getElementById("NgayChupInput");
+        
+        if (!inputTho) {
+            console.error("❌ LỖI JS: Không tìm thấy ô ID thợ ảnh.");
+            flatpickr("#NgayChupInput", { enableTime: true, minDate: "today", locale: "vn" });
+            return;
+        }
 
-        // Gọi C# để hỏi xem ông thợ này bận ngày nào
+        const thoId = inputTho.value;
+        dateInput.placeholder = "Đang tải lịch bận của thợ..."; // UX loading state
+
         fetch(`/Booking/GetBusyDates?thoId=${thoId}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error("API bị lỗi");
+                return response.json();
+            })
             .then(busyDatesArray => {
-                console.log("Các ngày thợ đang bận:", busyDatesArray); // In ra F12 để kiểm tra
-
+                dateInput.placeholder = "Bấm để chọn thời gian...";
                 flatpickr("#NgayChupInput", {
                     locale: "vn",
                     enableTime: true,
                     time_24hr: true,
+                    minTime: "07:00",
+                    maxTime: "22:00",
                     dateFormat: "Y-m-d H:i",
-                    minDate: "today", // Không cho chọn ngày trong quá khứ
-                    disable: busyDatesArray, // 🔥 BÔI XÁM CÁC NGÀY CÓ TRONG MẢNG NÀY
+                    minDate: "today",
+                    disable: busyDatesArray,
+                    onChange: function(selectedDates, dateStr, instance) {
+                        const justDate = dateStr.split(" ")[0];
+                        if (busyDatesArray.includes(justDate)) {
+                            alert("Ngày này nhiếp ảnh gia đã có lịch! Vui lòng chọn ngày khác.");
+                            instance.clear();
+                        }
+                    }
                 });
             })
             .catch(err => {
-                console.error("Không lấy được lịch:", err);
-                // Vẫn hiện lịch bình thường nếu mạng lỗi
+                console.error("❌ LỖI API LẤY LỊCH BẬN:", err);
+                dateInput.placeholder = "Bấm để chọn thời gian...";
                 flatpickr("#NgayChupInput", { enableTime: true, minDate: "today", locale: "vn" });
             });
     });

@@ -108,20 +108,57 @@ namespace PhotoBooking.Controllers
         // ==========================================
         public async Task<IActionResult> MyJobs()
         {
-            // Lấy ID thợ đang đăng nhập
-            var userIdStr = User.FindFirst("UserId")?.Value;
-            if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction("Login", "Account");
-            int userId = int.Parse(userIdStr);
+            var userId = int.Parse(User.FindFirst("UserId")?.Value);
 
-            // Lấy danh sách đơn hàng của thợ này
-            var jobs = await _context.DonDatLiches // Nhớ kiểm tra tên bảng DonDatLichs hay DonDatLiches
-                .Include(d => d.MaKhachHangNavigation) // Lấy thông tin khách (SĐT, Tên)
-                .Include(d => d.MaGoiNavigation)       // Lấy tên gói (nếu có)
+            var jobs = await _context.DonDatLiches
+                .Include(d => d.MaKhachHangNavigation)
+                .Include(d => d.MaGoiNavigation)
                 .Where(d => d.MaNhiepAnhGia == userId)
                 .OrderByDescending(d => d.NgayTao)
                 .ToListAsync();
 
+            // TÍNH TOÁN THỐNG KÊ CHO DASHBOARD
+            ViewBag.TotalEarnings = jobs.Where(j => j.TrangThai == 3).Sum(j => j.TongTien); // Hoàn thành
+            ViewBag.TotalETH = jobs.Where(j => j.TrangThaiThanhToan == 1).Count() * 0.05; // Giả lập số dư ETH (Ví dụ mỗi đơn cọc 0.05)
+            ViewBag.PendingJobs = jobs.Count(j => j.TrangThai == 0);
+            ViewBag.ActiveJobs = jobs.Count(j => j.TrangThai == 2);
+
             return View(jobs);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeliverProduct(int maDon, string linkSanPham)
+        {
+            // Lấy ID người dùng đang đăng nhập
+            var userId = int.Parse(User.FindFirst("UserId")?.Value);
+
+            // Tìm đơn hàng và kiểm tra xem đơn này có phải của thợ này không
+            var donHang = await _context.DonDatLiches
+                .FirstOrDefaultAsync(d => d.MaDon == maDon && d.MaNhiepAnhGia == userId);
+
+            if (donHang == null) return NotFound("Không tìm thấy đơn hàng hoặc bạn không có quyền.");
+
+            if (string.IsNullOrWhiteSpace(linkSanPham)) {
+                TempData["Error"] = "Vui lòng nhập đường dẫn bộ ảnh!";
+                return RedirectToAction(nameof(MyJobs));
+            }
+
+            // Cập nhật dữ liệu thật
+            donHang.LinkSanPham = linkSanPham;
+            donHang.NgayBanGiao = DateTime.Now;
+            donHang.TrangThai = 3; // Chuyển sang trạng thái Hoàn Thành
+
+            try {
+                _context.Update(donHang);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã bàn giao đơn hàng #{maDon} thành công!";
+            }
+            catch (Exception) {
+                TempData["Error"] = "Có lỗi xảy ra khi lưu dữ liệu.";
+            }
+
+            return RedirectToAction(nameof(MyJobs));
         }
 
         // ==========================================

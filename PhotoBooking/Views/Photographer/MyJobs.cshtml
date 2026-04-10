@@ -1,66 +1,234 @@
 ﻿@model List<PhotoBooking.Models.DonDatLich>
+@using System.Text.Json
 
 @{
     ViewData["Title"] = "Quản lý công việc";
-    // Phân loại danh sách để đổ vào từng Tab
-    var listChoXacNhan = Model.Where(x => x.TrangThai == 0).ToList();
-    var listSapToi = Model.Where(x => x.TrangThai == 1).ToList();
-    var listLichSu = Model.Where(x => x.TrangThai == 2 || x.TrangThai == 3).ToList();
+    
+    // 1. Phân loại và SẮP XẾP danh sách
+    // Chờ xác nhận: Mới nhất lên đầu
+    var listChoXacNhan = Model.Where(x => x.TrangThai == 0).OrderByDescending(x => x.NgayChup).ToList();
+    
+    // Sắp tới: Gần nhất lên đầu (Ưu tiên số 1 của bạn)
+    var listSapToi = Model.Where(x => x.TrangThai == 1).OrderBy(x => x.NgayChup).ToList();
+    
+    // Lịch sử: Mới hoàn thành/hủy lên đầu
+    var listLichSu = Model.Where(x => x.TrangThai == 2 || x.TrangThai == 3).OrderByDescending(x => x.NgayChup).ToList();
+
+    var calendarEvents = Model.Where(x => x.TrangThai == 1 || x.TrangThai == 2) 
+    .Select(x => new {
+        id = x.MaDon,
+        title = x.MaGoiNavigation?.TenGoi ?? "Lịch chụp riêng",
+        start = x.NgayChup.ToString("yyyy-MM-ddTHH:mm:ss"),
+        // Thêm các thông tin mở rộng (extendedProps)
+        customer = x.MaKhachHangNavigation?.HoVaTen ?? "Khách hàng vãng lai",
+        location = x.DiaChiChup ?? "Chưa cập nhật",
+        total = x.TongTien?.ToString("N0") + " đ",
+        note = x.GhiChu ?? "Không có ghi chú",
+        customerId = x.MaKhachHang, // Dùng để nhấn nút Chat
+        backgroundColor = (x.TrangThai == 2) ? "#28a745" : "#ffc107", // Xanh nếu đã hoàn thành, vàng nếu sắp tới
+        borderColor = (x.TrangThai == 2) ? "#1e7e34" : "#e0a800"
+    }).ToList();
 }
 
-<div class="container py-5">
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/vi.js'></script>
+
+<style>
+    /* Custom UI */
+    .stat-card { transition: transform 0.2s; border-radius: 15px; border: none; }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .nav-pills .nav-link { border-radius: 50px; padding: 10px 20px; font-weight: 600; color: #495057; }
+    .nav-pills .nav-link.active { background-color: #ffc107; color: #000; box-shadow: 0 4px 10px rgba(255, 193, 7, 0.4); }
+    #calendar { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .fc-event { cursor: pointer; border-radius: 5px; padding: 2px 5px; font-size: 0.85em; }
+</style>
+
+<div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold"><i class="fas fa-briefcase me-2 text-warning"></i>Quản lý công việc</h3>
-        <div class="text-muted">Tổng: <strong>@Model.Count</strong> đơn hàng</div>
+        <h3 class="fw-bold m-0"><i class="fas fa-camera-retro me-2 text-warning"></i>Không gian làm việc</h3>
+        <div class="btn-group" role="group">
+            <input type="radio" class="btn-check" name="viewMode" id="btn-list-view" autocomplete="off" checked onchange="toggleView('list')">
+            <label class="btn btn-outline-dark" for="btn-list-view"><i class="fas fa-list me-1"></i> Danh sách</label>
+
+            <input type="radio" class="btn-check" name="viewMode" id="btn-calendar-view" autocomplete="off" onchange="toggleView('calendar')">
+            <label class="btn btn-outline-dark" for="btn-calendar-view"><i class="fas fa-calendar-alt me-1"></i> Xem Lịch</label>
+        </div>
     </div>
 
-    <ul class="nav nav-pills mb-4 gap-2" id="pills-tab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active rounded-pill fw-bold" id="tab-cho-xac-nhan" data-bs-toggle="pill" data-bs-target="#content-cho-xac-nhan">
-                ⏳ Chờ xác nhận <span class="badge bg-white text-dark ms-1">@listChoXacNhan.Count</span>
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold" id="tab-sap-toi" data-bs-toggle="pill" data-bs-target="#content-sap-toi">
-                📅 Lịch chụp sắp tới <span class="badge bg-white text-dark ms-1">@listSapToi.Count</span>
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold" id="tab-lich-su" data-bs-toggle="pill" data-bs-target="#content-lich-su">
-                📜 Lịch sử
-            </button>
-        </li>
-    </ul>
 
-    <div class="tab-content" id="pills-tabContent">
+    <div id="listViewContainer">
+        <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#content-sap-toi">
+                    📅 Lịch sắp tới <span class="badge bg-danger rounded-pill ms-1">@listSapToi.Count</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-cho-xac-nhan">
+                    ⏳ Chờ duyệt <span class="badge bg-secondary rounded-pill ms-1">@listChoXacNhan.Count</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-lich-su">
+                    📜 Lịch sử
+                </button>
+            </li>
+        </ul>
 
-        <div class="tab-pane fade show active" id="content-cho-xac-nhan">
-            @if (listChoXacNhan.Count == 0)
-            {
-                <p class="text-muted fst-italic">Chưa có đơn hàng mới.</p>
-            }
-            @foreach (var item in listChoXacNhan)
-            {
-                @await Html.PartialAsync("_JobCardPartial", item)
-            }
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="content-sap-toi">
+                @if (listSapToi.Count == 0)
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-calendar-times fs-1 mb-3 opacity-50"></i>
+                        <h5>Chưa có lịch chụp nào sắp tới</h5>
+                    </div>
+                }
+                @foreach (var item in listSapToi)
+                {
+                    @await Html.PartialAsync("_JobCardPartial", item)
+                }
+            </div>
+
+            <div class="tab-pane fade" id="content-cho-xac-nhan">
+                @if (listChoXacNhan.Count == 0)
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-inbox fs-1 mb-3 opacity-50"></i>
+                        <h5>Không có yêu cầu đặt lịch mới</h5>
+                    </div>
+                }
+                @foreach (var item in listChoXacNhan)
+                {
+                    @await Html.PartialAsync("_JobCardPartial", item)
+                }
+            </div>
+
+            <div class="tab-pane fade" id="content-lich-su">
+                @if (listLichSu.Count == 0)
+                {
+                     <div class="text-center py-5 text-muted">
+                        <i class="fas fa-history fs-1 mb-3 opacity-50"></i>
+                        <h5>Chưa có dữ liệu lịch sử</h5>
+                    </div>
+                }
+                @foreach (var item in listLichSu)
+                {
+                    @await Html.PartialAsync("_JobCardPartial", item)
+                }
+            </div>
         </div>
+    </div>
 
-        <div class="tab-pane fade" id="content-sap-toi">
-            @if (listSapToi.Count == 0)
-            {
-                <p class="text-muted fst-italic">Không có lịch chụp nào sắp tới.</p>
-            }
-            @foreach (var item in listSapToi)
-            {
-                @await Html.PartialAsync("_JobCardPartial", item)
-            }
-        </div>
+    <div id="calendarViewContainer" style="display: none;">
+        <div id='calendar'></div>
+    </div>
 
-        <div class="tab-pane fade" id="content-lich-su">
-            @foreach (var item in listLichSu)
-            {
-                @await Html.PartialAsync("_JobCardPartial", item)
-            }
+    <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-warning text-dark border-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-info-circle me-2"></i>Chi tiết lịch chụp</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <h4 id="modalTitle" class="fw-bold text-primary mb-1"></h4>
+                    <span id="modalOrderId" class="badge bg-light text-dark border"></span>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="small text-muted d-block">Khách hàng</label>
+                        <strong id="modalCustomer" class="text-dark"></strong>
+                    </div>
+                    <div class="col-6">
+                        <label class="small text-muted d-block">Tổng tiền</label>
+                        <strong id="modalTotal" class="text-danger"></strong>
+                    </div>
+                    <div class="col-12">
+                        <label class="small text-muted d-block">Thời gian chụp</label>
+                        <div class="p-2 bg-light rounded">
+                            <i class="far fa-calendar-alt me-2 text-primary"></i>
+                            <strong id="modalTime"></strong>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="small text-muted d-block">Địa điểm</label>
+                        <strong id="modalLocation"></strong>
+                    </div>
+                    <div class="col-12">
+                        <label class="small text-muted d-block">Ghi chú từ khách</label>
+                        <p id="modalNote" class="small fst-italic text-secondary mb-0"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                <a id="modalChatBtn" href="#" class="btn btn-primary rounded-pill px-4">
+                    <i class="fas fa-comment-dots me-1"></i> Nhắn tin cho khách
+                </a>
+            </div>
         </div>
     </div>
 </div>
+
+</div>
+
+<script>
+    // Logic chuyển đổi List / Calendar
+    function toggleView(mode) {
+        if (mode === 'list') {
+            document.getElementById('listViewContainer').style.display = 'block';
+            document.getElementById('calendarViewContainer').style.display = 'none';
+        } else {
+            document.getElementById('listViewContainer').style.display = 'none';
+            document.getElementById('calendarViewContainer').style.display = 'block';
+            calendar.render(); // Render lại lịch khi hiển thị để tránh lỗi size
+        }
+    }
+
+    // Khởi tạo FullCalendar
+    var calendar;
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        
+        // Nhận dữ liệu từ C# Razor
+        var eventsData = @Html.Raw(JsonSerializer.Serialize(calendarEvents));
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: 'vi', // Tiếng Việt
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,listWeek' // Cho phép xem theo tháng, tuần, hoặc danh sách
+            },
+            events: eventsData,
+            eventClick: function(info) {
+                // 1. Lấy dữ liệu từ extendedProps mà mình đã định nghĩa ở C#
+                const props = info.event.extendedProps;
+                const eventId = info.event.id;
+                const title = info.event.title;
+                const time = info.event.start.toLocaleString('vi-VN');
+
+                // 2. Đổ dữ liệu vào giao diện Modal
+                document.getElementById('modalTitle').innerText = title;
+                document.getElementById('modalOrderId').innerText = '#' + eventId;
+                document.getElementById('modalCustomer').innerText = props.customer;
+                document.getElementById('modalTotal').innerText = props.total;
+                document.getElementById('modalTime').innerText = time;
+                document.getElementById('modalLocation').innerText = props.location;
+                document.getElementById('modalNote').innerText = props.note;
+                
+                // Cập nhật link nút chat
+                document.getElementById('modalChatBtn').href = '/Chat?userId=' + props.customerId;
+
+                // 3. Hiển thị Modal
+                var myModal = new bootstrap.Modal(document.getElementById('jobDetailModal'));
+                myModal.show();
+            }
+        });
+    });
+</script>

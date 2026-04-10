@@ -93,3 +93,65 @@ System.Exception: Hàm Deploy trả về rỗng.
    at Nethereum.RPC.TransactionReceipts.TransactionReceiptPollingService.DeployContractAndWaitForReceiptAsync(Func`1 deployFunction, CancellationToken cancellationToken)
    at PhotoBooking.Services.BlockchainService.DeployContractAsync(String photographerWallet, String customerWallet) in D:\Source Code\PhotoBooking\Services\BlockchainService.cs:line 88
    at PhotoBooking.Controllers.BookingController.Create(BookingViewModel model) in D:\Source Code\PhotoBooking\Controllers\BookingController.cs:line 146
+[2026-04-09 00:00:05] Đơn #137: Nethereum.JsonRpc.Client.RpcClientUnknownException: Error occurred when trying to send rpc requests(s): eth_getTransactionCount
+ ---> System.Net.Http.HttpRequestException: No connection could be made because the target machine actively refused it. (127.0.0.1:7545)
+ ---> System.Net.Sockets.SocketException (10061): No connection could be made because the target machine actively refused it.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Nethereum.JsonRpc.Client.RpcClient.SendAsync(RpcRequestMessage request, String route)
+   --- End of inner exception stack trace ---
+   at Nethereum.JsonRpc.Client.RpcClient.SendAsync(RpcRequestMessage request, String route)
+   at Nethereum.JsonRpc.Client.ClientBase.SendInnerRequestAsync[T](RpcRequestMessage reqMsg, String route)
+   at Nethereum.JsonRpc.Client.ClientBase.SendRequestAsync[T](RpcRequest request, String route)
+   at Nethereum.RPC.NonceServices.InMemoryNonceService.GetNextNonceAsync()
+   at Nethereum.Web3.Accounts.AccountSignerTransactionManager.GetNonceAsync(TransactionInput transaction)
+   at Nethereum.Web3.Accounts.AccountSignerTransactionManager.SignTransactionRetrievingNextNonceAsync(TransactionInput transaction)
+   at Nethereum.Web3.Accounts.AccountSignerTransactionManager.SignAndSendTransactionAsync(TransactionInput transaction)
+   at Nethereum.Web3.Accounts.AccountSignerTransactionManager.SendTransactionAsync(TransactionInput transactionInput)
+   at Nethereum.RPC.TransactionReceipts.TransactionReceiptPollingService.SendRequestAndWaitForReceiptAsync(Func`1 transactionFunction, CancellationToken cancellationToken)
+   at Nethereum.RPC.TransactionReceipts.TransactionReceiptPollingService.DeployContractAndWaitForReceiptAsync(Func`1 deployFunction, CancellationToken cancellationToken)
+   at PhotoBooking.Services.BlockchainService.DeployContractAsync(String photographerWallet, String customerWallet) in D:\Source Code\PhotoBooking\Services\BlockchainService.cs:line 88
+   at PhotoBooking.Controllers.BookingController.Create(BookingViewModel model) in D:\Source Code\PhotoBooking\Controllers\BookingController.cs:line 147
+[2026-04-09 00:01:01] Đơn #138: Nethereum.JsonRpc.Client.RpcClientUnknownException: Error occurred when trying to send rpc requests(s): eth_getTransactionCount
+ ---> System.Net.Http.HttpRequestException: No connection could be made because the target machine actively refused it. (127.0.0.1:7545)
+ ---> System.Net.Sockets.SocketException (10061): No connection could be made because the target machine actively refused it.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Nethereum.JsonRpc.Client.RpcClient.SendAsync(RpcRequestMessage request, String route)
+   --- End of inner exception stack trace ---
+   at Nethereum.JsonRpc.Client.RpcClient.SendAsync(RpcRequestMessage request, String route)
+   at Nethereum.JsonRpc.Client.ClientBase.SendInnerRequestAsync[T](RpcRequestMessage reqMsg, String route)
+   at Nethereum.JsonRpc.Client.ClientBase.SendRequestAsync[T](RpcRequest request, String route)
+   at Nethereum.RPC.NonceServices.InMemoryNonceService.GetNextNonceAsync()
+   at Nethereum.Web3.Accounts.AccountSignerTransactionManager.GetNonceAsync(TransactionInput transaction)
+   at Nethereum.Web3.Accounts.AccountSignerTransactionManager.SignTransactionRetrievingNextNonceAsync(TransactionInput transaction)
+   at Nethereum.Web3.Accounts.AccountSignerTransactionManager.SignAndSendTransactionAsync(TransactionInput transaction)
+   at Nethereum.Web3.Accounts.AccountSignerTransactionManager.SendTransactionAsync(TransactionInput transactionInput)
+   at Nethereum.RPC.TransactionReceipts.TransactionReceiptPollingService.SendRequestAndWaitForReceiptAsync(Func`1 transactionFunction, CancellationToken cancellationToken)
+   at Nethereum.RPC.TransactionReceipts.TransactionReceiptPollingService.DeployContractAndWaitForReceiptAsync(Func`1 deployFunction, CancellationToken cancellationToken)
+   at PhotoBooking.Services.BlockchainService.DeployContractAsync(String photographerWallet, String customerWallet) in D:\Source Code\PhotoBooking\Services\BlockchainService.cs:line 88
+   at PhotoBooking.Controllers.BookingController.Create(BookingViewModel model) in D:\Source Code\PhotoBooking\Controllers\BookingController.cs:line 147

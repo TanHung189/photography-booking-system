@@ -352,9 +352,9 @@
                                         // Đếm số đơn hàng mới (Trạng thái = 0)
                                         var soDonMoi = _context.DonDatLiches.Count(d => d.MaNhiepAnhGia == userId && d.TrangThai == 0);
 
-                                        <li class="nav-item ms-2">
-                                            <a class="nav-link fw-bold text-primary" asp-controller="Photographer" asp-action="MyJobs">
-                                                <i class="fas fa-briefcase me-1"></i> Quản lý công việc
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Photographer" asp-action="MyJobs">
+                                                <i class="fas fa-briefcase"></i> Quản lý công việc
                                                 @if (soDonMoi > 0)
                                                 {
                                                     <span class="badge bg-danger rounded-pill animation-pulse">

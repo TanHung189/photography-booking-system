@@ -4,153 +4,257 @@
 @{
     ViewData["Title"] = "Thanh toán đơn hàng #" + Model.MaDon;
 
-    // --- CẤU HÌNH TÀI KHOẢN NHẬN TIỀN (Web2) ---
+    // --- LOGIC GIỮ NGUYÊN ---
     var nganHang = "Vietcombank";
     var soTaiKhoan = "9399308546";
     var tenChuThe = "BUI DO TAN HUNG";
- decimal tienCanThanhToan = (Model.TienDaCoc > 0) ? (decimal)Model.TienDaCoc : (decimal)Model.TongTien * 0.3m;
-
+    decimal tienCanThanhToan = (Model.TienDaCoc > 0) ? (decimal)Model.TienDaCoc : (decimal)Model.TongTien * 0.3m;
     var noiDungCK = "TAHU" + Model.MaDon;
     var qrLink = $"https://img.vietqr.io/image/{nganHang}-{soTaiKhoan}-compact2.png?amount={tienCanThanhToan}&addInfo={noiDungCK}&accountName={tenChuThe}";
 
-    /// --- CẤU HÌNH BLOCKCHAIN (Web3) ---
-    // 1. Lấy ra số tiền VNĐ cần cọc (30% tổng tiền)
-   
-    // 2. Thiết lập tỉ giá giả lập cho Đồ án (1 ETH = 80.000.000 VNĐ)
-    // Trong thực tế, có thể dùng API của CoinGecko/Binance để lấy số này
     decimal tiGiaEth = 80000000m;
-
-    // 3. Tính ra số lượng ETH tương ứng
     decimal ethCalculated = tienCanThanhToan / tiGiaEth;
-
-    // 4. Ép kiểu về chuỗi với dấu "." (Không dùng dấu phẩy của tiếng Việt) 
-    // để hàm parseEther của JavaScript không bị lỗi
     string ethAmountToPay = ethCalculated.ToString("0.######", System.Globalization.CultureInfo.InvariantCulture);
 }
 
+<style>
+    :root {
+        --primary-gold: #ff9f43;
+        --eth-blue: #627eea;
+        --dark-surface: #1e272e;
+    }
+
+    body { background-color: #f8f9fa; }
+
+    /* Progress bar steps */
+    .step-indicator { display: flex; justify-content: space-between; margin-bottom: 2rem; }
+    .step { text-align: center; flex: 1; position: relative; }
+    .step-icon { width: 40px; height: 40px; line-height: 40px; border-radius: 50%; background: #dfe4ea; margin: 0 auto 10px; color: #fff; font-weight: bold; }
+    .step.active .step-icon { background: var(--primary-gold); box-shadow: 0 0 15px rgba(255, 159, 67, 0.4); }
+    .step.active .step-text { color: var(--primary-gold); font-weight: 600; }
+
+    /* Payment Cards */
+    .payment-card { border: none; border-radius: 20px; transition: all 0.3s ease; }
+    .payment-tabs .nav-link { 
+        border: 2px solid #eee; border-radius: 12px; margin: 0 5px; padding: 15px; 
+        color: #747d8c; font-weight: 600; transition: all 0.3s;
+    }
+    .payment-tabs .nav-link.active { border-color: var(--primary-gold); background: #fff4e6; color: var(--primary-gold); }
+    
+    /* MetaMask Button Custom */
+    .btn-metamask {
+        background: linear-gradient(45deg, #f6851b, #e2761b);
+        border: none; color: white; padding: 15px; border-radius: 12px;
+        font-size: 1.1rem; transition: transform 0.2s;
+    }
+    .btn-metamask:hover { transform: translateY(-3px); color: white; box-shadow: 0 8px 20px rgba(246, 133, 27, 0.3); }
+    .btn-metamask:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* Copy Button */
+    .copy-btn { cursor: pointer; color: var(--eth-blue); transition: opacity 0.2s; }
+    .copy-btn:hover { opacity: 0.7; }
+
+    /* Spinner */
+    .loader { display: none; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-gold); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: inline-block; margin-right: 10px; vertical-align: middle; }
+    @@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+
 <div class="container py-5">
-    <div class="row g-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="step-indicator">
+                <div class="step"><div class="step-icon"><i class="fas fa-check"></i></div><div class="step-text small">Đặt lịch</div></div>
+                <div class="step active"><div class="step-icon">2</div><div class="step-text small">Thanh toán cọc</div></div>
+                <div class="step"><div class="step-icon">3</div><div class="step-text small">Hoàn tất</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card payment-card shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Chi tiết thanh toán</h5>
+                    <div class="text-center mb-4">
+                        <div class="small text-muted mb-1">Số tiền cần đặt cọc (30%)</div>
+                        <h2 class="fw-bold text-danger">@tienCanThanhToan.ToString("N0") <small>đ</small></h2>
+                        <div class="badge bg-light text-dark border mt-2">Đơn hàng #@Model.MaDon</div>
+                    </div>
+
+                    <div class="bg-light rounded-4 p-3 mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0 bg-white p-2 rounded-3 border">
+                                <img src="@(Model.MaGoiNavigation?.AnhDaiDien ?? "https://cdn-icons-png.flaticon.com/512/3249/3249935.png")" width="50" class="rounded">
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0 fw-bold">@(Model.MaGoiNavigation?.TenGoi ?? "Gói chụp chuyên nghiệp")</h6>
+                                <small class="text-muted">Nhiếp ảnh gia: @Model.MaNhiepAnhGiaNavigation?.HoVaTen</small>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span class="text-muted"><i class="far fa-calendar-alt me-2"></i>Ngày chụp:</span>
+                            <span class="fw-bold">@Model.NgayChup.ToString("dd/MM/yyyy")</span>
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>Địa điểm:</span>
+                            <span class="fw-bold">@Model.DiaChiChup</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning border-0 rounded-4 small">
+                        <i class="fas fa-shield-alt me-2"></i> Tiền cọc sẽ được giữ an toàn và chỉ giải ngân cho thợ ảnh sau khi bạn xác nhận buổi chụp hoàn thành.
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="col-lg-7">
-            <h4 class="fw-bold mb-4">📝 Thông tin đơn đặt lịch</h4>
-            <div class="card shadow-sm border-0">
+            <div class="card payment-card shadow-sm h-100">
                 <div class="card-body p-4">
-                    <div class="d-flex justify-content-between mb-3 border-bottom pb-3">
-                        <span class="text-muted">Mã đơn hàng:</span>
-                        <span class="fw-bold text-primary">#@Model.MaDon</span>
-                    </div>
-                    <div class="mb-3">
-                        <label class="text-muted small">Dịch vụ / Yêu cầu</label>
-                        <h5 class="fw-bold">
-                            @(Model.MaGoiNavigation?.TenGoi ?? "Chụp ảnh theo yêu cầu riêng")
-                        </h5>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <label class="text-muted small">Nhiếp ảnh gia</label>
-                            <div class="fw-bold">@Model.MaNhiepAnhGiaNavigation?.HoVaTen</div>
+                    <h5 class="fw-bold mb-4">Chọn phương thức</h5>
+                    
+                    <ul class="nav nav-pills payment-tabs mb-4 justify-content-center" id="paymentTab" role="tablist">
+                        <li class="nav-item flex-fill">
+                            <button class="nav-link active w-100 py-3" data-bs-toggle="pill" data-bs-target="#crypto">
+                                <i class="fab fa-ethereum me-2"></i>Blockchain
+                            </button>
+                        </li>
+                        <li class="nav-item flex-fill">
+                            <button class="nav-link w-100 py-3" data-bs-toggle="pill" data-bs-target="#bank">
+                                <i class="fas fa-university me-2"></i>Chuyển khoản
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="paymentTabContent">
+                        <div class="tab-pane fade show active" id="crypto">
+                            <div class="text-center py-3">
+                                <div class="mb-3">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="80" alt="MetaMask">
+                                </div>
+                                <h6 class="fw-bold">Thanh toán qua Smart Contract</h6>
+                                <p class="text-muted small">Tỷ giá ước tính: 1 ETH &approx; 80,000,000 đ</p>
+                                
+                                <div class="bg-dark text-white rounded-4 p-4 mb-4">
+                                    <div class="small opacity-75">Bạn sẽ gửi</div>
+                                    <h3 class="fw-bold text-warning my-2">@ethAmountToPay ETH</h3>
+                                    <div class="small opacity-50 text-truncate">Đến: @Model.DiaChiHopDong</div>
+                                </div>
+
+                                <button type="button" id="btnPayCrypto" class="btn btn-metamask w-100 fw-bold">
+                                    <span id="btnText"><i class="fas fa-bolt me-2"></i>KẾT NỐI VÀ THANH TOÁN</span>
+                                    <div id="btnLoader" class="loader" style="display:none;"></div>
+                                </button>
+                                <p class="text-muted mt-3 x-small">* Vui lòng đảm bảo bạn đang sử dụng mạng <strong>Ganache/Testnet</strong></p>
+                            </div>
                         </div>
-                        <div class="col-6 text-end">
-                            <label class="text-muted small">Ngày chụp</label>
-                            <div class="fw-bold">@Model.NgayChup.ToString("dd/MM/yyyy HH:mm")</div>
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="text-muted small">Địa điểm</label>
-                        <div class="fw-bold"><i class="fas fa-map-marker-alt text-danger me-1"></i> @Model.DiaChiChup</div>
-                    </div>
-                    <div class="bg-light p-3 rounded">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Tổng giá trị hợp đồng:</span>
-                            <span class="fw-bold">@Model.TongTien?.ToString("N0") đ</span>
-                        </div>
-                        <hr />
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold text-dark">SỐ TIỀN CẦN CỌC (30%):</span>
-                            <span class="fs-4 fw-bold text-danger">@tienCanThanhToan.ToString("N0") đ</span>
+
+                        <div class="tab-pane fade" id="bank">
+                            <div class="row align-items-center">
+                                <div class="col-md-5 text-center mb-3">
+                                    <img src="@qrLink" class="img-fluid rounded-4 border p-2 bg-white" alt="VietQR">
+                                    <div class="mt-2 small text-muted">Quét mã để thanh toán</div>
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="mb-3">
+                                        <label class="small text-muted">Chủ tài khoản</label>
+                                        <div class="fw-bold">@tenChuThe</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="small text-muted">Số tài khoản</label>
+                                        <div class="d-flex justify-content-between border-bottom pb-1">
+                                            <span class="fw-bold" id="accNum">@soTaiKhoan</span>
+                                            <span class="copy-btn" onclick="copyText('accNum')"><i class="far fa-copy"></i></span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="small text-muted">Nội dung chuyển khoản</label>
+                                        <div class="d-flex justify-content-between border-bottom pb-1">
+                                            <span class="fw-bold text-danger" id="transNote">@noiDungCK</span>
+                                            <span class="copy-btn" onclick="copyText('transNote')"><i class="far fa-copy"></i></span>
+                                        </div>
+                                    </div>
+
+                                    <form asp-action="ConfirmPayment" method="post">
+                                        <input type="hidden" name="id" value="@Model.MaDon" />
+                                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold" 
+                                                onclick="return confirm('Hệ thống sẽ kiểm tra giao dịch của bạn trong giây lát?')">
+                                            XÁC NHẬN ĐÃ CHUYỂN KHOẢN
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-lg-5">
-            <div class="card border-warning shadow text-center">
-                <div class="card-header bg-warning text-dark fw-bold">
-                    <i class="fas fa-wallet me-2"></i>CHỌN PHƯƠNG THỨC THANH TOÁN
-                </div>
-                <div class="card-body p-4">
-
-                    <h6 class="fw-bold text-primary mb-3">Tùy chọn 1: Thanh toán an toàn qua Blockchain</h6>
-                    <p class="text-muted small mb-3">
-    Tiền cọc của bạn sẽ được quy đổi: <br/>
-    <strong>@tienCanThanhToan.ToString("N0") VNĐ &approx; @ethAmountToPay ETH</strong>
-</p>
-
-<button type="button" id="btnPayCrypto" class="btn btn-dark w-100 py-3 fw-bold shadow-sm mb-4">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="25" class="me-2" />
-    ĐẶT CỌC BẰNG METAMASK (@ethAmountToPay ETH)
-</button>
-
-                    <hr class="text-muted">
-
-                    <h6 class="fw-bold text-secondary mb-3 mt-4">Tùy chọn 2: Chuyển khoản ngân hàng truyền thống</h6>
-                    <img src="@qrLink" class="img-fluid mb-3 border rounded p-2" style="max-width: 200px;" alt="QR Code">
-                    <div class="alert alert-info small text-start mb-3">
-                        <strong><i class="fas fa-info-circle"></i> Lưu ý:</strong><br>
-                        Nội dung chuyển khoản bắt buộc: <strong class="text-danger">@noiDungCK</strong>
-                    </div>
-
-                    <form asp-action="ConfirmPayment" method="post">
-                        <input type="hidden" name="id" value="@Model.MaDon" />
-                        <button type="submit" class="btn btn-outline-success w-100 py-2 fw-bold"
-                                onclick="return confirm('Bạn chắc chắn đã chuyển khoản ngân hàng thành công?')">
-                            <i class="fas fa-check-circle me-2"></i>TÔI ĐÃ CHUYỂN KHOẢN NGÂN HÀNG
-                        </button>
-                    </form>
-
-                    <div class="mt-4">
-                        <a href="/" class="text-decoration-none text-muted small">Thanh toán sau (Về trang chủ)</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+    // Hàm copy nhanh
+    function copyText(id) {
+        var text = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(text);
+        Swal.fire({ title: 'Đã sao chép!', icon: 'success', timer: 1000, showConfirmButton: false, toast: true, position: 'top-end' });
+    }
+
     const btnPayCrypto = document.getElementById('btnPayCrypto');
-    const contractAddress = "@Model.DiaChiHopDong"; // Đảm bảo SQL đã lưu đúng địa chỉ từ Ganache
+    const btnText = document.getElementById('btnText');
+    const btnLoader = document.getElementById('btnLoader');
+    const contractAddress = "@Model.DiaChiHopDong";
 
     btnPayCrypto.addEventListener('click', async () => {
+        if (!window.ethereum) {
+            return Swal.fire('Lỗi', 'Vui lòng cài đặt MetaMask!', 'error');
+        }
+
         try {
-            // 1. Kiểm tra MetaMask
-            if (!window.ethereum) return alert("Vui lòng cài đặt MetaMask!");
-            
+            // UI Loading state
+            btnPayCrypto.disabled = true;
+            btnText.innerText = "ĐANG XỬ LÝ...";
+            btnLoader.style.display = "inline-block";
+
             const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
             await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
 
-            // 2. Ép gửi 0.001 ETH trực tiếp đến Hợp đồng
-            // Cách này an toàn nhất để Demo vì nó không bị chặn bởi các hàm require()
             const tx = await signer.sendTransaction({
-            to: contractAddress,
-            value: ethers.utils.parseEther("@ethAmountToPay"), // Truyền biến C# vào đây
-            gasLimit: 100000
-        });
+                to: contractAddress,
+                value: ethers.utils.parseEther("@ethAmountToPay"),
+                gasLimit: 120000
+            });
 
-            console.log("Đang chờ xác nhận...");
+            // Giao dịch đã gửi, chờ confirm
+            Swal.fire({
+                title: 'Đang xác thực...',
+                text: 'Giao dịch đang được ghi lên Blockchain, vui lòng không đóng trình duyệt.',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading() }
+            });
+
             await tx.wait();
-            
-            alert("🎉 THANH TOÁN BLOCKCHAIN THÀNH CÔNG!");
-            // Sau khi thành công, gọi AJAX về Backend để cập nhật trạng thái đơn hàng trong SQL
-            window.location.href = "/Booking/BookingSuccess?id=@Model.MaDon";
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: 'Hợp đồng thông minh đã ghi nhận tiền đặt cọc.',
+                confirmButtonText: 'Tuyệt vời'
+            }).then(() => {
+                window.location.href = "/Booking/BookingSuccess?id=@Model.MaDon";
+            });
 
         } catch (error) {
             console.error(error);
-            alert("Giao dịch thất bại! hoặc bạn đã hủy giao dịch");
+            btnPayCrypto.disabled = false;
+            btnText.innerText = "THỬ LẠI THANH TOÁN";
+            btnLoader.style.display = "none";
+            
+            Swal.fire('Thất bại', 'Giao dịch bị hủy hoặc xảy ra lỗi. Vui lòng kiểm tra lại ví.', 'error');
         }
     });
 </script>
