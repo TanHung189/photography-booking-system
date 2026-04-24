@@ -84,7 +84,7 @@
             },
             "Nethereum.Web3": {
               "target": "Package",
-              "version": "[5.8.0, )"
+              "version": "[6.1.0, )"
             },
             "X.PagedList.Mvc.Core": {
               "target": "Package",

@@ -2152,11 +2152,11 @@
           }
         }
       },
-      "Nethereum.ABI/5.8.0": {
+      "Nethereum.ABI/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Nethereum.Hex": "5.8.0",
-          "Nethereum.Util": "5.8.0",
+          "Nethereum.Hex": "6.1.0",
+          "Nethereum.Util": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2166,14 +2166,14 @@
           "lib/net8.0/Nethereum.ABI.dll": {}
         }
       },
-      "Nethereum.Accounts/5.8.0": {
+      "Nethereum.Accounts/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Nethereum.KeyStore": "5.8.0",
-          "Nethereum.RPC": "5.8.0",
-          "Nethereum.Signer": "5.8.0",
-          "Nethereum.Signer.EIP712": "5.8.0",
-          "Nethereum.Util": "5.8.0",
+          "Nethereum.KeyStore": "6.1.0",
+          "Nethereum.RPC": "6.1.0",
+          "Nethereum.Signer": "6.1.0",
+          "Nethereum.Signer.EIP712": "6.1.0",
+          "Nethereum.Util": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2183,14 +2183,14 @@
           "lib/net8.0/Nethereum.Accounts.dll": {}
         }
       },
-      "Nethereum.BlockchainProcessing/5.8.0": {
+      "Nethereum.BlockchainProcessing/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Nethereum.Contracts": "5.8.0",
-          "Nethereum.Hex": "5.8.0",
-          "Nethereum.JsonRpc.RpcClient": "5.8.0",
-          "Nethereum.RPC": "5.8.0",
-          "Nethereum.Util": "5.8.0",
+          "Nethereum.Contracts": "6.1.0",
+          "Nethereum.Hex": "6.1.0",
+          "Nethereum.JsonRpc.RpcClient": "6.1.0",
+          "Nethereum.RPC": "6.1.0",
+          "Nethereum.Util": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2200,14 +2200,14 @@
           "lib/net8.0/Nethereum.BlockchainProcessing.dll": {}
         }
       },
-      "Nethereum.Contracts/5.8.0": {
+      "Nethereum.Contracts/6.1.0": {
         "type": "package",
         "dependencies": {
           "ADRaffy.ENSNormalize": "0.3.1",
-          "Nethereum.ABI": "5.8.0",
-          "Nethereum.Hex": "5.8.0",
-          "Nethereum.RPC": "5.8.0",
-          "Nethereum.Util.Rest": "5.8.0",
+          "Nethereum.ABI": "6.1.0",
+          "Nethereum.Hex": "6.1.0",
+          "Nethereum.RPC": "6.1.0",
+          "Nethereum.Util.Rest": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2217,7 +2217,7 @@
           "lib/net8.0/Nethereum.Contracts.dll": {}
         }
       },
-      "Nethereum.Hex/5.8.0": {
+      "Nethereum.Hex/6.1.0": {
         "type": "package",
         "dependencies": {
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
@@ -2229,11 +2229,11 @@
           "lib/net8.0/Nethereum.Hex.dll": {}
         }
       },
-      "Nethereum.JsonRpc.Client/5.8.0": {
+      "Nethereum.JsonRpc.Client/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "[6.0.0, 10.0.0)",
-          "Nethereum.Hex": "5.8.0",
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
+          "Nethereum.Hex": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2243,10 +2243,10 @@
           "lib/net8.0/Nethereum.JsonRpc.Client.dll": {}
         }
       },
-      "Nethereum.JsonRpc.RpcClient/5.8.0": {
+      "Nethereum.JsonRpc.RpcClient/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Nethereum.JsonRpc.Client": "5.8.0",
+          "Nethereum.JsonRpc.Client": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2256,11 +2256,11 @@
           "lib/net8.0/Nethereum.JsonRpc.RpcClient.dll": {}
         }
       },
-      "Nethereum.KeyStore/5.8.0": {
+      "Nethereum.KeyStore/6.1.0": {
         "type": "package",
         "dependencies": {
           "BouncyCastle.Cryptography": "[2.5.1, 3.0.0)",
-          "Nethereum.Hex": "5.8.0",
+          "Nethereum.Hex": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2270,11 +2270,11 @@
           "lib/net8.0/Nethereum.KeyStore.dll": {}
         }
       },
-      "Nethereum.Merkle.Patricia/5.8.0": {
+      "Nethereum.Merkle.Patricia/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Nethereum.Model": "5.8.0",
-          "Nethereum.RLP": "5.8.0",
+          "Nethereum.Model": "6.1.0",
+          "Nethereum.RLP": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2284,11 +2284,11 @@
           "lib/net8.0/Nethereum.Merkle.Patricia.dll": {}
         }
       },
-      "Nethereum.Model/5.8.0": {
+      "Nethereum.Model/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Nethereum.RLP": "5.8.0",
-          "Nethereum.Util": "5.8.0",
+          "Nethereum.RLP": "6.1.0",
+          "Nethereum.Util": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2298,10 +2298,10 @@
           "lib/net8.0/Nethereum.Model.dll": {}
         }
       },
-      "Nethereum.RLP/5.8.0": {
+      "Nethereum.RLP/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Nethereum.Hex": "5.8.0",
+          "Nethereum.Hex": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2311,14 +2311,14 @@
           "lib/net8.0/Nethereum.RLP.dll": {}
         }
       },
-      "Nethereum.RPC/5.8.0": {
+      "Nethereum.RPC/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Nethereum.Hex": "5.8.0",
-          "Nethereum.JsonRpc.Client": "5.8.0",
-          "Nethereum.Merkle.Patricia": "5.8.0",
-          "Nethereum.Model": "5.8.0",
-          "Nethereum.Util": "5.8.0",
+          "Nethereum.Hex": "6.1.0",
+          "Nethereum.JsonRpc.Client": "6.1.0",
+          "Nethereum.Merkle.Patricia": "6.1.0",
+          "Nethereum.Model": "6.1.0",
+          "Nethereum.Util": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2328,16 +2328,16 @@
           "lib/net8.0/Nethereum.RPC.dll": {}
         }
       },
-      "Nethereum.Signer/5.8.0": {
+      "Nethereum.Signer/6.1.0": {
         "type": "package",
         "dependencies": {
           "BouncyCastle.Cryptography": "[2.5.1, 3.0.0)",
           "NBitcoin.Secp256k1": "3.1.1",
-          "Nethereum.ABI": "5.8.0",
-          "Nethereum.Hex": "5.8.0",
-          "Nethereum.Model": "5.8.0",
-          "Nethereum.RLP": "5.8.0",
-          "Nethereum.Util": "5.8.0",
+          "Nethereum.ABI": "6.1.0",
+          "Nethereum.Hex": "6.1.0",
+          "Nethereum.Model": "6.1.0",
+          "Nethereum.RLP": "6.1.0",
+          "Nethereum.Util": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2347,13 +2347,13 @@
           "lib/net8.0/Nethereum.Signer.dll": {}
         }
       },
-      "Nethereum.Signer.EIP712/5.8.0": {
+      "Nethereum.Signer.EIP712/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Nethereum.ABI": "5.8.0",
-          "Nethereum.Hex": "5.8.0",
-          "Nethereum.Signer": "5.8.0",
-          "Nethereum.Util": "5.8.0",
+          "Nethereum.ABI": "6.1.0",
+          "Nethereum.Hex": "6.1.0",
+          "Nethereum.Signer": "6.1.0",
+          "Nethereum.Util": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2363,11 +2363,11 @@
           "lib/net8.0/Nethereum.Signer.EIP712.dll": {}
         }
       },
-      "Nethereum.Util/5.8.0": {
+      "Nethereum.Util/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Nethereum.Hex": "5.8.0",
-          "Nethereum.RLP": "5.8.0",
+          "Nethereum.Hex": "6.1.0",
+          "Nethereum.RLP": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -2377,7 +2377,7 @@
           "lib/net8.0/Nethereum.Util.dll": {}
         }
       },
-      "Nethereum.Util.Rest/5.8.0": {
+      "Nethereum.Util.Rest/6.1.0": {
         "type": "package",
         "dependencies": {
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
@@ -2389,19 +2389,19 @@
           "lib/net8.0/Nethereum.Util.Rest.dll": {}
         }
       },
-      "Nethereum.Web3/5.8.0": {
+      "Nethereum.Web3/6.1.0": {
         "type": "package",
         "dependencies": {
-          "Nethereum.ABI": "5.8.0",
-          "Nethereum.Accounts": "5.8.0",
-          "Nethereum.BlockchainProcessing": "5.8.0",
-          "Nethereum.Contracts": "5.8.0",
-          "Nethereum.Hex": "5.8.0",
-          "Nethereum.JsonRpc.RpcClient": "5.8.0",
-          "Nethereum.KeyStore": "5.8.0",
-          "Nethereum.RPC": "5.8.0",
-          "Nethereum.Signer": "5.8.0",
-          "Nethereum.Util": "5.8.0",
+          "Nethereum.ABI": "6.1.0",
+          "Nethereum.Accounts": "6.1.0",
+          "Nethereum.BlockchainProcessing": "6.1.0",
+          "Nethereum.Contracts": "6.1.0",
+          "Nethereum.Hex": "6.1.0",
+          "Nethereum.JsonRpc.RpcClient": "6.1.0",
+          "Nethereum.KeyStore": "6.1.0",
+          "Nethereum.RPC": "6.1.0",
+          "Nethereum.Signer": "6.1.0",
+          "Nethereum.Util": "6.1.0",
           "Newtonsoft.Json": "[11.0.2, 14.0.0)"
         },
         "compile": {
@@ -7745,343 +7745,360 @@
         "nbitcoin.secp256k1.nuspec"
       ]
     },
-    "Nethereum.ABI/5.8.0": {
-      "sha512": "KS4pmdyXhnF0MHIz6UmHxa2uBzq6fIvoaeB2mBHCxLnIJwwMIhSE1kM/ajApTQ/5uNp9nzh3/2UCYJdXRTY0sw==",
+    "Nethereum.ABI/6.1.0": {
+      "sha512": "+mTy/L7v+opVJVbj2iCsAFrphOjHgXrmD6cLuB4Dhw8VcJZq9BVfqtk/o4f35goKXFvxlUD+4WPRkQ9gQZUtlw==",
       "type": "package",
-      "path": "nethereum.abi/5.8.0",
+      "path": "nethereum.abi/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.ABI.dll",
         "lib/net451/Nethereum.ABI.dll",
         "lib/net461/Nethereum.ABI.dll",
         "lib/net6.0/Nethereum.ABI.dll",
         "lib/net8.0/Nethereum.ABI.dll",
         "lib/net9.0/Nethereum.ABI.dll",
         "lib/netstandard2.0/Nethereum.ABI.dll",
-        "nethereum.abi.5.8.0.nupkg.sha512",
+        "nethereum.abi.6.1.0.nupkg.sha512",
         "nethereum.abi.nuspec"
       ]
     },
-    "Nethereum.Accounts/5.8.0": {
-      "sha512": "MzjzKqleB4RvWkwWs8/111NvjJ03ej4X7cAW//RzX6E3hNhG3GhPCQ0XTqPtW8JHmmccc70GXqVjyjsSjJzEtg==",
+    "Nethereum.Accounts/6.1.0": {
+      "sha512": "IVRoNyXBLpVvsCbpBmAg7Srnp2Vwvah1EmHwbG5Ig4JiPrtwBFAusmJVQKsDBcaNjUoHRIzrAJ3Wpj7MUbqnmA==",
       "type": "package",
-      "path": "nethereum.accounts/5.8.0",
+      "path": "nethereum.accounts/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.Accounts.dll",
         "lib/net451/Nethereum.Accounts.dll",
         "lib/net461/Nethereum.Accounts.dll",
         "lib/net6.0/Nethereum.Accounts.dll",
         "lib/net8.0/Nethereum.Accounts.dll",
         "lib/net9.0/Nethereum.Accounts.dll",
         "lib/netstandard2.0/Nethereum.Accounts.dll",
-        "nethereum.accounts.5.8.0.nupkg.sha512",
+        "nethereum.accounts.6.1.0.nupkg.sha512",
         "nethereum.accounts.nuspec"
       ]
     },
-    "Nethereum.BlockchainProcessing/5.8.0": {
-      "sha512": "hk24Jd37htW2pqXPd3jJNJWTNq6rKDQ4cBtFJTXdG1cHmvO4J34+a62jTuYU+5Oag3ofBibJISa1NIZQJRNlng==",
+    "Nethereum.BlockchainProcessing/6.1.0": {
+      "sha512": "l5DbXmYc2Xi2wKFS+dBXJ4+Hj/XJD4FO8zAxUhQbx/cFv+Zble157MpixoXMswAHZSF1oqPgd9Mh+/jcamZoDw==",
       "type": "package",
-      "path": "nethereum.blockchainprocessing/5.8.0",
+      "path": "nethereum.blockchainprocessing/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.BlockchainProcessing.dll",
         "lib/net451/Nethereum.BlockchainProcessing.dll",
         "lib/net461/Nethereum.BlockchainProcessing.dll",
         "lib/net6.0/Nethereum.BlockchainProcessing.dll",
         "lib/net8.0/Nethereum.BlockchainProcessing.dll",
         "lib/net9.0/Nethereum.BlockchainProcessing.dll",
         "lib/netstandard2.0/Nethereum.BlockchainProcessing.dll",
-        "nethereum.blockchainprocessing.5.8.0.nupkg.sha512",
+        "nethereum.blockchainprocessing.6.1.0.nupkg.sha512",
         "nethereum.blockchainprocessing.nuspec"
       ]
     },
-    "Nethereum.Contracts/5.8.0": {
-      "sha512": "s0eIF+zy6uf+cF4EosoV/kEkBBIv0WLYUl/8q4hLe0Id03npIRSf7riaBcgZZdGN6tZLI/7CeNyvGwKU1TKShA==",
+    "Nethereum.Contracts/6.1.0": {
+      "sha512": "zGFRLRLDpvjFbHNHiLGNPaKJOmVMMXBR8xJFRvxI4oVQU5gzYAtF4mlKRPN2pSLD7+4qG6dTP/GiaxvC8hWblg==",
       "type": "package",
-      "path": "nethereum.contracts/5.8.0",
+      "path": "nethereum.contracts/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.Contracts.dll",
         "lib/net451/Nethereum.Contracts.dll",
         "lib/net461/Nethereum.Contracts.dll",
         "lib/net6.0/Nethereum.Contracts.dll",
         "lib/net8.0/Nethereum.Contracts.dll",
         "lib/net9.0/Nethereum.Contracts.dll",
         "lib/netstandard2.0/Nethereum.Contracts.dll",
-        "nethereum.contracts.5.8.0.nupkg.sha512",
+        "nethereum.contracts.6.1.0.nupkg.sha512",
         "nethereum.contracts.nuspec"
       ]
     },
-    "Nethereum.Hex/5.8.0": {
-      "sha512": "J0PnMx2/Ck1rw13xSJ7L8v7vEBNLcMKA8AjqA4y8Nqkqp/Przkvi0Um8DHViwqj+TI/gZV8L35kb6nFi/VjdgQ==",
+    "Nethereum.Hex/6.1.0": {
+      "sha512": "GdXoJK9rzlCbpuurwcXiA8zHpH4aUR0tEhxuz1+5ZjbJNgUTFvDyAo0RdymeKXnIpxF5Y6rV7Cj+FjCISPNdbQ==",
       "type": "package",
-      "path": "nethereum.hex/5.8.0",
+      "path": "nethereum.hex/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.Hex.dll",
         "lib/net451/Nethereum.Hex.dll",
         "lib/net461/Nethereum.Hex.dll",
         "lib/net6.0/Nethereum.Hex.dll",
         "lib/net8.0/Nethereum.Hex.dll",
         "lib/net9.0/Nethereum.Hex.dll",
         "lib/netstandard2.0/Nethereum.Hex.dll",
-        "nethereum.hex.5.8.0.nupkg.sha512",
+        "nethereum.hex.6.1.0.nupkg.sha512",
         "nethereum.hex.nuspec"
       ]
     },
-    "Nethereum.JsonRpc.Client/5.8.0": {
-      "sha512": "o3JHq9qoTWcylJz1FTJ1VZpKrEd2HvUF21+RpgvuxHYXmxKCZbP106cGVVabwbDziOKTlZ741m4pDovxUQSpmQ==",
+    "Nethereum.JsonRpc.Client/6.1.0": {
+      "sha512": "HQPnxPDL8ZddHjrMjJ3nytkRSNXpRd+5hcgEkuidOqb2wHX6zSjcUgOrtGq5qTSQ0lURp/1V3OQmpHM3pgRoFA==",
       "type": "package",
-      "path": "nethereum.jsonrpc.client/5.8.0",
+      "path": "nethereum.jsonrpc.client/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.JsonRpc.Client.dll",
         "lib/net451/Nethereum.JsonRpc.Client.dll",
         "lib/net461/Nethereum.JsonRpc.Client.dll",
         "lib/net6.0/Nethereum.JsonRpc.Client.dll",
         "lib/net8.0/Nethereum.JsonRpc.Client.dll",
         "lib/net9.0/Nethereum.JsonRpc.Client.dll",
         "lib/netstandard2.0/Nethereum.JsonRpc.Client.dll",
-        "nethereum.jsonrpc.client.5.8.0.nupkg.sha512",
+        "nethereum.jsonrpc.client.6.1.0.nupkg.sha512",
         "nethereum.jsonrpc.client.nuspec"
       ]
     },
-    "Nethereum.JsonRpc.RpcClient/5.8.0": {
-      "sha512": "1jpONR3IynLYM0ctLCvJ0nZ6eQuhrUXu9Ho1dvEjw/I4m/n9LVNphayDQrxqoPBz7ko6akZDzRcX9A43FIVu1A==",
+    "Nethereum.JsonRpc.RpcClient/6.1.0": {
+      "sha512": "En6QKNPToPPwpY0MT+tg8brQoA8rhoDpF9y4OhWbOwUcq52zZrWFnXMCltPx842fHZsTgLvbr5Y/3i2aSHxOAQ==",
       "type": "package",
-      "path": "nethereum.jsonrpc.rpcclient/5.8.0",
+      "path": "nethereum.jsonrpc.rpcclient/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.JsonRpc.RpcClient.dll",
         "lib/net451/Nethereum.JsonRpc.RpcClient.dll",
         "lib/net461/Nethereum.JsonRpc.RpcClient.dll",
         "lib/net6.0/Nethereum.JsonRpc.RpcClient.dll",
         "lib/net8.0/Nethereum.JsonRpc.RpcClient.dll",
         "lib/net9.0/Nethereum.JsonRpc.RpcClient.dll",
         "lib/netstandard2.0/Nethereum.JsonRpc.RpcClient.dll",
-        "nethereum.jsonrpc.rpcclient.5.8.0.nupkg.sha512",
+        "nethereum.jsonrpc.rpcclient.6.1.0.nupkg.sha512",
         "nethereum.jsonrpc.rpcclient.nuspec"
       ]
     },
-    "Nethereum.KeyStore/5.8.0": {
-      "sha512": "0w9K8+rfbvV8Mnvzb9P1U9Iz8dRgWjam95S/hWXkUXtqf9M4cItKnpEEcy/yOgffLQLfRpqLU7w4k0fV/7aBQQ==",
+    "Nethereum.KeyStore/6.1.0": {
+      "sha512": "lJMrRM7iR2Anj4TbmPNq0lNsSAA9XpyJmQ7GjSuqFt9gftDJa+AGITvjVHSi4c8CmKyHoGlSU5KbKgX25oBRVw==",
       "type": "package",
-      "path": "nethereum.keystore/5.8.0",
+      "path": "nethereum.keystore/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.KeyStore.dll",
         "lib/net451/Nethereum.KeyStore.dll",
         "lib/net461/Nethereum.KeyStore.dll",
         "lib/net6.0/Nethereum.KeyStore.dll",
         "lib/net8.0/Nethereum.KeyStore.dll",
         "lib/net9.0/Nethereum.KeyStore.dll",
         "lib/netstandard2.0/Nethereum.KeyStore.dll",
-        "nethereum.keystore.5.8.0.nupkg.sha512",
+        "nethereum.keystore.6.1.0.nupkg.sha512",
         "nethereum.keystore.nuspec"
       ]
     },
-    "Nethereum.Merkle.Patricia/5.8.0": {
-      "sha512": "I5SeAEatGA/50LxhfOpzw0q1Wyq5tlJv5oj/kDV5LC0gtpfML4VQIXYGiauuTNLvPpgPQ+rc9GOZUQZGYxUJ2A==",
+    "Nethereum.Merkle.Patricia/6.1.0": {
+      "sha512": "u4o4XXZL0YXfrilrL42l39Fs45KsicT6/as11mOCPJLV9fkGWwbsJCYiAxcg9UMRo8wrEgslkfogWKSl2BaucQ==",
       "type": "package",
-      "path": "nethereum.merkle.patricia/5.8.0",
+      "path": "nethereum.merkle.patricia/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.Merkle.Patricia.dll",
         "lib/net451/Nethereum.Merkle.Patricia.dll",
         "lib/net461/Nethereum.Merkle.Patricia.dll",
         "lib/net6.0/Nethereum.Merkle.Patricia.dll",
         "lib/net8.0/Nethereum.Merkle.Patricia.dll",
         "lib/net9.0/Nethereum.Merkle.Patricia.dll",
         "lib/netstandard2.0/Nethereum.Merkle.Patricia.dll",
-        "nethereum.merkle.patricia.5.8.0.nupkg.sha512",
+        "nethereum.merkle.patricia.6.1.0.nupkg.sha512",
         "nethereum.merkle.patricia.nuspec"
       ]
     },
-    "Nethereum.Model/5.8.0": {
-      "sha512": "l87UkJhMR8P0pk2JbbKbT+4XKF4IAk2Li5OZddUim9l7bcZxm6aJfu2E9aJPqTS13bWZA398dYsOOIhA0pHHTQ==",
+    "Nethereum.Model/6.1.0": {
+      "sha512": "b/L11bxk98M/2qdMFMeMnvKWMSc8dlULhRHzXPfetW3pl+N8miBN2RMgLCXUvoaAZ3i2TCw3iJRw6RWPug6kIQ==",
       "type": "package",
-      "path": "nethereum.model/5.8.0",
+      "path": "nethereum.model/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.Model.dll",
         "lib/net451/Nethereum.Model.dll",
         "lib/net461/Nethereum.Model.dll",
         "lib/net6.0/Nethereum.Model.dll",
         "lib/net8.0/Nethereum.Model.dll",
         "lib/net9.0/Nethereum.Model.dll",
         "lib/netstandard2.0/Nethereum.Model.dll",
-        "nethereum.model.5.8.0.nupkg.sha512",
+        "nethereum.model.6.1.0.nupkg.sha512",
         "nethereum.model.nuspec"
       ]
     },
-    "Nethereum.RLP/5.8.0": {
-      "sha512": "1VTyApun2jyQQ44XMEtjMJRPv9gtppDq5iz4iP5ZvwMdcZgYkI9DWhEMveh5Rl8RMSXLJ4SzioNUc3gO0mRwTg==",
+    "Nethereum.RLP/6.1.0": {
+      "sha512": "YqruGIsCHitMFh0OmvoRpPQOUlku81GpE5eI4fP7H4kSg+ty3+K/TXh8fXzmyljs75qQbv/Ss0bHxFDiopV51w==",
       "type": "package",
-      "path": "nethereum.rlp/5.8.0",
+      "path": "nethereum.rlp/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.RLP.dll",
         "lib/net451/Nethereum.RLP.dll",
         "lib/net461/Nethereum.RLP.dll",
         "lib/net6.0/Nethereum.RLP.dll",
         "lib/net8.0/Nethereum.RLP.dll",
         "lib/net9.0/Nethereum.RLP.dll",
         "lib/netstandard2.0/Nethereum.RLP.dll",
-        "nethereum.rlp.5.8.0.nupkg.sha512",
+        "nethereum.rlp.6.1.0.nupkg.sha512",
         "nethereum.rlp.nuspec"
       ]
     },
-    "Nethereum.RPC/5.8.0": {
-      "sha512": "Sj+Kpk+TN9F+uCpA6P2FShOARbQd9omzqyqq1VoOg6p433Flm+x0R+qECiUaKG81BBcwPcmfSH0cRTxe2cEeKw==",
+    "Nethereum.RPC/6.1.0": {
+      "sha512": "Pd/h5RviEAORJvuvaBXBqKM6Hy8MDFXvAvIH1r7mDvMD6p50YzpBRjvmU7rMKmNrYHQLQpi2QnGbkZPwja7GPA==",
       "type": "package",
-      "path": "nethereum.rpc/5.8.0",
+      "path": "nethereum.rpc/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.RPC.dll",
         "lib/net451/Nethereum.RPC.dll",
         "lib/net461/Nethereum.RPC.dll",
         "lib/net6.0/Nethereum.RPC.dll",
         "lib/net8.0/Nethereum.RPC.dll",
         "lib/net9.0/Nethereum.RPC.dll",
         "lib/netstandard2.0/Nethereum.RPC.dll",
-        "nethereum.rpc.5.8.0.nupkg.sha512",
+        "nethereum.rpc.6.1.0.nupkg.sha512",
         "nethereum.rpc.nuspec"
       ]
     },
-    "Nethereum.Signer/5.8.0": {
-      "sha512": "I1CnaJy5ylswHfKZcO0vk4+gQbH7OaI6FmgU4PPsVyQkHs3/c87oNJsQQHtbveAKpSJ92o0X82CaSOMCMe9c5A==",
+    "Nethereum.Signer/6.1.0": {
+      "sha512": "b7RCul4V5wBJsaIL506wkiK03aeI1atktlGaoTXw8kVAGTsKEFo6I+yrQH8f9HRSinJlUxS7oKGOYgdUN1zwsw==",
       "type": "package",
-      "path": "nethereum.signer/5.8.0",
+      "path": "nethereum.signer/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.Signer.dll",
         "lib/net451/Nethereum.Signer.dll",
         "lib/net461/Nethereum.Signer.dll",
         "lib/net6.0/Nethereum.Signer.dll",
         "lib/net8.0/Nethereum.Signer.dll",
         "lib/net9.0/Nethereum.Signer.dll",
         "lib/netstandard2.0/Nethereum.Signer.dll",
-        "nethereum.signer.5.8.0.nupkg.sha512",
+        "nethereum.signer.6.1.0.nupkg.sha512",
         "nethereum.signer.nuspec"
       ]
     },
-    "Nethereum.Signer.EIP712/5.8.0": {
-      "sha512": "pQtgn6Ym5Blc5YCrDpsTnFnBs0PFTYmt3Z1C0NzyOM133bMlr3Q6uuZGEol2VhrFp3tUXMOyT7qbMmLN/YeM/A==",
+    "Nethereum.Signer.EIP712/6.1.0": {
+      "sha512": "etF0aMe5Bw/bHG8ZwkLwP1fS/iMqut/96MHwrfj5v9iU+E6KajimMKaRCeslrX3I6AYlETxddUZ8+mQdXBdduQ==",
       "type": "package",
-      "path": "nethereum.signer.eip712/5.8.0",
+      "path": "nethereum.signer.eip712/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.Signer.EIP712.dll",
         "lib/net451/Nethereum.Signer.EIP712.dll",
         "lib/net461/Nethereum.Signer.EIP712.dll",
         "lib/net6.0/Nethereum.Signer.EIP712.dll",
         "lib/net8.0/Nethereum.Signer.EIP712.dll",
         "lib/net9.0/Nethereum.Signer.EIP712.dll",
         "lib/netstandard2.0/Nethereum.Signer.EIP712.dll",
-        "nethereum.signer.eip712.5.8.0.nupkg.sha512",
+        "nethereum.signer.eip712.6.1.0.nupkg.sha512",
         "nethereum.signer.eip712.nuspec"
       ]
     },
-    "Nethereum.Util/5.8.0": {
-      "sha512": "U1BZxkgh4Gs1UARst6QcL5aloN/SjxbuFdRSsEe+tBSXMVnf60rxr82yNKbHenPqP1p2DhVXcSDov/sKfdoY2Q==",
+    "Nethereum.Util/6.1.0": {
+      "sha512": "v1CLFG/p/pSyaZeYLO7x+bToBkfVRWnxmmyX3FRgATStxtbMGjV71RSuDIVmdeIEYKgxlGuPBZkjswUUynNtIg==",
       "type": "package",
-      "path": "nethereum.util/5.8.0",
+      "path": "nethereum.util/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.Util.dll",
         "lib/net451/Nethereum.Util.dll",
         "lib/net461/Nethereum.Util.dll",
         "lib/net6.0/Nethereum.Util.dll",
         "lib/net8.0/Nethereum.Util.dll",
         "lib/net9.0/Nethereum.Util.dll",
         "lib/netstandard2.0/Nethereum.Util.dll",
-        "nethereum.util.5.8.0.nupkg.sha512",
+        "nethereum.util.6.1.0.nupkg.sha512",
         "nethereum.util.nuspec"
       ]
     },
-    "Nethereum.Util.Rest/5.8.0": {
-      "sha512": "w08SmS4NcjPV3ReKeDzmYj7tSfufpIIf5xsKBJLnUQzOTmCY/oFTUHksMp604iVR6pylk+OBOQMVSQumkRGIeg==",
+    "Nethereum.Util.Rest/6.1.0": {
+      "sha512": "1p5eie37Mput3Qp2NShL51mXv5Sh+hSBg31U794RLZyw6ujc7aPkW64wngJSBBor2i/Kz7OKW35aVfXl+3hlFA==",
       "type": "package",
-      "path": "nethereum.util.rest/5.8.0",
+      "path": "nethereum.util.rest/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.Util.Rest.dll",
         "lib/net451/Nethereum.Util.Rest.dll",
         "lib/net461/Nethereum.Util.Rest.dll",
         "lib/net6.0/Nethereum.Util.Rest.dll",
         "lib/net8.0/Nethereum.Util.Rest.dll",
         "lib/net9.0/Nethereum.Util.Rest.dll",
         "lib/netstandard2.0/Nethereum.Util.Rest.dll",
-        "nethereum.util.rest.5.8.0.nupkg.sha512",
+        "nethereum.util.rest.6.1.0.nupkg.sha512",
         "nethereum.util.rest.nuspec"
       ]
     },
-    "Nethereum.Web3/5.8.0": {
-      "sha512": "+2yKIplfZsQi1m+zC3cmcjiOJOuh65UHb9DPus4ZLIzWMUWemL6r9mAHLDvx0dJc3mY3dM38i0UFHi+XmCiipg==",
+    "Nethereum.Web3/6.1.0": {
+      "sha512": "8blktadzboAcAuHVkj4plCyaKFHSQdXb14TmU+c7DA8zSa234eC5yDDMm57tvhPlaDEnlv+t2Y6KyUv+0d9Y+A==",
       "type": "package",
-      "path": "nethereum.web3/5.8.0",
+      "path": "nethereum.web3/6.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.md",
         "README.md",
         "images/logo64x64.png",
+        "lib/net10.0/Nethereum.Web3.dll",
         "lib/net451/Nethereum.Web3.dll",
         "lib/net461/Nethereum.Web3.dll",
         "lib/net6.0/Nethereum.Web3.dll",
         "lib/net8.0/Nethereum.Web3.dll",
         "lib/net9.0/Nethereum.Web3.dll",
         "lib/netstandard2.0/Nethereum.Web3.dll",
-        "nethereum.web3.5.8.0.nupkg.sha512",
+        "nethereum.web3.6.1.0.nupkg.sha512",
         "nethereum.web3.nuspec"
       ]
     },
@@ -11609,7 +11626,7 @@
       "Microsoft.EntityFrameworkCore.SqlServer >= 8.0.11",
       "Microsoft.EntityFrameworkCore.Tools >= 8.0.11",
       "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 8.0.7",
-      "Nethereum.Web3 >= 5.8.0",
+      "Nethereum.Web3 >= 6.1.0",
       "X.PagedList.Mvc.Core >= 10.5.9"
     ]
   },
@@ -11697,7 +11714,7 @@
           },
           "Nethereum.Web3": {
             "target": "Package",
-            "version": "[5.8.0, )"
+            "version": "[6.1.0, )"
           },
           "X.PagedList.Mvc.Core": {
             "target": "Package",

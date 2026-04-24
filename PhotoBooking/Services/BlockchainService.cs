@@ -16,10 +16,6 @@ namespace PhotoBooking.Services
         private readonly string _rpcUrl;
         private readonly string _privateKey;
         private readonly IWebHostEnvironment _env;
-
-        /// <summary>
-        /// Khởi tạo BlockchainService với cấu hình từ appsettings.Development.json
-        /// </summary>
         public BlockchainService(IConfiguration configuration, IWebHostEnvironment env)
         {
             // Đọc cấu hình mạng Ganache
